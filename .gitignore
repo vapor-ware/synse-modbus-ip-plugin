@@ -18,4 +18,4 @@
 
 # Project files
 build/
-vendor/**
+vendor

@@ -1,0 +1,11 @@
+version: 1.0
+prototypes:
+  - type: power
+    model: EG4115
+    manufacturer: eGauge
+    protocol: modbus-ip
+    output:
+      - type: power
+        unit:
+          name: kilowatt hours
+          symbol: kWh
