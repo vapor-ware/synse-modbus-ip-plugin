@@ -4,6 +4,8 @@ import (
 	"log"
 
 	"github.com/vapor-ware/synse-sdk/sdk"
+
+	"github.com/vapor-ware/synse-modbus-ip-plugin/devices"
 )
 
 // Build time variables for setting the version info of a Plugin.
@@ -15,12 +17,12 @@ var (
 	VersionString string
 )
 
-// DeviceIdentifier defines the IPMI-specific way of uniquely identifying a device
+// DeviceIdentifier defines the Modbus-IP-specific way of uniquely identifying a device
 // through its device configuration.
 //
 // FIXME - this is just a stub for framing up the plugin
 func DeviceIdentifier(data map[string]string) string {
-	return ""
+	return data["id"]
 }
 
 func main() {
@@ -35,7 +37,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	plugin.RegisterDeviceHandlers()
+	plugin.RegisterDeviceHandlers(
+		&devices.EG4115PowerMeter,
+	)
 
 	// Set build-time version info.
 	plugin.SetVersion(sdk.VersionInfo{

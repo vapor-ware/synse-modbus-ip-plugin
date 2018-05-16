@@ -7,6 +7,6 @@ network:
 settings:
   mode: parallel
   read:
-    interval: 2s
+    interval: 5s
   write:
-    interval: 1s
+    interval: 2s
