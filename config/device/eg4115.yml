@@ -1,0 +1,11 @@
+version: 1.0
+locations:
+  localhost
+  # tbd
+devices:
+  - type: power
+    model: EG4115
+    instances:
+      - id: 1
+        location: # tbd
+        info: Facility Power Monitoring
