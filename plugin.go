@@ -3,8 +3,6 @@ package main
 import (
 	"log"
 
-	"github.com/vapor-ware/synse-modbus-ip-plugin/devices"
-	"github.com/vapor-ware/synse-modbus-ip-plugin/enumerate"
 	"github.com/vapor-ware/synse-sdk/sdk"
 )
 
@@ -27,7 +25,7 @@ func DeviceIdentifier(data map[string]string) string {
 
 func main() {
 
-	handlers, err := sdk.NewHandlers(DeviceIdentifier, enumerate.DeviceEnumerator)
+	handlers, err := sdk.NewHandlers(DeviceIdentifier, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -37,10 +35,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	plugin.RegisterDeviceHandlers(
-		&devices.BmcPower,
-		&devices.BmcBootTarget,
-	)
+	plugin.RegisterDeviceHandlers()
 
 	// Set build-time version info.
 	plugin.SetVersion(sdk.VersionInfo{
