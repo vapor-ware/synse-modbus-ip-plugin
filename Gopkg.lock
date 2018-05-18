@@ -14,6 +14,18 @@
   version = "v1.4.7"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/goburrow/modbus"
+  packages = ["."]
+  revision = "0d0a427beb37599ff34f8d74617af5ac403e9700"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/goburrow/serial"
+  packages = ["."]
+  revision = "5efbe925ecf714f8ba147bf2226f2e7afc7111bc"
+
+[[projects]]
   name = "github.com/golang/protobuf"
   packages = [
     "proto",
@@ -45,8 +57,8 @@
 [[projects]]
   name = "github.com/magiconair/properties"
   packages = ["."]
-  revision = "c3beff4c2358b44d0493c7dda585e7db7ff28ae6"
-  version = "v1.7.6"
+  revision = "c2353362d570a7bfa228149c62842019201cfb71"
+  version = "v1.8.0"
 
 [[projects]]
   branch = "master"
@@ -112,8 +124,8 @@
     "sdk/config",
     "sdk/logger"
   ]
-  revision = "aab24f3e565b626105b9f8e2db577665672646ac"
-  version = "0.5.0"
+  revision = "04e36391a237efacf57bb0074b67a967cdf06705"
+  version = "0.6.0"
 
 [[projects]]
   branch = "master"
@@ -125,7 +137,7 @@
   branch = "master"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
-  revision = "034e5325b6ab92faa14d15c30e86919e911cf8e0"
+  revision = "1a580b3eff7814fc9b40602fd35256c63b50f491"
 
 [[projects]]
   branch = "master"
@@ -181,7 +193,7 @@
   branch = "master"
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
-  revision = "86e600f69ee4704c6efbf6a2a40a5c10700e76c2"
+  revision = "7bb2a897381c9c5ab2aeb8614f758d7766af68ff"
 
 [[projects]]
   name = "google.golang.org/grpc"
@@ -223,6 +235,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "83dd920972b87478a1e8adefc572de0909f1a3cd2ed73614d3f2400ef48162f5"
+  inputs-digest = "b192fb0a36a1d5d103df09b31da07fbedd99515103dc7e192e76c20b05ebacd4"
   solver-name = "gps-cdcl"
   solver-version = 1

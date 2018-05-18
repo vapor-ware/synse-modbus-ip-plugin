@@ -1,0 +1,25 @@
+version: 1.0
+prototypes:
+  - type: power
+    model: EG4115
+    manufacturer: eGauge
+    protocol: modbus-ip
+    output:
+      - type: current
+        data_type: float
+        precision: 3
+        unit:
+          name: amperes
+          symbol: A
+      - type: voltage
+        data_type: float
+        precision: 3
+        unit:
+          name: volts
+          symbol: V
+      - type: power
+        data_type: float
+        precision: 3
+        unit:
+          name: kilowatt hours
+          symbol: kWh

@@ -19,3 +19,6 @@
 # Project files
 build/
 vendor
+
+# Developer files
+.local
