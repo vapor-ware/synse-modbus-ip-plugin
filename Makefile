@@ -3,7 +3,7 @@
 #
 
 PLUGIN_NAME    := modbus-ip
-PLUGIN_VERSION := 0.1.0-dev
+PLUGIN_VERSION := 0.2.0-dev
 IMAGE_NAME     := vaporio/modbus-ip-plugin
 
 GIT_COMMIT ?= $(shell git rev-parse --short HEAD 2> /dev/null || true)
@@ -47,6 +47,10 @@ ifndef HAS_DEP
 	go get -u github.com/golang/dep/cmd/dep
 endif
 	dep ensure -v
+
+.PHONY: deploy
+deploy:  ## Run a local deployment of Synse Server, and the Modbus-IP plugin.
+	docker-compose -f deploy/docker/deploy.yml up
 
 .PHONY: docker
 docker:  ## Build the docker image

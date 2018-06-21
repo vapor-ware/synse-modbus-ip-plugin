@@ -25,6 +25,14 @@
 #   unused-packages = true
 
 
+[[constraint]]
+  branch = "master"
+  name = "github.com/goburrow/modbus"
+
+[[constraint]]
+  name = "github.com/vapor-ware/synse-sdk"
+  branch = "v1.0"
+
 [prune]
   go-tests = true
   unused-packages = true

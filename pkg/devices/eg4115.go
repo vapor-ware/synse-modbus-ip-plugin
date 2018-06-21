@@ -1,9 +1,7 @@
 package devices
 
 import (
-	"fmt"
-
-	"github.com/vapor-ware/synse-modbus-ip-plugin/protocol"
+	"github.com/vapor-ware/synse-modbus-ip-plugin/pkg/protocol"
 	"github.com/vapor-ware/synse-sdk/sdk"
 )
 
@@ -18,13 +16,8 @@ will be replaced with a generalized handler.
 
 // EG4115PowerMeter is the handler for the eGauge 4115 Power Meter device.
 var EG4115PowerMeter = sdk.DeviceHandler{
-	Type:  "power",
-	Model: "EG4115",
-
+	Name: "power",
 	Read: readEG4115PowerMeter,
-
-	// The EG4115 Power Meter does not support writing.
-	Write: nil,
 }
 
 func readEG4115PowerMeter(device *sdk.Device) ([]*sdk.Reading, error) {
@@ -48,9 +41,9 @@ func readEG4115PowerMeter(device *sdk.Device) ([]*sdk.Reading, error) {
 	l1l2RMS := protocol.Float32FromBytes(results[12:16])
 
 	readings := []*sdk.Reading{
-		sdk.NewReading("voltage", fmt.Sprintf("%f", l1RMS)),
-		sdk.NewReading("voltage", fmt.Sprintf("%f", l2RMS)),
-		sdk.NewReading("voltage", fmt.Sprintf("%f", l1l2RMS)),
+		device.GetOutput("voltage").MakeReading(l1RMS),
+		device.GetOutput("voltage").MakeReading(l2RMS),
+		device.GetOutput("voltage").MakeReading(l1l2RMS),
 	}
 	return readings, nil
 }

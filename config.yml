@@ -1,5 +1,4 @@
 version: 1.0
-name: modbus-ip
 debug: true
 network:
   type: tcp

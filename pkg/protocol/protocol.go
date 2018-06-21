@@ -2,7 +2,6 @@ package protocol
 
 import (
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/goburrow/modbus"
@@ -10,7 +9,7 @@ import (
 
 // NewClient gets a new Modbus client configured for TCP communication
 // using the device's configuration.
-func NewClient(config map[string]string) (modbus.Client, error) {
+func NewClient(config map[string]interface{}) (modbus.Client, error) {
 
 	// TODO (etd) -- there is a better way of doing this checking, but
 	// because we want to get it work and because it will be changing
@@ -27,20 +26,17 @@ func NewClient(config map[string]string) (modbus.Client, error) {
 		return nil, fmt.Errorf("'port' not found in device config: %+v", config)
 	}
 
-	var slaveID uint8
 	sid, ok := config["slave_id"]
 	if !ok {
 		return nil, fmt.Errorf("'slave_id' not found in device config: %+v", config)
 	}
-	var i int64
-	i, err = strconv.ParseInt(sid, 10, 8)
-	if err != nil {
-		return nil, err
+	slaveID, ok := sid.(int)
+	if !ok {
+		return nil, fmt.Errorf("'slave id' should be an in, but was %T", sid)
 	}
-	slaveID = uint8(i)
 
 	var timeout time.Duration
-	duration, ok := config["timeout"]
+	duration, ok := config["timeout"].(string)
 	if !ok {
 		timeout = 5 * time.Second
 	} else {
@@ -50,11 +46,11 @@ func NewClient(config map[string]string) (modbus.Client, error) {
 		}
 	}
 
-	address := fmt.Sprintf("%s:%s", host, port)
+	address := fmt.Sprintf("%v:%v", host, port)
 
 	handler := modbus.NewTCPClientHandler(address)
 	handler.Timeout = timeout
-	handler.SlaveId = slaveID
+	handler.SlaveId = uint8(slaveID)
 
 	client := modbus.NewClient(handler)
 	return client, nil
