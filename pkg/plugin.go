@@ -27,6 +27,7 @@ func MakePlugin() *sdk.Plugin {
 	// Register device handlers
 	plugin.RegisterDeviceHandlers(
 		&devices.EG4115PowerMeter,
+		&devices.InputRegisterHandler,
 	)
 
 	return plugin
