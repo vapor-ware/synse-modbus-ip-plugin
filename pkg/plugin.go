@@ -10,9 +10,7 @@ import (
 
 // MakePlugin creates a new instance of the Synse Modbus-IP Plugin.
 func MakePlugin() *sdk.Plugin {
-	plugin := sdk.NewPlugin(
-		sdk.CustomDeviceIdentifier(deviceIdentifier),
-	)
+	plugin := sdk.NewPlugin()
 
 	// Register the output types
 	err := plugin.RegisterOutputTypes(
@@ -26,7 +24,6 @@ func MakePlugin() *sdk.Plugin {
 
 	// Register device handlers
 	plugin.RegisterDeviceHandlers(
-		&devices.EG4115PowerMeter,
 		&devices.InputRegisterHandler,
 	)
 

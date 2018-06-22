@@ -1,16 +1,18 @@
-package protocol
+package utils
 
 import (
+	"bytes"
 	"encoding/binary"
 	"math"
-	"bytes"
 )
 
+// Bytes represents a slice of bytes and provides conversion functions
+// for the byte slice.
 type Bytes []byte
 
+// FIXME (etd)
 // for example, see: https://golang.org/pkg/encoding/binary/#Read
 // that might be a better/more consistent way of doing this.
-
 
 // Float32 converts the byte slice to a float32.
 func (b Bytes) Float32() float32 {
@@ -51,23 +53,3 @@ func (b Bytes) Int64() (out int64, err error) {
 	}
 	return
 }
-
-// Float32FromBytes converts a list of bytes (of length 4) to a float32.
-func Float32FromBytes(bytes []byte) float32 {
-	bits := binary.BigEndian.Uint32(bytes)
-	float := math.Float32frombits(bits)
-	return float
-}
-//
-//// Float64FromBytes converts a list of bytes (of length 8) to a float64.
-//func Float64FromBytes(bytes []byte) float64 {
-//	bits := binary.BigEndian.Uint64(bytes)
-//	float := math.Float64frombits(bits)
-//	return float
-//}
-//
-//func Uint32FromBytes(bytes []byte) uint32 {
-//
-//}
-//
-//func Uint64
