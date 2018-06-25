@@ -14,4 +14,4 @@ COPY config.yml .
 
 EXPOSE 5001
 
-CMD ["./plugin"]
+ENTRYPOINT ["./plugin"]

@@ -38,6 +38,12 @@
   version = "v1.1.0"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/mitchellh/mapstructure"
+  packages = ["."]
+  revision = "bb74f1db0675b241733089d5a1faa5dd8b0ef57b"
+
+[[projects]]
   name = "github.com/patrickmn/go-cache"
   packages = ["."]
   revision = "a3647f8e31d79543b2d0f0ae2fe5c379d72cedc0"
@@ -169,6 +175,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "149256c736b282e0591269a18dc05137518646e57a8160d671f56848414931e1"
+  inputs-digest = "c7ddf119ece2fbb60e951fcf0e91d8fc1573838a50b5226df7eca594666180fe"
   solver-name = "gps-cdcl"
   solver-version = 1
