@@ -17,6 +17,8 @@ func MakePlugin() *sdk.Plugin {
 		&outputs.Current,
 		&outputs.Power,
 		&outputs.Voltage,
+		&outputs.Frequency,
+		&outputs.SItoKWhPower,
 	)
 	if err != nil {
 		log.Fatal(err)

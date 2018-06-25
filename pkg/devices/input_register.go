@@ -28,8 +28,9 @@ func readInputRegister(device *sdk.Device) ([]*sdk.Reading, error) {
 	// For each device instance, we will have various outputs defined.
 	// The outputs here should contain their own data that tells us what
 	// the register address and read width are.
-	for _, output := range device.Outputs {
-		log.Info("Device Output Data: %#v", output.Data)
+	for i, output := range device.Outputs {
+		log.Debugf(" -- [%d] ----------", i)
+		log.Debugf("  Device Output Data: %v", output.Data)
 		addr, ok := output.Data["address"]
 		if !ok {
 			return nil, fmt.Errorf("output data 'address' not specified, but required")
@@ -96,6 +97,7 @@ func readInputRegister(device *sdk.Device) ([]*sdk.Reading, error) {
 			return nil, fmt.Errorf("output data 'type' specifies unsupported type '%s'", dataType)
 		}
 
+		log.Debugf("  result: %v", data)
 		readings = append(readings, output.MakeReading(data))
 	}
 	return readings, nil
