@@ -33,7 +33,7 @@ Device Handlers should be referenced by name.
 
 | Name | Description | Read | Write | Bulk Read |
 | ---- | ----------- | ---- | ----- | --------- |
-| input_register | A handler that reads from input registers. | ✔ | ✗ | ✗ |
+| input_register | A handler that reads from input registers. | ✓ | ✗ | ✗ |
 
 
 ## Getting Started
@@ -53,7 +53,7 @@ $ make docker
 ```
 
 You can also use a pre-built docker image from [DockerHub][plugin-dockerhub]
-```console
+```bash
 $ docker pull vaporio/modbus-ip-plugin
 ```
 
@@ -61,14 +61,14 @@ Or a pre-built binary from the latest [release][plugin-release].
 
 ### Running the Plugin
 If you are using the plugin binary:
-```console
+```bash
 # The name of the plugin binary may differ depending on whether it is built
 # locally or a pre-built binary is used.
 $ ./plugin
 ```
 
 If you are using the docker image:
-```console
+```bash
 $ docker run vaporio/modbus-ip-plugin
 ```
 
