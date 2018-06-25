@@ -28,11 +28,11 @@ var (
 	// to SI unit is 2.60E+06, so the inverse is used to convert from SI
 	// to kWh 1/2.60E+06 ~= 2.77777778e-7
 	SItoKWhPower = sdk.OutputType{
-		Name: "si-to-kwh.power",
-		Precision: 5,
+		Name:          "si-to-kwh.power",
+		Precision:     5,
 		ScalingFactor: "2.77777778e-7",
 		Unit: sdk.Unit{
-			Name: "kilowatt hour",
+			Name:   "kilowatt hour",
 			Symbol: "kWh",
 		},
 	}
@@ -49,10 +49,10 @@ var (
 
 	// Frequency is the output type for frequency (Hz) readings.
 	Frequency = sdk.OutputType{
-		Name: "frequency",
+		Name:      "frequency",
 		Precision: 3,
 		Unit: sdk.Unit{
-			Name: "hertz",
+			Name:   "hertz",
 			Symbol: "Hz",
 		},
 	}
