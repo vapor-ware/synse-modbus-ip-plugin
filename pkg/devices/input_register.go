@@ -5,6 +5,8 @@ import (
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/mitchellh/mapstructure"
+	"github.com/vapor-ware/synse-modbus-ip-plugin/pkg/config"
 	"github.com/vapor-ware/synse-modbus-ip-plugin/pkg/utils"
 	"github.com/vapor-ware/synse-sdk/sdk"
 )
@@ -18,10 +20,19 @@ var InputRegisterHandler = sdk.DeviceHandler{
 
 // readInputRegister is the read function for the input register device handler.
 func readInputRegister(device *sdk.Device) ([]*sdk.Reading, error) {
-	client, err := utils.NewClient(device.Data)
+	var deviceData config.ModbusDeviceData
+	err := mapstructure.Decode(device.Data, &deviceData)
 	if err != nil {
 		return nil, err
 	}
+
+	client, err := utils.NewClient(&deviceData)
+	if err != nil {
+		return nil, err
+	}
+
+	failOnErr := deviceData.FailOnError
+	log.Debugf("fail on error: %v", failOnErr)
 
 	var readings []*sdk.Reading
 
@@ -31,53 +42,29 @@ func readInputRegister(device *sdk.Device) ([]*sdk.Reading, error) {
 	for i, output := range device.Outputs {
 		log.Debugf(" -- [%d] ----------", i)
 		log.Debugf("  Device Output Data: %v", output.Data)
-		addr, ok := output.Data["address"]
-		if !ok {
-			return nil, fmt.Errorf("output data 'address' not specified, but required")
-		}
-		address, ok := addr.(int)
-		if !ok {
-			return nil, fmt.Errorf("output data 'address' (%d) should be uint16 but is %T", address, address)
-		}
 
-		wdth, ok := output.Data["width"]
-		if !ok {
-			return nil, fmt.Errorf("output data 'width' not specified, but required")
-		}
-		width, ok := wdth.(int)
-		if !ok {
-			return nil, fmt.Errorf("output data 'width' (%d) should be uint16 but is %T", width, width)
+		var outputData config.ModbusOutputData
+		err := mapstructure.Decode(output.Data, &outputData)
+		if err != nil {
+			if failOnErr {
+				return nil, err
+			}
+			log.Errorf("failed to parse output config: %v", err)
+			continue
 		}
 
 		// Now use that to get the reading
-		results, err := client.ReadInputRegisters(uint16(address), uint16(width))
+		results, err := client.ReadInputRegisters(uint16(outputData.Address), uint16(outputData.Width))
 		if err != nil {
-			// FIXME (etd): Should we fail here? We are reading multiple registers in
-			// this loop. If even one fails, that will fail the read for every register.
-			// I think what would be better is to just log this error out and move on.
-			// We could also track the number of errors we got when reading. Then, if
-			// we failed to read from all registers (or some % of them?) then we can
-			// return an error.
-			//
-			// On the other hand, all of these registers are on the same device, so if
-			// a few are failing, that could mean something is wrong with the device, or
-			// the device is mis-configured, in which case we probably do want this to
-			// error out.
-			return nil, err
-		}
-
-		// We want to convert the data to the appropriate type
-		dt, ok := output.Data["type"]
-		if !ok {
-			return nil, fmt.Errorf("output data 'type' not specified, but required")
-		}
-		dataType, ok := dt.(string)
-		if !ok {
-			return nil, fmt.Errorf("output data 'type' (%s) should be string but is %T", dataType, dataType)
+			if failOnErr {
+				return nil, err
+			}
+			log.Errorf("failed to read input registers for output %v: %v", outputData, err)
+			continue
 		}
 
 		var data interface{}
-		switch strings.ToLower(dataType) {
+		switch strings.ToLower(outputData.Type) {
 		case "u32", "uint32":
 			// unsigned 32-bit integer
 			data = utils.Bytes(results).Uint32()
@@ -88,13 +75,21 @@ func readInputRegister(device *sdk.Device) ([]*sdk.Reading, error) {
 			// signed 32-bit integer
 			data, err = utils.Bytes(results).Int32()
 			if err != nil {
-				return nil, err
+				if failOnErr {
+					return nil, err
+				}
+				log.Errorf("failed to cast bytes (%v) to int32: %v", results, err)
+				continue
 			}
 		case "s64", "int64":
-			// signed 63-bit integer
+			// signed 64-bit integer
 			data, err = utils.Bytes(results).Int64()
 			if err != nil {
-				return nil, err
+				if failOnErr {
+					return nil, err
+				}
+				log.Errorf("failed to cast bytes (%v) to int64: %v", results, err)
+				continue
 			}
 		case "f32", "float32":
 			// 32-bit floating point number
@@ -105,7 +100,11 @@ func readInputRegister(device *sdk.Device) ([]*sdk.Reading, error) {
 		default:
 			// The type is not supported. This could be a typo, or it could be a
 			// new type that needs to be added in.
-			return nil, fmt.Errorf("output data 'type' specifies unsupported type '%s'", dataType)
+			if failOnErr {
+				return nil, fmt.Errorf("output data 'type' specifies unsupported type '%s'", outputData.Type)
+			}
+			log.Errorf("output data 'type' is unsupported: %s", outputData.Type)
+			continue
 		}
 
 		log.Debugf("  result: %v", data)
