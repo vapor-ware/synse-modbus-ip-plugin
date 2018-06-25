@@ -52,6 +52,17 @@ func readInputRegister(device *sdk.Device) ([]*sdk.Reading, error) {
 		// Now use that to get the reading
 		results, err := client.ReadInputRegisters(uint16(address), uint16(width))
 		if err != nil {
+			// FIXME (etd): Should we fail here? We are reading multiple registers in
+			// this loop. If even one fails, that will fail the read for every register.
+			// I think what would be better is to just log this error out and move on.
+			// We could also track the number of errors we got when reading. Then, if
+			// we failed to read from all registers (or some % of them?) then we can
+			// return an error.
+			//
+			// On the other hand, all of these registers are on the same device, so if
+			// a few are failing, that could mean something is wrong with the device, or
+			// the device is mis-configured, in which case we probably do want this to
+			// error out.
 			return nil, err
 		}
 
