@@ -106,9 +106,16 @@ func readInputRegister(device *sdk.Device) ([]*sdk.Reading, error) {
 			log.Errorf("output data 'type' is unsupported: %s", outputData.Type)
 			continue
 		}
-
 		log.Debugf("  result: %v", data)
-		readings = append(readings, output.MakeReading(data))
+
+		reading, err := output.MakeReading(data)
+		if err != nil {
+			// In this case we will not check the 'failOnError' flag because
+			// this isn't an issue with reading the device, its a configuration
+			// issue and the error should be noted.
+			return nil, err
+		}
+		readings = append(readings, reading)
 	}
 	return readings, nil
 }
