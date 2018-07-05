@@ -11,8 +11,7 @@ WORKDIR /plugin
 
 COPY --from=builder /go/src/github.com/vapor-ware/synse-modbus-ip-plugin/build/plugin ./plugin
 COPY config.yml .
-COPY config/proto /etc/synse/plugin/config/proto
 
 EXPOSE 5001
 
-CMD ["./plugin"]
+ENTRYPOINT ["./plugin"]
