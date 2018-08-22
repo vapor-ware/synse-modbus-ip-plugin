@@ -1,4 +1,5 @@
 [![CircleCI](https://circleci.com/gh/vapor-ware/synse-modbus-ip-plugin.svg?style=shield)](https://circleci.com/gh/vapor-ware/synse-modbus-ip-plugin)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fvapor-ware%2Fsynse-modbus-ip-plugin.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fvapor-ware%2Fsynse-modbus-ip-plugin?ref=badge_shield)
 
 # Synse Modbus-IP Plugin
 A plugin for ModBus over TCP/IP for Synse Server.
@@ -239,3 +240,7 @@ This plugin, and all other components of the Synse ecosystem, is released under 
 [plugin-dockerhub]: https://hub.docker.com/r/vaporio/modbus-ip-plugin
 [plugin-release]: https://github.com/vapor-ware/synse-modbus-ip-plugin/releases
 [sdk-docs]: http://synse-sdk.readthedocs.io/en/latest/user/configuration.html
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fvapor-ware%2Fsynse-modbus-ip-plugin.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fvapor-ware%2Fsynse-modbus-ip-plugin?ref=badge_large)
