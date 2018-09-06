@@ -1,7 +1,7 @@
 #
 # deploy.yml
 #
-# Simple deployment of Synse Server, and the Modbus-IP plugin.
+# Simple deployment of Synse Server, and the Modbus TCP/IP plugin.
 # The device config used here needs to be provided.
 #
 version: "3"
@@ -22,7 +22,7 @@ services:
     ports:
       - 5001:5001
     volumes:
-      - ./devices.yml:/tmp/devices/devices.yml
+      - ../../config/device/example.yml:/tmp/devices/devices.yml
       - ../../config.yml:/tmp/plugin/config.yml
     environment:
       PLUGIN_DEVICE_CONFIG: /tmp/devices

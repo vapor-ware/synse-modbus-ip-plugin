@@ -2,84 +2,107 @@
 
 
 [[projects]]
+  digest = "1:d867dfa6751c8d7a435821ad3b736310c2ed68945d05b50fb9d23aee0540c8cc"
   name = "github.com/Sirupsen/logrus"
   packages = ["."]
-  revision = "c155da19408a8799da419ed3eeb0cb5db0ad5dbc"
-  version = "v1.0.5"
+  pruneopts = "UT"
+  revision = "3e01752db0189b9157070a0e1668a620f9a85da2"
+  version = "v1.0.6"
 
 [[projects]]
+  digest = "1:7f769a7ea697a8e50c8a79a829f53a469e3ca7b8e314434ea9d9a25ca8401cb7"
   name = "github.com/creasty/defaults"
   packages = ["."]
+  pruneopts = "UT"
   revision = "a7e48e2230891fc7456c8ab918c424c5b06c3192"
   version = "v1.2.1"
 
 [[projects]]
   branch = "master"
+  digest = "1:81300ae1ca6cc5bc6c5096564ff1efcca7ce445e3fe0f7e9053b1f41557b3a28"
   name = "github.com/goburrow/modbus"
   packages = ["."]
+  pruneopts = "UT"
   revision = "0d0a427beb37599ff34f8d74617af5ac403e9700"
 
 [[projects]]
   branch = "master"
+  digest = "1:55b9bfea531b22ab4cb06aafad9e3faa15ee92b3f9c46625cf9ca445b3ccac7f"
   name = "github.com/goburrow/serial"
   packages = ["."]
+  pruneopts = "UT"
   revision = "5efbe925ecf714f8ba147bf2226f2e7afc7111bc"
 
 [[projects]]
+  digest = "1:ae0036fa14b41c52607c53fa072ef5045ec5f9013ed569e6a5fa19dd5e2ac89a"
   name = "github.com/golang/protobuf"
   packages = [
     "proto",
     "ptypes",
     "ptypes/any",
     "ptypes/duration",
-    "ptypes/timestamp"
+    "ptypes/timestamp",
   ]
-  revision = "b4deda0973fb4c70b50d226b1af49f3da59f5265"
-  version = "v1.1.0"
+  pruneopts = "UT"
+  revision = "aa810b61a9c79d51363740d207bb46cf8e620ed5"
+  version = "v1.2.0"
 
 [[projects]]
-  branch = "master"
+  digest = "1:645110e089152bd0f4a011a2648fbb0e4df5977be73ca605781157ac297f50c4"
   name = "github.com/mitchellh/mapstructure"
   packages = ["."]
-  revision = "bb74f1db0675b241733089d5a1faa5dd8b0ef57b"
+  pruneopts = "UT"
+  revision = "fa473d140ef3c6adf42d6b391fe76707f1f243c8"
+  version = "v1.0.0"
 
 [[projects]]
+  digest = "1:808cdddf087fb64baeae67b8dfaee2069034d9704923a3cb8bd96a995421a625"
   name = "github.com/patrickmn/go-cache"
   packages = ["."]
+  pruneopts = "UT"
   revision = "a3647f8e31d79543b2d0f0ae2fe5c379d72cedc0"
   version = "v2.1.0"
 
 [[projects]]
+  digest = "1:2e76a73cb51f42d63a2a1a85b3dc5731fd4faf6821b434bd0ef2c099186031d6"
   name = "github.com/rs/xid"
   packages = ["."]
-  revision = "2c7e97ce663ff82c49656bca3048df0fdd83c5f9"
-  version = "v1.2.0"
+  pruneopts = "UT"
+  revision = "15d26544def341f036c5f8dca987a4cbe575032c"
+  version = "v1.2.1"
 
 [[projects]]
+  digest = "1:718950f28a3902b3a3abf93c8cfca0ebfc8521748e432cc34c4220045a55f5ea"
   name = "github.com/vapor-ware/synse-sdk"
   packages = [
     "sdk",
     "sdk/errors",
     "sdk/health",
-    "sdk/policies"
+    "sdk/policies",
   ]
-  revision = "a7ed632f114763592399c68aba6bf31b1ca239c5"
-  version = "1.0.1"
+  pruneopts = "UT"
+  revision = "95a2deff1260171cbcd5d58a12b3cdbe6159b4e9"
+  version = "1.1.0"
 
 [[projects]]
+  branch = "master"
+  digest = "1:bf033fb06435e52e54e920d172f72b11b2ea91e44b2b9a5e21e57a616590f9d7"
   name = "github.com/vapor-ware/synse-server-grpc"
   packages = ["go"]
-  revision = "e0c079f1b85081c6a536fb7c5c63cf9b9370c22e"
-  version = "1.0.0"
+  pruneopts = "UT"
+  revision = "5a6280c2ec33b2eb3781e7700ddfec04294bf3c6"
 
 [[projects]]
   branch = "master"
+  digest = "1:3f3a05ae0b95893d90b9b3b5afdb79a9b3d96e4e36e099d841ae602e4aca0da8"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
-  revision = "a49355c7e3f8fe157a85be2f77e6e269a0f89602"
+  pruneopts = "UT"
+  revision = "0709b304e793a5edb4a2c0145f281ecdc20838a4"
 
 [[projects]]
   branch = "master"
+  digest = "1:1427ef3c5200ade53e1569b34a7fd49dff8df0c2b3cdb9539a727f69ae5eddfa"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -88,20 +111,24 @@
     "http2/hpack",
     "idna",
     "internal/timeseries",
-    "trace"
+    "trace",
   ]
-  revision = "4cb1c02c05b0e749b0365f61ae859a8e0cfceed9"
+  pruneopts = "UT"
+  revision = "8a410e7b638dca158bf9e766925842f6651ff828"
 
 [[projects]]
   branch = "master"
+  digest = "1:34d379c4ad053c9b3930c98837f52130ac42de3a64d6fcc8bb33ceb404a55d85"
   name = "golang.org/x/sys"
   packages = [
     "unix",
-    "windows"
+    "windows",
   ]
-  revision = "7138fd3d9dc8335c567ca206f4333fb75eb05d56"
+  pruneopts = "UT"
+  revision = "8cf3aee429924738c56c34bb819c4ea8273fc434"
 
 [[projects]]
+  digest = "1:7509ba4347d1f8de6ae9be8818b0cd1abc3deeffe28aeaf4be6d4b6b5178d9ca"
   name = "golang.org/x/text"
   packages = [
     "collate",
@@ -117,24 +144,30 @@
     "unicode/bidi",
     "unicode/cldr",
     "unicode/norm",
-    "unicode/rangetable"
+    "unicode/rangetable",
   ]
+  pruneopts = "UT"
   revision = "f21a4dfb5e38f5895301dc265a8def02365cc3d0"
   version = "v0.3.0"
 
 [[projects]]
   branch = "master"
+  digest = "1:c9e7a4b4d47c0ed205d257648b0e5b0440880cb728506e318f8ac7cd36270bc4"
   name = "golang.org/x/time"
   packages = ["rate"]
+  pruneopts = "UT"
   revision = "fbb02b2291d28baffd63558aa44b4b56f178d650"
 
 [[projects]]
   branch = "master"
+  digest = "1:077c1c599507b3b3e9156d17d36e1e61928ee9b53a5b420f10f28ebd4a0b275c"
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
-  revision = "ff3583edef7de132f219f0efc00e097cabcc0ec0"
+  pruneopts = "UT"
+  revision = "11092d34479b07829b72e10713b159248caf5dad"
 
 [[projects]]
+  digest = "1:74f4a872f90f363778088654a2edea7101d62e6fc0784945d38b0ef85e1828d8"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -150,7 +183,9 @@
     "internal",
     "internal/backoff",
     "internal/channelz",
+    "internal/envconfig",
     "internal/grpcrand",
+    "internal/transport",
     "keepalive",
     "metadata",
     "naming",
@@ -161,20 +196,27 @@
     "stats",
     "status",
     "tap",
-    "transport"
   ]
-  revision = "168a6198bcb0ef175f7dacec0b8691fc141dc9b8"
-  version = "v1.13.0"
+  pruneopts = "UT"
+  revision = "32fb0ac620c32ba40a4626ddf94d90d12cce3455"
+  version = "v1.14.0"
 
 [[projects]]
+  digest = "1:342378ac4dcb378a5448dd723f0784ae519383532f5e70ade24132c4c8693202"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
+  pruneopts = "UT"
   revision = "5420a8b6744d3b0345ab293f6fcba19c978f1183"
   version = "v2.2.1"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "71a0bc45c09b08416ba92da18ea5d7e05500678cd46450fc5cf0bcb6f173704a"
+  input-imports = [
+    "github.com/Sirupsen/logrus",
+    "github.com/goburrow/modbus",
+    "github.com/mitchellh/mapstructure",
+    "github.com/vapor-ware/synse-sdk/sdk",
+  ]
   solver-name = "gps-cdcl"
   solver-version = 1

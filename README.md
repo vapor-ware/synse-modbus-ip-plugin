@@ -1,7 +1,9 @@
 [![CircleCI](https://circleci.com/gh/vapor-ware/synse-modbus-ip-plugin.svg?style=shield)](https://circleci.com/gh/vapor-ware/synse-modbus-ip-plugin)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fvapor-ware%2Fsynse-modbus-ip-plugin.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fvapor-ware%2Fsynse-modbus-ip-plugin?ref=badge_shield)
+![GitHub release](https://img.shields.io/github/release/vapor-ware/synse-modbus-ip-plugin.svg)
 
-# Synse Modbus-IP Plugin
+
+# Synse Modbus TCP/IP Plugin
 A plugin for ModBus over TCP/IP for Synse Server.
 
 This plugin is a general-purpose plugin, meaning that there are no device-specific
@@ -20,26 +22,27 @@ of a single output type. A value of `-` indicates that there is no value set for
 
 | Name | Description | Unit | Precision | Scaling Factor |
 | ---- | ----------- | ---- | --------- | -------------- |
-| current | An output type for current (amp) readings. | ampere (A) | 3 | - |
-| voltage | An output type for voltage (volt) readings. | volt (V) | 3 | - |
-| si-to-kwh.power | An output type for power readings that converts from SI to kWh. | kilowatt hour (kWh) | 5 | 2.77777778e-7 |
-| power | An output type for power (W) readings. | watt (W) | 3 | - |
-| frequency | An output type for frequency (Hz) readings. | hertz (Hz) | 3 | - |
+| `current` | An output type for current (amp) readings. | ampere (A) | 3 | - |
+| `voltage` | An output type for voltage (volt) readings. | volt (V) | 3 | - |
+| `si-to-kwh.power` | An output type for power readings that converts from SI to kWh. | kilowatt hour (kWh) | 5 | 2.77777778e-7 |
+| `power` | An output type for power (W) readings. | watt (W) | 3 | - |
+| `frequency` | An output type for frequency (Hz) readings. | hertz (Hz) | 3 | - |
 
 
 ### Device Handlers
 Device Handlers define how registers are read from/written to. Each device should
-specify the device handler it will use via the override key, e.g. `handlerName: foobar`.
-Device Handlers should be referenced by name.
+specify the device handler it will use via the override key, e.g. `handlerName: input_register`.
+Device Handlers should be referenced by name. For examples, see the [example](#example-config)
+section below.
 
 | Name | Description | Read | Write | Bulk Read |
 | ---- | ----------- | ---- | ----- | --------- |
-| input_register | A handler that reads from input registers. | ✓ | ✗ | ✗ |
+| `input_register` | A handler that reads from input registers. | ✓ | ✗ | ✗ |
 
 
 ## Getting Started
 ### Getting the Plugin
-You can get the Modbus-IP plugin either by cloning this repo, setting up the project dependencies,
+You can get the Modbus TCP/IP plugin either by cloning this repo, setting up the project dependencies,
 and building the binary or docker image
 
 ```bash
@@ -108,11 +111,15 @@ The supported fields for this config are:
 
 | Field | Required | Type | Description |
 | ----- | -------- | ---- | ----------- |
-| host  | yes | string | The hostname/ip of the device to connect to. |
-| port  | yes | int | The port number for the device to connect to. |
-| slaveId | yes | int | The modbus slave id for the device. |
-| timeout | no (default: 5s) | string | The duration to wait for a modbus request to resolve. |
-| failOnError | no (default: false) | bool | Fail the device entire read if a single output read fails. |
+| `host` | yes | string | The hostname/ip of the device to connect to. |
+| `port` | yes | int | The port number for the device to connect to. |
+| `slaveId` | yes | int | The modbus slave id for the device. |
+| `timeout` | no (default: 5s) | string | The duration to wait for a modbus request to resolve. |
+| `failOnError` | no (default: false) | bool | Fail the entire device read if a single output read fails. |
+
+By default, `failOnError` is false, so a failure to read a single register will cause that
+failure to be logged, but will *not* cause the entire read to fail. If this is set to true,
+all registers must be successfully read in order for the read to complete.
 
 
 ### Device Output Data
@@ -131,9 +138,9 @@ The supported fields for this config are:
 
 | Field | Required | Type | Description |
 | ----- | -------- | ---- | ----------- |
-| address  | yes | int | The register address which holds the output reading. |
-| width  | yes | int | The number of registers to read, starting from the `address`. |
-| type | yes | string | The type fot the data held in the registers. |
+| `address` | yes | int | The register address which holds the output reading. |
+| `width` | yes | int | The number of registers to read, starting from the `address`. |
+| `type` | yes | string | The type fot the data held in the registers. |
 
 The type values that are supported in the `type` field are as follows:
 
@@ -233,14 +240,13 @@ We welcome contributions to the project. The project maintainers actively manage
 and pull requests. If you choose to contribute, we ask that you either comment on an existing
 issue or open a new one.
 
+## License
 This plugin, and all other components of the Synse ecosystem, is released under the
 [GPL-3.0](LICENSE) license.
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fvapor-ware%2Fsynse-modbus-ip-plugin.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fvapor-ware%2Fsynse-modbus-ip-plugin?ref=badge_large)
 
 
 [plugin-dockerhub]: https://hub.docker.com/r/vaporio/modbus-ip-plugin
 [plugin-release]: https://github.com/vapor-ware/synse-modbus-ip-plugin/releases
 [sdk-docs]: http://synse-sdk.readthedocs.io/en/latest/user/configuration.html
-
-
-## License
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fvapor-ware%2Fsynse-modbus-ip-plugin.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fvapor-ware%2Fsynse-modbus-ip-plugin?ref=badge_large)

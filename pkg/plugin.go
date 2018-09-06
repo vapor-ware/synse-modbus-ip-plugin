@@ -8,7 +8,7 @@ import (
 	"github.com/vapor-ware/synse-sdk/sdk"
 )
 
-// MakePlugin creates a new instance of the Synse Modbus-IP Plugin.
+// MakePlugin creates a new instance of the Synse Modbus TCP/IP Plugin.
 func MakePlugin() *sdk.Plugin {
 	plugin := sdk.NewPlugin()
 

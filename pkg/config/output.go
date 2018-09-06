@@ -1,7 +1,7 @@
 package config
 
 // ModbusOutputData models the scheme for the supported config values
-// of device output's Data field for the Modbus-IP plugin.
+// of device output's Data field for the Modbus TCP/IP plugin.
 type ModbusOutputData struct {
 	// Address is the register address which holds the output reading.
 	Address int
