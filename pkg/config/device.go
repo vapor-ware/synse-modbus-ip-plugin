@@ -6,7 +6,7 @@ import (
 )
 
 // ModbusDeviceData models the scheme for the supported config values
-// of device's Data field for the Modbus-IP plugin.
+// of device's Data field for the Modbus TCP/IP plugin.
 type ModbusDeviceData struct {
 	// Host is the hostname/ip of the device to connect to.
 	Host string `yaml:"host,omitempty"`
