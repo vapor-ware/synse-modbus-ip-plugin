@@ -66,7 +66,7 @@ func readCoils(device *sdk.Device) ([]*sdk.Reading, error) {
 			if failOnErr {
 				return nil, err
 			}
-			log.Errorf("error casting reading data: %v")
+			log.Errorf("error casting reading data: %v", err)
 			continue
 		}
 		log.Debugf("coils read result: %v", data)
