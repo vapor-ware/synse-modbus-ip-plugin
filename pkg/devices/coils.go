@@ -11,7 +11,7 @@ import (
 // CoilsHandler is a handler that should be used for all devices/outputs
 // that read from/write to coils.
 var CoilsHandler = sdk.DeviceHandler{
-	Name: "coils",
+	Name: "coil",
 	Read: readCoils,
 }
 
