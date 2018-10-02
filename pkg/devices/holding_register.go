@@ -17,6 +17,15 @@ var HoldingRegisterHandler = sdk.DeviceHandler{
 
 // readHoldingRegister is the read function for the holding register device handler.
 func readHoldingRegister(device *sdk.Device) ([]*sdk.Reading, error) {
+
+	// FIXME (etd) - holding registers, coils, and input registers all do pretty much
+	// the same thing on read here.. consider abstracting this out so all we have to do
+	// is something along the lines of:
+	//
+	//   func readHoldingRegister(device *sdk.Device) ([]*sdk.Reading, error) {
+	//      return utils.Read(device, "holding")
+	//   }
+
 	var deviceData config.ModbusDeviceData
 	err := mapstructure.Decode(device.Data, &deviceData)
 	if err != nil {
