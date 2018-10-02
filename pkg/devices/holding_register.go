@@ -8,15 +8,15 @@ import (
 	"github.com/vapor-ware/synse-sdk/sdk"
 )
 
-// CoilsHandler is a handler that should be used for all devices/outputs
-// that read from/write to coils.
-var CoilsHandler = sdk.DeviceHandler{
-	Name: "coils",
-	Read: readCoils,
+// HoldingRegisterHandler is a handler which should be used for all devices/outputs
+// that read from/write to holding registers.
+var HoldingRegisterHandler = sdk.DeviceHandler{
+	Name: "holding_register",
+	Read: readHoldingRegister,
 }
 
-// readCoil is the read function for the coils device handler.
-func readCoils(device *sdk.Device) ([]*sdk.Reading, error) {
+// readHoldingRegister is the read function for the holding register device handler.
+func readHoldingRegister(device *sdk.Device) ([]*sdk.Reading, error) {
 	var deviceData config.ModbusDeviceData
 	err := mapstructure.Decode(device.Data, &deviceData)
 	if err != nil {
@@ -31,10 +31,11 @@ func readCoils(device *sdk.Device) ([]*sdk.Reading, error) {
 	failOnErr := deviceData.FailOnError
 	log.Debugf("fail on error: %v", failOnErr)
 
-	// For each device instance, we will have various outputs defined.
-	// The outputs here should contain their own data which tells us what
-	// the register address and the read width are.
 	var readings []*sdk.Reading
+
+	// For each device instance, we will have various outputs defined.
+	// The outputs here should contain their own data that tells us what
+	// the register address and read width are.
 	for i, output := range device.Outputs {
 		log.Debugf(" -- [%d] ----------", i)
 		log.Debugf("  Device Output Data: %v", output.Data)
@@ -50,13 +51,13 @@ func readCoils(device *sdk.Device) ([]*sdk.Reading, error) {
 			continue
 		}
 
-		// Use the output data config to get the coils reading
-		results, err := client.ReadCoils(uint16(outputData.Address), uint16(outputData.Width))
+		// Now use that to get the holding register reading
+		results, err := client.ReadHoldingRegisters(uint16(outputData.Address), uint16(outputData.Width))
 		if err != nil {
 			if failOnErr {
 				return nil, err
 			}
-			log.Errorf("failed to read coils for output %v: %v", outputData, err)
+			log.Errorf("failed to read holding registers for output %v: %v", outputData, err)
 			continue
 		}
 
@@ -66,10 +67,10 @@ func readCoils(device *sdk.Device) ([]*sdk.Reading, error) {
 			if failOnErr {
 				return nil, err
 			}
-			log.Errorf("error casting reading data: %v")
+			log.Errorf("error casting reading data: %v", err)
 			continue
 		}
-		log.Debugf("coils read result: %v", data)
+		log.Debugf("holding register read result: %v", data)
 
 		reading, err := output.MakeReading(data)
 		if err != nil {
