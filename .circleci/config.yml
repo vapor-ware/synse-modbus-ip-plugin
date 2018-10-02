@@ -51,6 +51,9 @@ jobs:
               exit 1
             fi
       - run:
+          name: Test
+          command: make test
+      - run:
           name: Build Binary
           command: make build
       - setup_remote_docker:

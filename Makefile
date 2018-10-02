@@ -92,6 +92,10 @@ ifeq (,$(wildcard ./Gopkg.toml))
 endif
 	@$(MAKE) dep
 
+.PHONY: test
+test:  ## Run project tests
+	go test -race -cover ./pkg/...
+
 .PHONY: version
 version:  ## Print the version of the plugin
 	@echo "$(PLUGIN_VERSION)"
