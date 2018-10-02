@@ -3,7 +3,9 @@ package utils
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 	"math"
+	"strings"
 )
 
 // Bytes represents a slice of bytes and provides conversion functions
@@ -52,4 +54,37 @@ func (b Bytes) Int64() (out int64, err error) {
 		return
 	}
 	return
+}
+
+// CastToType takes a typeName, which represents a well-known type, and
+// a byte slice and will attempt to cast the byte slice to the named type.
+func CastToType(typeName string, value []byte) (interface{}, error) {
+	switch strings.ToLower(typeName) {
+	case "u32", "uint32":
+		// unsigned 32-bit integer
+		return Bytes(value).Uint32(), nil
+
+	case "u64", "uint64":
+		// unsigned 64-bit integer
+		return Bytes(value).Uint64(), nil
+
+	case "s32", "int32":
+		// signed 32-bit integer
+		return Bytes(value).Int32()
+
+	case "s64", "int64":
+		// signed 64-bit integer
+		return Bytes(value).Int64()
+
+	case "f32", "float32":
+		// 32-bit floating point number
+		return Bytes(value).Float32(), nil
+
+	case "f64", "float64":
+		// 64-bit floating point number
+		return Bytes(value).Float64(), nil
+
+	default:
+		return nil, fmt.Errorf("unsupported output data type: %s", typeName)
+	}
 }

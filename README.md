@@ -38,6 +38,7 @@ section below.
 | Name | Description | Read | Write | Bulk Read |
 | ---- | ----------- | ---- | ----- | --------- |
 | `input_register` | A handler that reads from input registers. | ✓ | ✗ | ✗ |
+| `coils` | A handler that reads from coils. | ✓ | ✗ | ✗ |
 
 
 ## Getting Started

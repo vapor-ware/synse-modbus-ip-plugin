@@ -26,6 +26,7 @@ func MakePlugin() *sdk.Plugin {
 
 	// Register device handlers
 	plugin.RegisterDeviceHandlers(
+		&devices.CoilsHandler,
 		&devices.InputRegisterHandler,
 	)
 
