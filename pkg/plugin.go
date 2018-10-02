@@ -1,7 +1,7 @@
 package pkg
 
 import (
-	"log"
+	log "github.com/Sirupsen/logrus"
 
 	"github.com/vapor-ware/synse-modbus-ip-plugin/pkg/devices"
 	"github.com/vapor-ware/synse-modbus-ip-plugin/pkg/outputs"
@@ -27,6 +27,7 @@ func MakePlugin() *sdk.Plugin {
 	// Register device handlers
 	plugin.RegisterDeviceHandlers(
 		&devices.CoilsHandler,
+		&devices.HoldingRegisterHandler,
 		&devices.InputRegisterHandler,
 	)
 
