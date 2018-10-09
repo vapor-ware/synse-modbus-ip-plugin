@@ -13,6 +13,50 @@ func TestCastToType_Ok(t *testing.T) {
 		value    []byte
 		expected interface{}
 	}{
+		// unsigned 8-bit integer
+		{
+			typeName: "u8",
+			value:    []byte{1},
+			expected: uint8(0x01),
+		},
+		{
+			typeName: "uint8",
+			value:    []byte{3},
+			expected: uint8(0x03),
+		},
+		{
+			typeName: "u8",
+			value:    []byte{0},
+			expected: uint8(0x0),
+		},
+		{
+			typeName: "uint8",
+			value:    []byte{9},
+			expected: uint8(0x09),
+		},
+
+		// unsigned 16-bit integer
+		{
+			typeName: "u16",
+			value:    []byte{0, 1},
+			expected: uint16(0x01),
+		},
+		{
+			typeName: "uint16",
+			value:    []byte{3, 2},
+			expected: uint16(0x302),
+		},
+		{
+			typeName: "u16",
+			value:    []byte{0, 0},
+			expected: uint16(0x0),
+		},
+		{
+			typeName: "uint16",
+			value:    []byte{9, 9},
+			expected: uint16(0x0909),
+		},
+
 		// unsigned 32-bit integer
 		{
 			typeName: "u32",
@@ -57,48 +101,92 @@ func TestCastToType_Ok(t *testing.T) {
 			expected: uint64(0x909090909090909),
 		},
 
+		// signed 8-bit integer
+		{
+			typeName: "s8",
+			value:    []byte{1},
+			expected: int8(0x1),
+		},
+		{
+			typeName: "int8",
+			value:    []byte{3},
+			expected: int8(0x3),
+		},
+		{
+			typeName: "s8",
+			value:    []byte{0},
+			expected: int8(0x0),
+		},
+		{
+			typeName: "int8",
+			value:    []byte{9},
+			expected: int8(0x9),
+		},
+
+		// signed 16-bit integer
+		{
+			typeName: "s16",
+			value:    []byte{0, 1},
+			expected: int16(0x1),
+		},
+		{
+			typeName: "int16",
+			value:    []byte{3, 2},
+			expected: int16(0x302),
+		},
+		{
+			typeName: "s16",
+			value:    []byte{0, 0},
+			expected: int16(0x0),
+		},
+		{
+			typeName: "int16",
+			value:    []byte{9, 9},
+			expected: int16(0x909),
+		},
+
 		// signed 32-bit integer
 		{
 			typeName: "s32",
 			value:    []byte{0, 1, 2, 3},
-			expected: int32(66051),
+			expected: int32(0x10203),
 		},
 		{
 			typeName: "int32",
 			value:    []byte{3, 2, 1, 0},
-			expected: int32(50462976),
+			expected: int32(0x3020100),
 		},
 		{
 			typeName: "s32",
 			value:    []byte{0, 0, 0, 0},
-			expected: int32(0),
+			expected: int32(0x0),
 		},
 		{
 			typeName: "int32",
 			value:    []byte{9, 9, 9, 9},
-			expected: int32(151587081),
+			expected: int32(0x9090909),
 		},
 
 		// signed 64-bit integer
 		{
 			typeName: "s64",
 			value:    []byte{0, 1, 2, 3, 4, 5, 6, 7},
-			expected: int64(283686952306183),
+			expected: int64(0x1020304050607),
 		},
 		{
 			typeName: "int64",
 			value:    []byte{7, 6, 5, 4, 3, 2, 1, 0},
-			expected: int64(506097522914230528),
+			expected: int64(0x706050403020100),
 		},
 		{
 			typeName: "s64",
 			value:    []byte{0, 0, 0, 0, 0, 0, 0, 0},
-			expected: int64(0),
+			expected: int64(0x0),
 		},
 		{
 			typeName: "int64",
 			value:    []byte{9, 9, 9, 9, 9, 9, 9, 9},
-			expected: int64(651061555542690057),
+			expected: int64(0x909090909090909),
 		},
 
 		// 32-bit floating point number
