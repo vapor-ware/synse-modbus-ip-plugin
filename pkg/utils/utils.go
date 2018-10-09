@@ -51,13 +51,10 @@ func (b Bytes) Int8() int8 {
 	return int8(b[0])
 }
 
-// Int16 converts the byte slice to an int16.
+// Int16 converts the bytes to a signed int16.
 func (b Bytes) Int16() (out int16, err error) {
 	buf := bytes.NewReader(b)
 	err = binary.Read(buf, binary.BigEndian, &out)
-	if err != nil {
-		return
-	}
 	return
 }
 
@@ -65,9 +62,6 @@ func (b Bytes) Int16() (out int16, err error) {
 func (b Bytes) Int32() (out int32, err error) {
 	buf := bytes.NewReader(b)
 	err = binary.Read(buf, binary.BigEndian, &out)
-	if err != nil {
-		return
-	}
 	return
 }
 
@@ -75,15 +69,21 @@ func (b Bytes) Int32() (out int32, err error) {
 func (b Bytes) Int64() (out int64, err error) {
 	buf := bytes.NewReader(b)
 	err = binary.Read(buf, binary.BigEndian, &out)
-	if err != nil {
-		return
-	}
 	return
+}
+
+// Bool converts the byte slice to a bool.
+func (b Bytes) Bool() bool {
+	if b == nil || len(b) == 0 {
+		return false
+	}
+	return !(b[0] == 0)
 }
 
 // CastToType takes a typeName, which represents a well-known type, and
 // a byte slice and will attempt to cast the byte slice to the named type.
 func CastToType(typeName string, value []byte) (interface{}, error) {
+
 	switch strings.ToLower(typeName) {
 
 	case "u8", "uint8":
@@ -126,7 +126,32 @@ func CastToType(typeName string, value []byte) (interface{}, error) {
 		// 64-bit floating point number
 		return Bytes(value).Float64(), nil
 
+	case "b", "bool", "boolean":
+		// bool
+		return Bytes(value).Bool(), nil
+
 	default:
 		return nil, fmt.Errorf("unsupported output data type: %s", typeName)
+	}
+}
+
+// ConvertFahrenheitToCelsius converts a Farenheit reading to Celsius.
+func ConvertFahrenheitToCelsius(farenheit float64) (celsius float64) {
+	return (farenheit - 32.0) * 5.0 / 9.0
+}
+
+// ConvertEnglishToMetric converts a reading in imperial units to metric.
+// This is common for the VEM PLC, which is all imperial units.
+func ConvertEnglishToMetric(outputType string, reading interface{}) (result interface{}, err error) {
+
+	switch outputType {
+	case "temperatureFTenths":
+		r, ok := reading.(int16)
+		if !ok {
+			return nil, fmt.Errorf("Unable to convert %T, %v to int16", reading, reading)
+		}
+		return ConvertFahrenheitToCelsius(float64(r)), nil
+	default:
+		return nil, fmt.Errorf("No english to metric conversion for type %v", outputType)
 	}
 }

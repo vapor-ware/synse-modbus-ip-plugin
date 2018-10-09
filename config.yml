@@ -2,9 +2,9 @@ version: 1.0
 debug: true
 network:
   type: tcp
-  address: ":5001"
+  address: ":5004"
 settings:
-  mode: parallel
+  mode: serial
   read:
     interval: 5s
   write:
