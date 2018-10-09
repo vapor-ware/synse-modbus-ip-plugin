@@ -12,6 +12,6 @@ WORKDIR /plugin
 COPY --from=builder /go/src/github.com/vapor-ware/synse-modbus-ip-plugin/build/plugin ./plugin
 COPY config.yml .
 
-EXPOSE 5001
+EXPOSE 5004
 
 ENTRYPOINT ["./plugin"]

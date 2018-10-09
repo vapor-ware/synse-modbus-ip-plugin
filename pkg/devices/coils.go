@@ -17,6 +17,7 @@ var CoilsHandler = sdk.DeviceHandler{
 
 // readCoil is the read function for the coils device handler.
 func readCoils(device *sdk.Device) ([]*sdk.Reading, error) {
+	log.Debugf("readCoils start: %+v", device)
 	var deviceData config.ModbusDeviceData
 	err := mapstructure.Decode(device.Data, &deviceData)
 	if err != nil {
@@ -60,6 +61,7 @@ func readCoils(device *sdk.Device) ([]*sdk.Reading, error) {
 			continue
 		}
 
+		log.Debugf("ReadCoils: results: 0x%0x, len(results) 0x%0x, type %T", results, len(results), results)
 		// Cast the raw reading value to the specified output type
 		data, err := utils.CastToType(outputData.Type, results)
 		if err != nil {
