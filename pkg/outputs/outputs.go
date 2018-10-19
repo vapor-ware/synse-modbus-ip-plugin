@@ -73,10 +73,10 @@ var (
 	TemperatureFTenths = sdk.OutputType{
 		Name:          "temperatureFTenths",
 		Precision:     3,
-		ScalingFactor: ".1", // Raw reading for VEM PLC is tenths of degrees F. englishToMetric in the yaml converts to C.
+		ScalingFactor: ".1", // Raw reading for VEM PLC is tenths of degrees F.
 		Unit: sdk.Unit{
-			Name:   "celsius",
-			Symbol: "C",
+			Name:   "fahrenheit",
+			Symbol: "F",
 		},
 	}
 

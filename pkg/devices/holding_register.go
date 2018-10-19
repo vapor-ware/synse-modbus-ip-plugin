@@ -1,8 +1,6 @@
 package devices
 
 import (
-	"fmt"
-
 	log "github.com/Sirupsen/logrus"
 	"github.com/mitchellh/mapstructure"
 	"github.com/vapor-ware/synse-modbus-ip-plugin/pkg/config"
@@ -92,31 +90,6 @@ func readHoldingRegister(device *sdk.Device) ([]*sdk.Reading, error) {
 		}
 
 		log.Debugf("holding register read result: %T, %v", data, data)
-
-		// Handle English to Metric.
-		conversion, present := output.Data["conversion"]
-		if present {
-			// This is currently the only supported conversion.
-			if conversion == "englishToMetric" {
-				data, err = utils.ConvertEnglishToMetric(output.OutputType.Name, data)
-				if err != nil {
-					if failOnErr {
-						return nil, err
-					}
-					log.Errorf(err.Error())
-					continue
-				}
-				log.Debugf("data after english to metric conversion: %T, %v", data, data)
-			} else {
-				err = fmt.Errorf("Unsupported conversion key in configuration: %v", conversion)
-				if failOnErr {
-					return nil, err
-				}
-				log.Errorf(err.Error())
-				continue
-			}
-		}
-
 		reading, err := output.MakeReading(data)
 		if err != nil {
 			// In this case we will not check the 'failOnError' flag because

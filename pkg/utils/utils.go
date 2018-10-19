@@ -134,24 +134,3 @@ func CastToType(typeName string, value []byte) (interface{}, error) {
 		return nil, fmt.Errorf("unsupported output data type: %s", typeName)
 	}
 }
-
-// ConvertFahrenheitToCelsius converts a Farenheit reading to Celsius.
-func ConvertFahrenheitToCelsius(farenheit float64) (celsius float64) {
-	return (farenheit - 32.0) * 5.0 / 9.0
-}
-
-// ConvertEnglishToMetric converts a reading in imperial units to metric.
-// This is common for the VEM PLC, which is all imperial units.
-func ConvertEnglishToMetric(outputType string, reading interface{}) (result interface{}, err error) {
-
-	switch outputType {
-	case "temperatureFTenths":
-		r, ok := reading.(int16)
-		if !ok {
-			return nil, fmt.Errorf("Unable to convert %T, %v to int16", reading, reading)
-		}
-		return ConvertFahrenheitToCelsius(float64(r)), nil
-	default:
-		return nil, fmt.Errorf("No english to metric conversion for type %v", outputType)
-	}
-}
