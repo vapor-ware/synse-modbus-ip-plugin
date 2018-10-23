@@ -31,7 +31,8 @@
 
 [[constraint]]
   name = "github.com/vapor-ware/synse-sdk"
-  version = "1.1.0"
+  #version = "1.1.0"
+  branch = "mhink-eng-metric"
 
 [prune]
   go-tests = true

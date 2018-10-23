@@ -78,6 +78,7 @@ var (
 			Name:   "fahrenheit",
 			Symbol: "F",
 		},
+		Conversion: "englishToMetricTemperature",
 	}
 
 	// FlowGpm is the output type for flow readings in gallons per minute. FUTURE: Metric / English.

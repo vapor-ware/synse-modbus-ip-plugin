@@ -58,6 +58,16 @@ docker:  ## Build the docker image
 		-t $(IMAGE_NAME):latest \
 		-t $(IMAGE_NAME):local .
 
+.PHONY: px
+px: ## Build an image tagged phoenix-4.0
+	# Remove the phoenix-4.0 image from the local machine.
+	docker rmi $(IMAGE_NAME):phoenix-4.0 || true
+	# Build a new phoenix-4.0 tagged image.
+	docker build -f Dockerfile -t $(IMAGE_NAME):phoenix-4.0 .
+	# Push the newly built image to DockerHub where deployment master
+	# can pick it up.
+	docker push $(IMAGE_NAME):phoenix-4.0
+
 .PHONY: fmt
 fmt:  ## Run goimports on all go files
 	find . -name '*.go' -not -wholename './vendor/*' | while read -r file; do goimports -w "$$file"; done
