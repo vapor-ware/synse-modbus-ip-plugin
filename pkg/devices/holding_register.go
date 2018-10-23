@@ -25,6 +25,7 @@ func readHoldingRegister(device *sdk.Device) ([]*sdk.Reading, error) {
 	//   func readHoldingRegister(device *sdk.Device) ([]*sdk.Reading, error) {
 	//      return utils.Read(device, "holding")
 	//   }
+	log.Debugf("readHoldingRegister start: %+v", device)
 
 	var deviceData config.ModbusDeviceData
 	err := mapstructure.Decode(device.Data, &deviceData)
@@ -47,6 +48,7 @@ func readHoldingRegister(device *sdk.Device) ([]*sdk.Reading, error) {
 	// the register address and read width are.
 	for i, output := range device.Outputs {
 		log.Debugf(" -- [%d] ----------", i)
+		log.Debugf("  Device OutputType:  %v", output.OutputType)
 		log.Debugf("  Device Output Data: %v", output.Data)
 
 		// Get the output data config
@@ -61,7 +63,13 @@ func readHoldingRegister(device *sdk.Device) ([]*sdk.Reading, error) {
 		}
 
 		// Now use that to get the holding register reading
-		results, err := client.ReadHoldingRegisters(uint16(outputData.Address), uint16(outputData.Width))
+		log.Debugf(
+			"Begin Reading holding register address 0x%0x, width 0x%x",
+			uint16(outputData.Address),
+			uint16(outputData.Width))
+
+		results, err := client.ReadHoldingRegisters(
+			uint16(outputData.Address), uint16(outputData.Width))
 		if err != nil {
 			if failOnErr {
 				return nil, err
@@ -70,17 +78,18 @@ func readHoldingRegister(device *sdk.Device) ([]*sdk.Reading, error) {
 			continue
 		}
 
+		log.Debugf("ReadHoldingRegisters: results: 0x%0x, len(results) 0x%0x", results, len(results))
 		// Cast the raw reading value to the specified output type
 		data, err := utils.CastToType(outputData.Type, results)
 		if err != nil {
 			if failOnErr {
 				return nil, err
 			}
-			log.Errorf("error casting reading data: %v", err)
+			log.Errorf("error casting reading data: %v, error %v", data, err)
 			continue
 		}
-		log.Debugf("holding register read result: %v", data)
 
+		log.Debugf("holding register read result: %T, %v", data, data)
 		reading, err := output.MakeReading(data)
 		if err != nil {
 			// In this case we will not check the 'failOnError' flag because
@@ -90,5 +99,7 @@ func readHoldingRegister(device *sdk.Device) ([]*sdk.Reading, error) {
 		}
 		readings = append(readings, reading)
 	}
+
+	log.Debugf("readHoldingRegister end, readings: %+v", readings)
 	return readings, nil
 }

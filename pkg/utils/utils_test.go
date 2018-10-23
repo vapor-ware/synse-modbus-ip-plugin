@@ -144,6 +144,12 @@ func TestCastToType_Ok(t *testing.T) {
 			value:    []byte{9, 9},
 			expected: int16(0x909),
 		},
+		// Negative case.
+		{
+			typeName: "s16",
+			value:    []byte{0xff, 0xff},
+			expected: int16(-1),
+		},
 
 		// signed 32-bit integer
 		{
@@ -231,6 +237,28 @@ func TestCastToType_Ok(t *testing.T) {
 			typeName: "float64",
 			value:    []byte{9, 9, 9, 9, 9, 9, 9, 9},
 			expected: float64(3.882098286554061e-265),
+		},
+
+		// boolean
+		{
+			typeName: "b",
+			value:    []byte{},
+			expected: false,
+		},
+		{
+			typeName: "b",
+			value:    []byte{0},
+			expected: false,
+		},
+		{
+			typeName: "bool",
+			value:    []byte{1},
+			expected: true,
+		},
+		{
+			typeName: "boolean",
+			value:    []byte{0xff},
+			expected: true,
 		},
 	}
 
