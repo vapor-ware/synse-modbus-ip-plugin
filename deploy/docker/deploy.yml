@@ -12,7 +12,7 @@ services:
     ports:
       - 5000:5000
     environment:
-      SYNSE_PLUGIN_TCP: modbus-ip-plugin:5001
+      SYNSE_PLUGIN_TCP: modbus-ip-plugin:5004
     links:
       - modbus-ip-plugin
 
@@ -20,7 +20,7 @@ services:
     container_name: modbus-ip-plugin
     image: vaporio/modbus-ip-plugin
     ports:
-      - 5001:5001
+      - 5004:5004
     volumes:
       - ../../config/device/example.yml:/tmp/devices/devices.yml
       - ../../config.yml:/tmp/plugin/config.yml

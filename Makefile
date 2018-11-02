@@ -3,7 +3,7 @@
 #
 
 PLUGIN_NAME    := modbus-ip
-PLUGIN_VERSION := 1.0.0
+PLUGIN_VERSION := 1.1.0
 IMAGE_NAME     := vaporio/modbus-ip-plugin
 
 GIT_COMMIT ?= $(shell git rev-parse --short HEAD 2> /dev/null || true)
@@ -91,6 +91,10 @@ ifeq (,$(wildcard ./Gopkg.toml))
 	dep init
 endif
 	@$(MAKE) dep
+
+.PHONY: test
+test:  ## Run project tests
+	go test -race -cover ./pkg/...
 
 .PHONY: version
 version:  ## Print the version of the plugin

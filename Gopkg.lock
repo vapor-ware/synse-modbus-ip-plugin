@@ -2,12 +2,12 @@
 
 
 [[projects]]
-  digest = "1:d867dfa6751c8d7a435821ad3b736310c2ed68945d05b50fb9d23aee0540c8cc"
+  digest = "1:3f53e9e4dfbb664cd62940c9c4b65a2171c66acd0b7621a1a6b8e78513525a52"
   name = "github.com/Sirupsen/logrus"
   packages = ["."]
   pruneopts = "UT"
-  revision = "3e01752db0189b9157070a0e1668a620f9a85da2"
-  version = "v1.0.6"
+  revision = "ad15b42461921f1fb3529b058c6786c6a45d5162"
+  version = "v1.1.1"
 
 [[projects]]
   digest = "1:7f769a7ea697a8e50c8a79a829f53a469e3ca7b8e314434ea9d9a25ca8401cb7"
@@ -18,23 +18,31 @@
   version = "v1.2.1"
 
 [[projects]]
-  branch = "master"
-  digest = "1:81300ae1ca6cc5bc6c5096564ff1efcca7ce445e3fe0f7e9053b1f41557b3a28"
-  name = "github.com/goburrow/modbus"
-  packages = ["."]
+  digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
+  name = "github.com/davecgh/go-spew"
+  packages = ["spew"]
   pruneopts = "UT"
-  revision = "0d0a427beb37599ff34f8d74617af5ac403e9700"
+  revision = "8991bc29aa16c548c550c7ff78260e27b9ab7c73"
+  version = "v1.1.1"
 
 [[projects]]
   branch = "master"
+  digest = "1:aa43a01d4dd8f0e4f6fe5093bf8942bae94a67b654c1aa06e44e73ac802ce7e7"
+  name = "github.com/goburrow/modbus"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "606c02f4eef527a1d4cf7d8733d5fd7ba34f91d8"
+
+[[projects]]
   digest = "1:55b9bfea531b22ab4cb06aafad9e3faa15ee92b3f9c46625cf9ca445b3ccac7f"
   name = "github.com/goburrow/serial"
   packages = ["."]
   pruneopts = "UT"
   revision = "5efbe925ecf714f8ba147bf2226f2e7afc7111bc"
+  version = "v0.1.0"
 
 [[projects]]
-  digest = "1:ae0036fa14b41c52607c53fa072ef5045ec5f9013ed569e6a5fa19dd5e2ac89a"
+  digest = "1:4c0989ca0bcd10799064318923b9bc2db6b4d6338dd75f3f2d86c3511aaaf5cf"
   name = "github.com/golang/protobuf"
   packages = [
     "proto",
@@ -48,12 +56,20 @@
   version = "v1.2.0"
 
 [[projects]]
-  digest = "1:645110e089152bd0f4a011a2648fbb0e4df5977be73ca605781157ac297f50c4"
+  digest = "1:0a69a1c0db3591fcefb47f115b224592c8dfa4368b7ba9fae509d5e16cdc95c8"
+  name = "github.com/konsorten/go-windows-terminal-sequences"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "5c8c8bd35d3832f5d134ae1e1e375b69a4d25242"
+  version = "v1.0.1"
+
+[[projects]]
+  digest = "1:53bc4cd4914cd7cd52139990d5170d6dc99067ae31c56530621b18b35fc30318"
   name = "github.com/mitchellh/mapstructure"
   packages = ["."]
   pruneopts = "UT"
-  revision = "fa473d140ef3c6adf42d6b391fe76707f1f243c8"
-  version = "v1.0.0"
+  revision = "3536a929edddb9a5b34bd6861dc4a9647cb459fe"
+  version = "v1.1.2"
 
 [[projects]]
   digest = "1:808cdddf087fb64baeae67b8dfaee2069034d9704923a3cb8bd96a995421a625"
@@ -64,6 +80,14 @@
   version = "v2.1.0"
 
 [[projects]]
+  digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
+  name = "github.com/pmezard/go-difflib"
+  packages = ["difflib"]
+  pruneopts = "UT"
+  revision = "792786c7400a136282c1664665ae0a8db921c6c2"
+  version = "v1.0.0"
+
+[[projects]]
   digest = "1:2e76a73cb51f42d63a2a1a85b3dc5731fd4faf6821b434bd0ef2c099186031d6"
   name = "github.com/rs/xid"
   packages = ["."]
@@ -72,7 +96,16 @@
   version = "v1.2.1"
 
 [[projects]]
-  digest = "1:718950f28a3902b3a3abf93c8cfca0ebfc8521748e432cc34c4220045a55f5ea"
+  digest = "1:18752d0b95816a1b777505a97f71c7467a8445b8ffb55631a7bf779f6ba4fa83"
+  name = "github.com/stretchr/testify"
+  packages = ["assert"]
+  pruneopts = "UT"
+  revision = "f35b8ab0b5a2cef36673838d662e249dd9c94686"
+  version = "v1.2.2"
+
+[[projects]]
+  branch = "master"
+  digest = "1:c36519504a884f2e4c5e72bece6f455b187abd956144d82a1b2b579a68b8ddc5"
   name = "github.com/vapor-ware/synse-sdk"
   packages = [
     "sdk",
@@ -81,16 +114,15 @@
     "sdk/policies",
   ]
   pruneopts = "UT"
-  revision = "95a2deff1260171cbcd5d58a12b3cdbe6159b4e9"
-  version = "1.1.0"
+  revision = "27f996297fa256ea1d57241c8d8ce684640c0b31"
 
 [[projects]]
-  branch = "master"
-  digest = "1:bf033fb06435e52e54e920d172f72b11b2ea91e44b2b9a5e21e57a616590f9d7"
+  digest = "1:a95be5a656edf57b48a06335bbb627fc2eb5f37890df1183bbaab9443c43cae1"
   name = "github.com/vapor-ware/synse-server-grpc"
   packages = ["go"]
   pruneopts = "UT"
-  revision = "5a6280c2ec33b2eb3781e7700ddfec04294bf3c6"
+  revision = "3bc0b24b2bfbc8df1d67f02607d13380318d68ee"
+  version = "1.1.0"
 
 [[projects]]
   branch = "master"
@@ -98,11 +130,11 @@
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
   pruneopts = "UT"
-  revision = "0709b304e793a5edb4a2c0145f281ecdc20838a4"
+  revision = "4d3f4d9ffa16a13f451c3b2999e9c49e9750bf06"
 
 [[projects]]
   branch = "master"
-  digest = "1:1427ef3c5200ade53e1569b34a7fd49dff8df0c2b3cdb9539a727f69ae5eddfa"
+  digest = "1:d7bb1ec1da715f83d407bd8a0fd92810bc8e36577286350d61b6fd62f9244236"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -114,21 +146,21 @@
     "trace",
   ]
   pruneopts = "UT"
-  revision = "8a410e7b638dca158bf9e766925842f6651ff828"
+  revision = "c44066c5c816ec500d459a2a324a753f78531ae0"
 
 [[projects]]
   branch = "master"
-  digest = "1:34d379c4ad053c9b3930c98837f52130ac42de3a64d6fcc8bb33ceb404a55d85"
+  digest = "1:d3e0b1b48b36298893e7667f91bce04d1b6996e5eb93b898db926cad94ce9514"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "8cf3aee429924738c56c34bb819c4ea8273fc434"
+  revision = "7e31e0c00fa05cb5fbf4347b585621d6709e19a4"
 
 [[projects]]
-  digest = "1:7509ba4347d1f8de6ae9be8818b0cd1abc3deeffe28aeaf4be6d4b6b5178d9ca"
+  digest = "1:a2ab62866c75542dd18d2b069fec854577a20211d7c0ea6ae746072a1dccdd18"
   name = "golang.org/x/text"
   packages = [
     "collate",
@@ -160,14 +192,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:077c1c599507b3b3e9156d17d36e1e61928ee9b53a5b420f10f28ebd4a0b275c"
+  digest = "1:56b0bca90b7e5d1facf5fbdacba23e4e0ce069d25381b8e2f70ef1e7ebfb9c1a"
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
   pruneopts = "UT"
-  revision = "11092d34479b07829b72e10713b159248caf5dad"
+  revision = "b69ba1387ce2108ac9bc8e8e5e5a46e7d5c72313"
 
 [[projects]]
-  digest = "1:74f4a872f90f363778088654a2edea7101d62e6fc0784945d38b0ef85e1828d8"
+  digest = "1:c3ad9841823db6da420a5625b367913b4ff54bbe60e8e3c98bd20e243e62e2d2"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -198,8 +230,8 @@
     "tap",
   ]
   pruneopts = "UT"
-  revision = "32fb0ac620c32ba40a4626ddf94d90d12cce3455"
-  version = "v1.14.0"
+  revision = "2e463a05d100327ca47ac218281906921038fd95"
+  version = "v1.16.0"
 
 [[projects]]
   digest = "1:342378ac4dcb378a5448dd723f0784ae519383532f5e70ade24132c4c8693202"
@@ -216,6 +248,7 @@
     "github.com/Sirupsen/logrus",
     "github.com/goburrow/modbus",
     "github.com/mitchellh/mapstructure",
+    "github.com/stretchr/testify/assert",
     "github.com/vapor-ware/synse-sdk/sdk",
   ]
   solver-name = "gps-cdcl"

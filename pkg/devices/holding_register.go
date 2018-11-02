@@ -8,15 +8,25 @@ import (
 	"github.com/vapor-ware/synse-sdk/sdk"
 )
 
-// InputRegisterHandler is a handler that should be used for all devices/outputs
-// that read input registers.
-var InputRegisterHandler = sdk.DeviceHandler{
-	Name: "input_register",
-	Read: readInputRegister,
+// HoldingRegisterHandler is a handler which should be used for all devices/outputs
+// that read from/write to holding registers.
+var HoldingRegisterHandler = sdk.DeviceHandler{
+	Name: "holding_register",
+	Read: readHoldingRegister,
 }
 
-// readInputRegister is the read function for the input register device handler.
-func readInputRegister(device *sdk.Device) ([]*sdk.Reading, error) {
+// readHoldingRegister is the read function for the holding register device handler.
+func readHoldingRegister(device *sdk.Device) ([]*sdk.Reading, error) {
+
+	// FIXME (etd) - holding registers, coils, and input registers all do pretty much
+	// the same thing on read here.. consider abstracting this out so all we have to do
+	// is something along the lines of:
+	//
+	//   func readHoldingRegister(device *sdk.Device) ([]*sdk.Reading, error) {
+	//      return utils.Read(device, "holding")
+	//   }
+	log.Debugf("readHoldingRegister start: %+v", device)
+
 	var deviceData config.ModbusDeviceData
 	err := mapstructure.Decode(device.Data, &deviceData)
 	if err != nil {
@@ -38,6 +48,7 @@ func readInputRegister(device *sdk.Device) ([]*sdk.Reading, error) {
 	// the register address and read width are.
 	for i, output := range device.Outputs {
 		log.Debugf(" -- [%d] ----------", i)
+		log.Debugf("  Device OutputType:  %v", output.OutputType)
 		log.Debugf("  Device Output Data: %v", output.Data)
 
 		// Get the output data config
@@ -51,27 +62,34 @@ func readInputRegister(device *sdk.Device) ([]*sdk.Reading, error) {
 			continue
 		}
 
-		// Now use that to get the input register reading
-		results, err := client.ReadInputRegisters(uint16(outputData.Address), uint16(outputData.Width))
+		// Now use that to get the holding register reading
+		log.Debugf(
+			"Begin Reading holding register address 0x%0x, width 0x%x",
+			uint16(outputData.Address),
+			uint16(outputData.Width))
+
+		results, err := client.ReadHoldingRegisters(
+			uint16(outputData.Address), uint16(outputData.Width))
 		if err != nil {
 			if failOnErr {
 				return nil, err
 			}
-			log.Errorf("failed to read input registers for output %v: %v", outputData, err)
+			log.Errorf("failed to read holding registers for output %v: %v", outputData, err)
 			continue
 		}
 
+		log.Debugf("ReadHoldingRegisters: results: 0x%0x, len(results) 0x%0x", results, len(results))
 		// Cast the raw reading value to the specified output type
 		data, err := utils.CastToType(outputData.Type, results)
 		if err != nil {
 			if failOnErr {
 				return nil, err
 			}
-			log.Errorf("error casting reading data: %v", err)
+			log.Errorf("error casting reading data: %v, error %v", data, err)
 			continue
 		}
-		log.Debugf("input register read result: %v", data)
 
+		log.Debugf("holding register read result: %T, %v", data, data)
 		reading, err := output.MakeReading(data)
 		if err != nil {
 			// In this case we will not check the 'failOnError' flag because
@@ -81,5 +99,7 @@ func readInputRegister(device *sdk.Device) ([]*sdk.Reading, error) {
 		}
 		readings = append(readings, reading)
 	}
+
+	log.Debugf("readHoldingRegister end, readings: %+v", readings)
 	return readings, nil
 }

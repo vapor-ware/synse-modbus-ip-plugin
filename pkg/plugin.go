@@ -1,8 +1,7 @@
 package pkg
 
 import (
-	"log"
-
+	log "github.com/Sirupsen/logrus"
 	"github.com/vapor-ware/synse-modbus-ip-plugin/pkg/devices"
 	"github.com/vapor-ware/synse-modbus-ip-plugin/pkg/outputs"
 	"github.com/vapor-ware/synse-sdk/sdk"
@@ -19,6 +18,13 @@ func MakePlugin() *sdk.Plugin {
 		&outputs.Voltage,
 		&outputs.Frequency,
 		&outputs.SItoKWhPower,
+		&outputs.FanSpeedPercent,
+		&outputs.TemperatureFTenths,
+		&outputs.FlowGpm,
+		&outputs.FlowGpmTenths,
+		&outputs.Coil,
+		&outputs.InWCThousanths,
+		&outputs.PsiTenths,
 	)
 	if err != nil {
 		log.Fatal(err)
@@ -26,6 +32,8 @@ func MakePlugin() *sdk.Plugin {
 
 	// Register device handlers
 	plugin.RegisterDeviceHandlers(
+		&devices.CoilsHandler,
+		&devices.HoldingRegisterHandler,
 		&devices.InputRegisterHandler,
 	)
 
