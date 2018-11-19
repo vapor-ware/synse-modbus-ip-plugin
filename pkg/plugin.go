@@ -19,7 +19,7 @@ func MakePlugin() *sdk.Plugin {
 		&outputs.Frequency,
 		&outputs.SItoKWhPower,
 		&outputs.FanSpeedPercent,
-		&outputs.TemperatureFTenths,
+		&outputs.Temperature,
 		&outputs.FlowGpm,
 		&outputs.FlowGpmTenths,
 		&outputs.Coil,
