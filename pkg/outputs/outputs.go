@@ -69,16 +69,16 @@ var (
 		},
 	}
 
-	// TemperatureFTenths is the output type for temperature readings in tenths (multiply raw reading by .1)"
-	TemperatureFTenths = sdk.OutputType{
-		Name:          "temperatureFTenths",
+	// Temperature is the output type for temperature readings.
+	Temperature = sdk.OutputType{
+		Name:          "temperature",
 		Precision:     3,
 		ScalingFactor: ".1", // Raw reading for VEM PLC is tenths of degrees F.
 		Unit: sdk.Unit{
-			Name:   "fahrenheit",
-			Symbol: "F",
+			Name:   "celsius",
+			Symbol: "C",
 		},
-		Conversion: "englishToMetricTemperature",
+		Conversion: "englishToMetricTemperature", // Farenheit to Celsius.
 	}
 
 	// FlowGpm is the output type for flow readings in gallons per minute. FUTURE: Metric / English.
