@@ -1,4 +1,4 @@
-[![CircleCI](https://circleci.com/gh/vapor-ware/synse-modbus-ip-plugin.svg?style=shield)](https://circleci.com/gh/vapor-ware/synse-modbus-ip-plugin)
+[![Build Status](https://build.vio.sh/buildStatus/icon?job=vapor-ware/synse-modbus-ip-plugin/master)](https://build.vio.sh/blue/organizations/jenkins/vapor-ware%2Fsynse-modbus-ip-plugin/activity)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fvapor-ware%2Fsynse-modbus-ip-plugin.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fvapor-ware%2Fsynse-modbus-ip-plugin?ref=badge_shield)
 ![GitHub release](https://img.shields.io/github/release/vapor-ware/synse-modbus-ip-plugin.svg)
 
