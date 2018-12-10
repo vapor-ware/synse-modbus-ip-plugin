@@ -7,9 +7,6 @@ pipeline {
   environment {
     PROJ_PATH = '/go/src/github.com/vapor-ware/synse-modbus-ip-plugin'
     IMAGE_NAME = 'vaporio/modbus-ip-plugin'
-
-    // FIXME: for testing release flow
-    TAG_NAME = '1.1.1-dev'
   }
 
   stages {
@@ -121,8 +118,7 @@ pipeline {
       }
       when {
         // example matches: 1.2.3, 1.2.3-dev
-        //tag pattern: '(0|[1-9]*)\\.(0|[1-9]*)\\.(0|[1-9]*)(-(\\S*))?$', comparator: "REGEXP"
-        branch 'jenkins-ci'
+        tag pattern: '(0|[1-9]*)\\.(0|[1-9]*)\\.(0|[1-9]*)(-(\\S*))?$', comparator: "REGEXP"
       }
       steps {
         // Set up the project in the docker container. The project must be
@@ -142,8 +138,7 @@ pipeline {
     stage('Draft GitHub Release') {
       when {
         // example matches: 1.2.3, 1.2.3-dev
-        //tag pattern: '(0|[1-9]*)\\.(0|[1-9]*)\\.(0|[1-9]*)(-(\\S*))?$', comparator: "REGEXP"
-        branch 'jenkins-ci'
+        tag pattern: '(0|[1-9]*)\\.(0|[1-9]*)\\.(0|[1-9]*)(-(\\S*))?$', comparator: "REGEXP"
       }
       environment {
         GITHUB_USER = 'vapor-ware'
@@ -168,13 +163,12 @@ pipeline {
     stage('Publish Release Images') {
       when {
         // example matches: 1.2.3, 1.2.3-dev
-        //tag pattern: '(0|[1-9]*)\\.(0|[1-9]*)\\.(0|[1-9]*)(-(\\S*))?$', comparator: "REGEXP"
-        branch 'jenkins-ci'
+        tag pattern: '(0|[1-9]*)\\.(0|[1-9]*)\\.(0|[1-9]*)(-(\\S*))?$', comparator: "REGEXP"
       }
       steps {
         sh 'make ci-check-version'
         withDockerRegistry(registry: [credentialsId: 'vio-docker-hub']) {
-          sh './bin/ci/build_and_publish.sh latest-dev'
+          sh './bin/ci/build_and_publish.sh latest'
         }
       }
     }
