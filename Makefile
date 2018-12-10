@@ -3,7 +3,7 @@
 #
 
 PLUGIN_NAME    := modbus-ip
-PLUGIN_VERSION := 1.1.0
+PLUGIN_VERSION := 1.1.1-dev
 IMAGE_NAME     := vaporio/modbus-ip-plugin
 
 GIT_COMMIT ?= $(shell git rev-parse --short HEAD 2> /dev/null || true)
@@ -55,6 +55,9 @@ deploy:  ## Run a local deployment of Synse Server, and the Modbus TCP/IP plugin
 .PHONY: docker
 docker:  ## Build the docker image
 	docker build -f Dockerfile \
+		--build-arg BUILD_DATE=$(BUILD_DATE) \
+		--build-arg BUILD_VERSION=$(PLUGIN_VERSION) \
+		--build-arg VCS_REF=$(GIT_COMMIT) \
 		-t $(IMAGE_NAME):latest \
 		-t $(IMAGE_NAME):local .
 
@@ -120,8 +123,9 @@ ci-build:
 ifndef HAS_GOX
 	go get -v github.com/mitchellh/gox
 endif
+	@ # We currently only use a couple of images; the built set of images can be
+	@ # updated if we ever need to support more os/arch combinations
 	gox --output="build/${PLUGIN_NAME}_{{.OS}}_{{.Arch}}" \
 		--ldflags "${LDFLAGS}" \
-		--parallel=10 \
-		--os='darwin linux' \
-		--osarch='!darwin/386 !darwin/arm !darwin/arm64'
+		--osarch='linux/amd64 darwin/amd64' \
+		github.com/vapor-ware/synse-modbus-ip-plugin
