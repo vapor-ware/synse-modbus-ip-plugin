@@ -69,6 +69,17 @@ var (
 		},
 	}
 
+	// FanSpeedPercentTenths is the output type for the VEM PLC fan in tenths.
+	FanSpeedPercentTenths = sdk.OutputType{
+		Name:          "fan_speed_percent_tenths",
+		Precision:     3,
+		ScalingFactor: ".1", // Raw reading for VEM PLC minimum fan speed is tenths of percent.
+		Unit: sdk.Unit{
+			Name:   "percent",
+			Symbol: "%",
+		},
+	}
+
 	// Temperature is the output type for temperature readings.
 	Temperature = sdk.OutputType{
 		Name:          "temperature",
