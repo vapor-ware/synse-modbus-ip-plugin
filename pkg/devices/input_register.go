@@ -4,7 +4,6 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/mitchellh/mapstructure"
 	"github.com/vapor-ware/synse-modbus-ip-plugin/pkg/config"
-	"github.com/vapor-ware/synse-modbus-ip-plugin/pkg/utils"
 	"github.com/vapor-ware/synse-sdk/sdk"
 )
 
@@ -17,20 +16,13 @@ var InputRegisterHandler = sdk.DeviceHandler{
 
 // readInputRegister is the read function for the input register device handler.
 func readInputRegister(device *sdk.Device) ([]*sdk.Reading, error) {
-	var deviceData config.ModbusDeviceData
-	err := mapstructure.Decode(device.Data, &deviceData)
+
+	modbusConfig, client, err := GetModbusClientAndConfig(device)
 	if err != nil {
 		return nil, err
 	}
 
-	client, err := utils.NewClient(&deviceData)
-	if err != nil {
-		return nil, err
-	}
-
-	failOnErr := deviceData.FailOnError
-	log.Debugf("fail on error: %v", failOnErr)
-
+	failOnErr := (*modbusConfig).FailOnError
 	var readings []*sdk.Reading
 
 	// For each device instance, we will have various outputs defined.
@@ -52,7 +44,7 @@ func readInputRegister(device *sdk.Device) ([]*sdk.Reading, error) {
 		}
 
 		// Now use that to get the input register reading
-		results, err := client.ReadInputRegisters(uint16(outputData.Address), uint16(outputData.Width))
+		results, err := (*client).ReadInputRegisters(uint16(outputData.Address), uint16(outputData.Width))
 		if err != nil {
 			if failOnErr {
 				return nil, err
@@ -61,22 +53,8 @@ func readInputRegister(device *sdk.Device) ([]*sdk.Reading, error) {
 			continue
 		}
 
-		// Cast the raw reading value to the specified output type
-		data, err := utils.CastToType(outputData.Type, results)
+		reading, err := UnpackReading(output, outputData.Type, results, failOnErr)
 		if err != nil {
-			if failOnErr {
-				return nil, err
-			}
-			log.Errorf("error casting reading data: %v", err)
-			continue
-		}
-		log.Debugf("input register read result: %v", data)
-
-		reading, err := output.MakeReading(data)
-		if err != nil {
-			// In this case we will not check the 'failOnError' flag because
-			// this isn't an issue with reading the device, its a configuration
-			// issue and the error should be noted.
 			return nil, err
 		}
 		readings = append(readings, reading)
