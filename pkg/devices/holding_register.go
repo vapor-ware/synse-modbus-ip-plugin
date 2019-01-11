@@ -5,87 +5,67 @@ import (
 	"strconv"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/mitchellh/mapstructure"
+	"github.com/goburrow/modbus"
 	"github.com/vapor-ware/synse-modbus-ip-plugin/pkg/config"
 	"github.com/vapor-ware/synse-sdk/sdk"
 )
 
+var sortOrdinalSetForHolding = false
+
 // HoldingRegisterHandler is a handler which should be used for all devices/outputs
 // that read from/write to holding registers.
 var HoldingRegisterHandler = sdk.DeviceHandler{
-	Name:  "holding_register",
-	Read:  readHoldingRegister,
-	Write: writeHoldingRegister,
+	Name:     "holding_register",
+	BulkRead: bulkReadHoldingRegisters,
+	Write:    writeHoldingRegister,
 }
 
-// readHoldingRegister is the read function for the holding register device handler.
-func readHoldingRegister(device *sdk.Device) ([]*sdk.Reading, error) {
+// bulkReadHoldingRegisters performs a bulk read on the devices parameter
+// reducing round trips to the physical device.
+func bulkReadHoldingRegisters(devices []*sdk.Device) (readContexts []*sdk.ReadContext, err error) {
+	log.Debugf("----------- bulkReadHoldingRegisters start ---------------")
 
-	// FIXME (etd) - holding registers, coils, and input registers all do pretty much
-	// the same thing on read here.. consider abstracting this out so all we have to do
-	// is something along the lines of:
-	//
-	//   func readHoldingRegister(device *sdk.Device) ([]*sdk.Reading, error) {
-	//      return utils.Read(device, "holding")
-	//   }
-	log.Debugf("readHoldingRegister start: %+v", device)
-
-	modbusConfig, client, err := GetModbusClientAndConfig(device)
+	// Ideally this would be done in setup, but for now this should work.
+	// Map out the bulk read.
+	bulkReadMap, err := MapBulkRead(devices, !sortOrdinalSetForHolding)
 	if err != nil {
 		return nil, err
 	}
+	log.Debugf("bulkReadMap: %#v", bulkReadMap)
+	sortOrdinalSetForHolding = true
 
-	failOnErr := (*modbusConfig).FailOnError
-	log.Debugf("fail on error: %v", failOnErr)
+	// Perform the bulk reads.
+	for k, v := range bulkReadMap {
+		log.Debugf("bulkReadMap[%#v]: %#v", k, v)
 
-	var readings []*sdk.Reading
-
-	// For each device instance, we will have various outputs defined.
-	// The outputs here should contain their own data that tells us what
-	// the register address and read width are.
-	for i, output := range device.Outputs {
-		log.Debugf(" -- [%d] ----------", i)
-		log.Debugf("  Device OutputType:  %v", output.OutputType)
-		log.Debugf("  Device Output Data: %v", output.Data)
-
-		// Get the output data config
-		var outputData config.ModbusOutputData
-		err := mapstructure.Decode(output.Data, &outputData)
-		if err != nil {
-			if failOnErr {
-				return nil, err
-			}
-			log.Errorf("failed to parse output config: %v", err)
-			continue
-		}
-
-		// Now use that to get the holding register reading
-		log.Debugf(
-			"Begin Reading holding register address 0x%0x, width 0x%x",
-			uint16(outputData.Address),
-			uint16(outputData.Width))
-
-		results, err := (*client).ReadHoldingRegisters(
-			uint16(outputData.Address), uint16(outputData.Width))
-		if err != nil {
-			if failOnErr {
-				return nil, err
-			}
-			log.Errorf("failed to read holding registers for output %v: %v", outputData, err)
-			continue
-		}
-
-		log.Debugf("ReadHoldingRegisters: results: 0x%0x, len(results) 0x%0x", results, len(results))
-
-		reading, err := UnpackReading(output, outputData.Type, results, failOnErr)
+		// New connection for each key.
+		var client modbus.Client
+		var modbusDeviceData *config.ModbusDeviceData
+		client, modbusDeviceData, err = GetBulkReadClient(k)
 		if err != nil {
 			return nil, err
 		}
-		readings = append(readings, reading)
-	}
 
-	log.Debugf("readHoldingRegister end, readings: %+v", readings)
-	return readings, nil
+		// For read in v, perform each read.
+		for i := 0; i < len(v); i++ { // For each required read.
+			read := v[i]
+			log.Debugf("Reading bulkReadMap[%#v][%#v]", k, read)
+
+			var readResults []byte
+			readResults, err = client.ReadHoldingRegisters(read.StartRegister, read.RegisterCount)
+			if err != nil {
+				log.Errorf("modbus bulk read holding registers failure: %v", err.Error())
+				if modbusDeviceData.FailOnError {
+					return nil, err
+				}
+			}
+			log.Debugf("ReadHoldingRegisters: results: 0x%0x, len(results) 0x%0x", readResults, len(readResults))
+			read.ReadResults = readResults[0 : 2*(read.RegisterCount)] // Store raw results. Two bytes per register.
+		} // end for each read
+	} // end for each modbus connection
+
+	readContexts, err = MapBulkReadData(bulkReadMap)
+	return
 }
 
 // writeHoldingRegister is the write function for the holding register device handler.

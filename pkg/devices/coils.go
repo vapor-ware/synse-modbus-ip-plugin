@@ -4,69 +4,67 @@ import (
 	"fmt"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/mitchellh/mapstructure"
+	"github.com/goburrow/modbus"
 	"github.com/vapor-ware/synse-modbus-ip-plugin/pkg/config"
 	"github.com/vapor-ware/synse-sdk/sdk"
 )
 
+var sortOrdinalSetForCoils = false
+
 // CoilsHandler is a handler that should be used for all devices/outputs
 // that read from/write to coils.
 var CoilsHandler = sdk.DeviceHandler{
-	Name:  "coil",
-	Read:  readCoils,
-	Write: writeCoils,
+	Name:     "coil",
+	BulkRead: bulkReadCoils,
+	Write:    writeCoils,
 }
 
-// readCoils is the read function for the coils device handler.
-func readCoils(device *sdk.Device) ([]*sdk.Reading, error) {
-	if device == nil {
-		return nil, fmt.Errorf("readCoils device is nil")
-	}
+// bulkReadCoils performs a bulk read on the devices parameter reducing round trips.
+func bulkReadCoils(devices []*sdk.Device) (readContexts []*sdk.ReadContext, err error) {
 
-	modbusConfig, client, err := GetModbusClientAndConfig(device)
+	log.Debugf("----------- bulkReadCoils start ---------------")
+
+	// Ideally this would be done in setup, but for now this should work.
+	// Map out the bulk read.
+	bulkReadMap, err := MapBulkRead(devices, !sortOrdinalSetForCoils)
 	if err != nil {
 		return nil, err
 	}
+	log.Debugf("bulkReadMap: %#v", bulkReadMap)
+	sortOrdinalSetForCoils = true
 
-	failOnErr := (*modbusConfig).FailOnError
-	log.Debugf("fail on error: %v", failOnErr)
+	// Perform the bulk reads.
+	for k, v := range bulkReadMap {
+		log.Debugf("bulkReadMap[%#v]: %#v", k, v)
 
-	// For each device instance, we will have various outputs defined.
-	// The outputs here should contain their own data which tells us what
-	// the register address and the read width are.
-	var readings []*sdk.Reading
-	for i, output := range device.Outputs {
-		log.Debugf(" -- [%d] ----------", i)
-		log.Debugf("  Device Output Data: %v", output.Data)
-
-		// Get the output data config
-		var outputData config.ModbusOutputData
-		err := mapstructure.Decode(output.Data, &outputData)
-		if err != nil {
-			if failOnErr {
-				return nil, err
-			}
-			log.Errorf("failed to parse output config: %v", err)
-			continue
-		}
-
-		// Use the output data config to get the coils reading
-		results, err := (*client).ReadCoils(uint16(outputData.Address), uint16(outputData.Width))
-		if err != nil {
-			if failOnErr {
-				return nil, err
-			}
-			log.Errorf("failed to read coils for output %v: %v", outputData, err)
-			continue
-		}
-
-		reading, err := UnpackReading(output, outputData.Type, results, failOnErr)
+		// New connection for each key.
+		var client modbus.Client
+		var modbusDeviceData *config.ModbusDeviceData
+		client, modbusDeviceData, err = GetBulkReadClient(k)
 		if err != nil {
 			return nil, err
 		}
-		readings = append(readings, reading)
-	}
-	return readings, nil
+
+		// For read in v, perform each read.
+		for i := 0; i < len(v); i++ { // For each required read.
+			read := v[i]
+			log.Debugf("Reading bulkReadMap[%#v][%#v]", k, read)
+
+			var readResults []byte
+			readResults, err = client.ReadCoils(read.StartRegister, read.RegisterCount)
+			if err != nil {
+				log.Errorf("modbus bulk read holding registers failure: %v", err.Error())
+				if modbusDeviceData.FailOnError {
+					return nil, err
+				}
+			}
+			log.Debugf("ReadCoils: results: 0x%0x, len(results) 0x%0x", readResults, len(readResults))
+			read.ReadResults = readResults[0 : 2*(read.RegisterCount)] // Store raw results. Two bytes per register.
+		} // end for each read
+	} // end for each modbus connection
+
+	readContexts, err = MapBulkReadData(bulkReadMap)
+	return
 }
 
 // writeCoils is the read function for the coils device handler.
