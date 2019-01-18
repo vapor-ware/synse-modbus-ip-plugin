@@ -23,7 +23,7 @@ func bulkReadInputRegisters(devices []*sdk.Device) (readContexts []*sdk.ReadCont
 
 	// Ideally this would be done in setup, but for now this should work.
 	// Map out the bulk read.
-	bulkReadMap, err := MapBulkRead(devices, !sortOrdinalSetForInput)
+	bulkReadMap, err := MapBulkRead(devices, !sortOrdinalSetForInput, false)
 	if err != nil {
 		return nil, err
 	}

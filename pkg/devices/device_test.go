@@ -207,7 +207,7 @@ func Test000(t *testing.T) {
 	}
 
 	t.Logf("--- Mapping bulk read ---")
-	bulkReadMap, err := MapBulkRead(devices, false)
+	bulkReadMap, err := MapBulkRead(devices, false, false)
 	if err != nil {
 		t.Fatalf(err.Error())
 	}

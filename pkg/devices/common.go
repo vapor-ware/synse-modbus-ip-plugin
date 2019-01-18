@@ -80,6 +80,27 @@ func GetOutput(device *sdk.Device) (output *sdk.Output, err error) {
 	return device.Outputs[0], nil
 }
 
+// UnpackCoilReading gets a coil (true / false) from a ReadCoils result buffer.
+func UnpackCoilReading(output *sdk.Output, rawReading []byte, startAddress uint16, coilAddress uint16) (reading *sdk.Reading, err error) {
+	log.Debugf("Unpack Coil. rawReading %x, startAddress: %v, coilAddress: %v", rawReading, startAddress, coilAddress)
+	bitIndex := coilAddress - startAddress
+	byteIndex := bitIndex / 8
+	bitIndex = bitIndex % 8
+
+	if int(byteIndex) >= len(rawReading) {
+		return nil, fmt.Errorf("failed to get coil data")
+	}
+
+	coilByte := rawReading[byteIndex]
+	mask := byte(0x01 << bitIndex)
+	coilState := (coilByte & mask) != 0
+
+	return output.MakeReading(coilState)
+	// In this case we will not check the 'failOnError' flag because
+	// this isn't an issue with reading the device, its a configuration
+	// issue and the error should be noted.
+}
+
 // UnpackReading is a wrapper for CastToType and MakeReading.
 func UnpackReading(output *sdk.Output, typeName string, rawReading []byte, failOnErr bool) (reading *sdk.Reading, err error) {
 
@@ -151,16 +172,19 @@ type ModbusBulkRead struct {
 	StartRegister uint16
 	// Number of registers to read.
 	RegisterCount uint16
+	// true for coils. The unmarshalling is different.
+	IsCoil bool
 }
 
 // NewModbusBulkRead contains data for each bulk read.
-func NewModbusBulkRead(device *sdk.Device, startRegister uint16, registerCount uint16) (read *ModbusBulkRead, err error) {
+func NewModbusBulkRead(device *sdk.Device, startRegister uint16, registerCount uint16, isCoil bool) (read *ModbusBulkRead, err error) {
 	if device == nil {
 		return nil, fmt.Errorf("no device pointer given")
 	}
 	read = &ModbusBulkRead{
 		StartRegister: startRegister,
 		RegisterCount: registerCount,
+		IsCoil:        isCoil,
 	}
 	read.Devices = append(read.Devices, device)
 	log.Errorf("NewModbusBulkRead returning: %#v", read)
@@ -228,7 +252,7 @@ func SortDevicesByRegister(devices []*sdk.Device, setSortOrdinal bool) (sortedRe
 // MapBulkRead maps the physical modbus device / connection information for all
 // modbus devices to a map of each modbus bulk read call required to get all
 // register data configured for the device.
-func MapBulkRead(devices []*sdk.Device, setSortOrdinal bool) (bulkReadMap map[ModbusBulkReadKey][]*ModbusBulkRead, err error) {
+func MapBulkRead(devices []*sdk.Device, setSortOrdinal bool, isCoil bool) (bulkReadMap map[ModbusBulkReadKey][]*ModbusBulkRead, err error) {
 	log.Debugf("MapBulkRead start. devices: %+v", devices)
 
 	// Sort the devices.
@@ -292,7 +316,7 @@ func MapBulkRead(devices []*sdk.Device, setSortOrdinal bool) (bulkReadMap map[Mo
 			// If the key is not present, this is a simple insert to the map.
 			if !keyPresent {
 				log.Debugf("Key not present.")
-				modbusBulkRead, err := NewModbusBulkRead(device, outputDataAddress, outputDataWidth)
+				modbusBulkRead, err := NewModbusBulkRead(device, outputDataAddress, outputDataWidth, isCoil)
 				if err != nil {
 					return nil, err
 				}
@@ -315,7 +339,7 @@ func MapBulkRead(devices []*sdk.Device, setSortOrdinal bool) (bulkReadMap map[Mo
 				} else {
 					// Add a new read.
 					log.Debugf("read does not fit in existing. newRegisterCount: %v", newRegisterCount)
-					modbusBulkRead, err := NewModbusBulkRead(device, outputDataAddress, outputDataWidth)
+					modbusBulkRead, err := NewModbusBulkRead(device, outputDataAddress, outputDataWidth, isCoil)
 					if err != nil {
 						return nil, err
 					}
@@ -362,33 +386,42 @@ func MapBulkReadData(bulkReadMap map[ModbusBulkReadKey][]*ModbusBulkRead) (readC
 					log.Debugf("k.FailOnError: %v", k.FailOnError)
 
 					readResults := read.ReadResults // Raw byte results from modbus call.
-					// Get start and end data offsets. Bounds check.
-					startDataOffset := (2 * outputDataAddress) - (2 * read.StartRegister) // Results are in bytes. Need 16 bit words.
-					endDataOffset := startDataOffset + (2 * outputDataWidth)              // Two bytes per register.
-					readResultsLength := len(readResults)
 
-					log.Debugf("startDataOffset: %d", startDataOffset)
-					log.Debugf("endDataOffset: %d", endDataOffset)
-					log.Debugf("readResultsLength: %d", readResultsLength)
-
-					if int(endDataOffset) > len(readResults) {
-						if k.FailOnError {
-							return nil, fmt.Errorf("Bounds check failure. startDataOffset: %v, endDataOffset: %v, readResultsLength: %v",
-								startDataOffset, endDataOffset, readResultsLength)
+					var reading *sdk.Reading
+					if read.IsCoil {
+						reading, err = UnpackCoilReading(output, read.ReadResults, read.StartRegister, outputDataAddress)
+						if err != nil {
+							return nil, err
 						}
-						// nil reading.
-						log.Errorf("Failed reading. Attempt to read beyond bounds. startDataOffset: %v, endDataOffset: %v, readResultsLength: %v",
-							startDataOffset, endDataOffset, readResultsLength)
-						readings = append(readings, nil)
-						continue // Next output.
-					} // end bounds check.
+					} else {
+						// Get start and end data offsets. Bounds check.
+						startDataOffset := (2 * outputDataAddress) - (2 * read.StartRegister) // Results are in bytes. Need 16 bit words.
+						endDataOffset := startDataOffset + (2 * outputDataWidth)              // Two bytes per register.
+						readResultsLength := len(readResults)
 
-					rawReading := readResults[startDataOffset:endDataOffset]
-					log.Debugf("rawReading: len: %v, %x", len(rawReading), rawReading)
+						log.Debugf("startDataOffset: %d", startDataOffset)
+						log.Debugf("endDataOffset: %d", endDataOffset)
+						log.Debugf("readResultsLength: %d", readResultsLength)
 
-					reading, err := UnpackReading(output, outputData.Type, rawReading, k.FailOnError)
-					if err != nil {
-						return nil, err
+						if int(endDataOffset) > len(readResults) {
+							if k.FailOnError {
+								return nil, fmt.Errorf("Bounds check failure. startDataOffset: %v, endDataOffset: %v, readResultsLength: %v",
+									startDataOffset, endDataOffset, readResultsLength)
+							}
+							// nil reading.
+							log.Errorf("Failed reading. Attempt to read beyond bounds. startDataOffset: %v, endDataOffset: %v, readResultsLength: %v",
+								startDataOffset, endDataOffset, readResultsLength)
+							readings = append(readings, nil)
+							continue // Next output.
+						} // end bounds check.
+
+						rawReading := readResults[startDataOffset:endDataOffset]
+						log.Debugf("rawReading: len: %v, %x", len(rawReading), rawReading)
+
+						reading, err = UnpackReading(output, outputData.Type, rawReading, k.FailOnError)
+						if err != nil {
+							return nil, err
+						}
 					}
 					log.Debugf("Appending reading: %#v", reading)
 					readings = append(readings, reading)

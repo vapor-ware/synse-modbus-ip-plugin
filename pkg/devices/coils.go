@@ -26,7 +26,7 @@ func bulkReadCoils(devices []*sdk.Device) (readContexts []*sdk.ReadContext, err 
 
 	// Ideally this would be done in setup, but for now this should work.
 	// Map out the bulk read.
-	bulkReadMap, err := MapBulkRead(devices, !sortOrdinalSetForCoils)
+	bulkReadMap, err := MapBulkRead(devices, !sortOrdinalSetForCoils, true)
 	if err != nil {
 		return nil, err
 	}

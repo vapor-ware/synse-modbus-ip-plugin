@@ -27,7 +27,7 @@ func bulkReadHoldingRegisters(devices []*sdk.Device) (readContexts []*sdk.ReadCo
 
 	// Ideally this would be done in setup, but for now this should work.
 	// Map out the bulk read.
-	bulkReadMap, err := MapBulkRead(devices, !sortOrdinalSetForHolding)
+	bulkReadMap, err := MapBulkRead(devices, !sortOrdinalSetForHolding, false)
 	if err != nil {
 		return nil, err
 	}
