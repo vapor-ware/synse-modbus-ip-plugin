@@ -77,10 +77,9 @@ ifndef HAS_LINT
 	gometalinter --install
 endif
 	@ # disable gotype: https://github.com/alecthomas/gometalinter/issues/40
-	gometalinter ./... \
+	gometalinter --vendor ./... \
 		--disable=gotype --disable=gocyclo \
 		--tests \
-		--vendor \
 		--sort=path --sort=line \
 		--aggregate \
 		--deadline=5m
