@@ -106,6 +106,7 @@ func writeHoldingRegister(device *sdk.Device, data *sdk.WriteData) (err error) {
 	}
 	registerUint16 := uint16(registerInt)
 
+	log.Debugf("Writing holding register 0x%x, data 0x%x", registerUint16, registerData)
 	_, err = (*client).WriteSingleRegister(registerUint16, registerData)
 	return err
 }

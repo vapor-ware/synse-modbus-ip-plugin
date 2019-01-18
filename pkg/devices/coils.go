@@ -110,6 +110,7 @@ func writeCoils(device *sdk.Device, data *sdk.WriteData) (err error) {
 	}
 	registerUint16 := uint16(registerInt)
 
+	log.Debugf("Writing coil 0x%x, data 0x%x", registerUint16, coilData)
 	_, err = (*client).WriteSingleCoil(registerUint16, coilData)
 	return err
 }
