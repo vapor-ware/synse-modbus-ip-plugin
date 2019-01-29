@@ -26,7 +26,7 @@ func bulkReadCoils(devices []*sdk.Device) (readContexts []*sdk.ReadContext, err 
 
 	// Ideally this would be done in setup, but for now this should work.
 	// Map out the bulk read.
-	bulkReadMap, err := MapBulkRead(devices, !sortOrdinalSetForCoils, true)
+	bulkReadMap, keyOrder, err := MapBulkRead(devices, !sortOrdinalSetForCoils, true)
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +34,9 @@ func bulkReadCoils(devices []*sdk.Device) (readContexts []*sdk.ReadContext, err 
 	sortOrdinalSetForCoils = true
 
 	// Perform the bulk reads.
-	for k, v := range bulkReadMap {
+	for a := 0; a < len(keyOrder); a++ {
+		k := keyOrder[a]
+		v := bulkReadMap[k]
 		log.Debugf("bulkReadMap[%#v]: %#v", k, v)
 
 		// New connection for each key.
@@ -53,17 +55,20 @@ func bulkReadCoils(devices []*sdk.Device) (readContexts []*sdk.ReadContext, err 
 			var readResults []byte
 			readResults, err = client.ReadCoils(read.StartRegister, read.RegisterCount)
 			if err != nil {
-				log.Errorf("modbus bulk read holding registers failure: %v", err.Error())
+				log.Errorf("modbus bulk read coils failure: %v", err.Error())
 				if modbusDeviceData.FailOnError {
 					return nil, err
 				}
+				// No data from device. If fail on error is false, we should keep trying the remaining reads.
+				read.ReadResults = []byte{}
+				continue
 			}
 			log.Debugf("ReadCoils: results: 0x%0x, len(results) 0x%0x", readResults, len(readResults))
-			read.ReadResults = readResults[0 : 2*(read.RegisterCount)] // Store raw results. Two bytes per register.
+			read.ReadResults = readResults[0 : 2*(read.RegisterCount)] // Store raw results. Two bytes per register. TODO: Double check this.
 		} // end for each read
 	} // end for each modbus connection
 
-	readContexts, err = MapBulkReadData(bulkReadMap)
+	readContexts, err = MapBulkReadData(bulkReadMap, keyOrder)
 	return
 }
 
