@@ -56,12 +56,12 @@ func dumpBulkReadMap(t *testing.T, bulkReadMap map[ModbusBulkReadKey][]*ModbusBu
 		readsRequired := len(reads)
 		t.Logf("readsRequired: %v", readsRequired)
 		for i := 0; i < readsRequired; i++ {
-			//readsRequired := len(v)
+
 			read := reads[i]
 			t.Logf("read[%v]", i)
-			t.Logf("startRegister: 0x%04x", read.StartRegister)
-			t.Logf("registerCount: 0x%04x", read.RegisterCount)
-			t.Logf("endRegister:   0x%04x", read.StartRegister+read.RegisterCount)
+			t.Logf("startRegister: 0x%04x, d%d", read.StartRegister, read.StartRegister)
+			t.Logf("registerCount: 0x%04x, d%d", read.RegisterCount, read.RegisterCount)
+			t.Logf("endRegister:   0x%04x, d%d", read.StartRegister+read.RegisterCount, read.StartRegister+read.RegisterCount)
 			t.Logf("readResults: len: %v,  %x", len(read.ReadResults), read.ReadResults)
 			theDevices := bulkReadMap[k][i].Devices
 			t.Logf("bulkReadMap[%#v][%v]: %#v", k, i, theDevices)
@@ -91,6 +91,7 @@ func dumpReadContexts(t *testing.T, readContexts []*sdk.ReadContext) {
 	t.Logf("--- Dumping read contexts end ---")
 }
 
+// dumpReadings dumps out the given readings to the test log.
 func dumpReadings(t *testing.T, readings []*sdk.Reading) {
 	for i := 0; i < len(readings); i++ {
 		t.Logf("reading[%v]: %#v", i, readings[i])
@@ -109,6 +110,8 @@ func populateBulkReadMap(t *testing.T, bulkReadMap map[ModbusBulkReadKey][]*Modb
 	}
 }
 
+// verifyReadings verifies that the expected slice of readings are the same as
+// the actual readings. Order matters.
 func verifyReadings(t *testing.T, expected []*sdk.Reading, actual []*sdk.Reading) {
 	expectedLen := len(expected)
 	actualLen := len(actual)
@@ -156,6 +159,3454 @@ func verifySingleNilReading(t *testing.T, readContexts []*sdk.ReadContext) {
 		t.Fatalf("Expected nil reading, got %#v", readContexts[0].Reading[0])
 	}
 }
+
+const egaugeIP1 = "10.193.4.130"
+const egaugePort = 502
+const defaultTimeout = "10s"
+
+// getEGaugeDevices gets one wedge worth of EGauge devices for testing.
+// There may be more than what we need here, but:
+// - We needed to check if bulk reads work.
+// - We can pare this down later as needed.
+// - The number of reads will not likely change due to modbus call register
+//   limits and the register map itself.
+// - It is simpler to remove devices rather than add them when under the gun in
+//   the field.
+// The current number of bulk reads required per EGauge is 10.
+// FUTURE: Six egauges, one per wedge. Rack will be different for each one.
+func getEGaugeDevices() (devices []*sdk.Device) {
+
+	// Create devices for testing.
+	devices = []*sdk.Device{
+		&sdk.Device{
+			Kind:   "egauge.seconds.timestamp",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "EGauge Local Timestamp Seconds", // Considered merging with microseconds, but unclear if we ned this yet.
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Seconds,
+					Info:       "EGauge Local Timestamp Seconds",
+					Data: map[string]interface{}{
+						"address": 0,
+						"width":   2, // 2 16 bit words.
+						"type":    "u32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.microseconds.timestamp",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "EGauge Local Timestamp Microseconds",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Microseconds,
+					Info:       "EGauge Local Timestamp Microseconds",
+					Data: map[string]interface{}{
+						"address": 2,
+						"width":   2, // 2 16 bit words.
+						"type":    "u32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.thd.seconds.timestamp",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "EGauge THD Timestamp Seconds",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Seconds,
+					Info:       "EGauge THD Timestamp Seconds",
+					Data: map[string]interface{}{
+						"address": 4,
+						"width":   2, // 2 16 bit words.
+						"type":    "u32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.thd.microseconds.timestamp",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "EGauge THD Timestamp Microseconds",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Microseconds,
+					Info:       "EGauge THD Timestamp Microseconds",
+					Data: map[string]interface{}{
+						"address": 6,
+						"width":   2, // 2 16 bit words.
+						"type":    "u32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.register.seconds.timestamp",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "EGauge Register Timestamp Seconds",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Seconds,
+					Info:       "EGauge Register Timestamp Seconds",
+					Data: map[string]interface{}{
+						"address": 8,
+						"width":   2, // 2 16 bit words.
+						"type":    "u32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		// Leg 1 to neutral RMS voltage
+		&sdk.Device{
+			Kind:   "egauge.rms.voltage",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "EGauge L1 RMS Voltage",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Voltage,
+					Info:       "EGauge L1 RMS Voltage",
+					Data: map[string]interface{}{
+						"address": 500,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		// Leg 2 to neutral RMS voltage
+		&sdk.Device{
+			Kind:   "egauge.rms.voltage",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "EGauge L2 RMS Voltage",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Voltage,
+					Info:       "EGauge L2 RMS Voltage",
+					Data: map[string]interface{}{
+						"address": 502,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		// Leg 3 to neutral RMS voltage
+		&sdk.Device{
+			Kind:   "egauge.rms.voltage",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "EGauge L3 RMS Voltage",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Voltage,
+					Info:       "EGauge 31 RMS Voltage",
+					Data: map[string]interface{}{
+						"address": 504,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		// Leg 1 to Leg 2 RMS voltage
+		&sdk.Device{
+			Kind:   "egauge.rms.voltage",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "EGauge L1-L2 RMS Voltage",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Voltage,
+					Info:       "EGauge L1-L2 RMS Voltage",
+					Data: map[string]interface{}{
+						"address": 506,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		// Leg 2 to Leg3 RMS voltage
+		&sdk.Device{
+			Kind:   "egauge.rms.voltage",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "EGauge L2-L3 RMS Voltage",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Voltage,
+					Info:       "EGauge L2-L3 RMS Voltage",
+					Data: map[string]interface{}{
+						"address": 508,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		// Leg 3 to Leg 1 RMS voltage
+		&sdk.Device{
+			Kind:   "egauge.rms.voltage",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "EGauge L3-L1 RMS Voltage",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Voltage,
+					Info:       "EGauge L3-L1 RMS Voltage",
+					Data: map[string]interface{}{
+						"address": 510,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.mean.voltage",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "EGauge L1 Mean DC Voltage",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Voltage,
+					Info:       "EGauge L1 Mean DC Voltage",
+					Data: map[string]interface{}{
+						"address": 1000,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.mean.voltage",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "EGauge L2 Mean DC Voltage",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Voltage,
+					Info:       "EGauge L2 Mean DC Voltage",
+					Data: map[string]interface{}{
+						"address": 1002,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.mean.voltage",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "EGauge L3 Mean DC Voltage",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Voltage,
+					Info:       "EGauge L3 Mean DC Voltage",
+					Data: map[string]interface{}{
+						"address": 1004,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.mean.voltage",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "EGauge L1-L2 Mean DC Voltage",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Voltage,
+					Info:       "EGauge L1-L2 Mean DC Voltage",
+					Data: map[string]interface{}{
+						"address": 1006,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.mean.voltage",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "EGauge L2-L3 Mean DC Voltage",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Voltage,
+					Info:       "EGauge L2-L3 Mean DC Voltage",
+					Data: map[string]interface{}{
+						"address": 1008,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.mean.voltage",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "EGauge L3-L1 Mean DC Voltage",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Voltage,
+					Info:       "EGauge L3-L1 Mean DC Voltage",
+					Data: map[string]interface{}{
+						"address": 1010,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		// Line frequency for the RMS voltages (these should all read 60 Hz)
+
+		&sdk.Device{
+			Kind:   "egauge.frequency",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "L1 Frequency",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Frequency,
+					Info:       "L1 Frequency",
+					Data: map[string]interface{}{
+						"address": 1500,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.frequency",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "L2 Frequency",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Frequency,
+					Info:       "L2 Frequency",
+					Data: map[string]interface{}{
+						"address": 1502,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.frequency",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "L3 Frequency",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Frequency,
+					Info:       "L3 Frequency",
+					Data: map[string]interface{}{
+						"address": 1504,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.frequency",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "L1-L2 Frequency",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Frequency,
+					Info:       "L1-L2 Frequency",
+					Data: map[string]interface{}{
+						"address": 1506,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.frequency",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "L2-L3 Frequency",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Frequency,
+					Info:       "L3-L3 Frequency",
+					Data: map[string]interface{}{
+						"address": 1508,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.frequency",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "L3-L1 Frequency",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Frequency,
+					Info:       "L3-L1 Frequency",
+					Data: map[string]interface{}{
+						"address": 1510,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.rms.current",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 1 RMS Current 1",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Current,
+					Info:       "Zone 1 RMS Current 1",
+					Data: map[string]interface{}{
+						"address": 2000,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.rms.current",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 1 RMS Current 2",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Current,
+					Info:       "Zone 1 RMS Current 2",
+					Data: map[string]interface{}{
+						"address": 2002,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.rms.current",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 1 RMS Current 3",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Current,
+					Info:       "Zone 1 RMS Current 3",
+					Data: map[string]interface{}{
+						"address": 2004,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.rms.current",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 2 RMS Current 1",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Current,
+					Info:       "Zone 2 RMS Current 1",
+					Data: map[string]interface{}{
+						"address": 2006,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.rms.current",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 2 RMS Current 2",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Current,
+					Info:       "Zone 2 RMS Current 2",
+					Data: map[string]interface{}{
+						"address": 2008,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.rms.current",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 2 RMS Current 3",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Current,
+					Info:       "Zone 2 RMS Current 3",
+					Data: map[string]interface{}{
+						"address": 2010,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.rms.current",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 3 RMS Current 1",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Current,
+					Info:       "Zone 3 RMS Current 1",
+					Data: map[string]interface{}{
+						"address": 2012,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.rms.current",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 3 RMS Current 2",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Current,
+					Info:       "Zone 3 RMS Current 2",
+					Data: map[string]interface{}{
+						"address": 2014,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.rms.current",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 3 RMS Current 3",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Current,
+					Info:       "Zone 3 RMS Current 3",
+					Data: map[string]interface{}{
+						"address": 2016,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.rms.current",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 4 RMS Current 1",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Current,
+					Info:       "Zone 4 RMS Current 1",
+					Data: map[string]interface{}{
+						"address": 2018,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.rms.current",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 4 RMS Current 2",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Current,
+					Info:       "Zone 4 RMS Current 2",
+					Data: map[string]interface{}{
+						"address": 2020,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.rms.current",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 4 RMS Current 3",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Current,
+					Info:       "Zone 4 RMS Current 3",
+					Data: map[string]interface{}{
+						"address": 2022,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.dc.current",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 1 Mean DC Current 1",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Current,
+					Info:       "Zone 1 Mean DC Current 1",
+					Data: map[string]interface{}{
+						"address": 2500,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.dc.current",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 1 Mean DC Current 2",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Current,
+					Info:       "Zone 1 Mean DC Current 2",
+					Data: map[string]interface{}{
+						"address": 2502,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.dc.current",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 1 Mean DC Current 3",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Current,
+					Info:       "Zone 1 Mean DC Current 3",
+					Data: map[string]interface{}{
+						"address": 2504,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.dc.current",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 2 Mean DC Current 1",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Current,
+					Info:       "Zone 2 Mean DC Current 1",
+					Data: map[string]interface{}{
+						"address": 2506,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.dc.current",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 2 Mean DC Current 2",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Current,
+					Info:       "Zone 2 Mean DC Current 2",
+					Data: map[string]interface{}{
+						"address": 2508,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.dc.current",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 2 Mean DC Current 3",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Current,
+					Info:       "Zone 2 Mean DC Current 3",
+					Data: map[string]interface{}{
+						"address": 2510,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.dc.current",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 3 Mean DC Current 1",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Current,
+					Info:       "Zone 3 Mean DC Current 1",
+					Data: map[string]interface{}{
+						"address": 2512,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.dc.current",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 3 Mean DC Current 2",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Current,
+					Info:       "Zone 3 Mean DC Current 2",
+					Data: map[string]interface{}{
+						"address": 2514,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.dc.current",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 3 Mean DC Current 3",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Current,
+					Info:       "Zone 3 Mean DC Current 3",
+					Data: map[string]interface{}{
+						"address": 2516,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.dc.current",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 4 Mean DC Current 1",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Current,
+					Info:       "Zone 4 Mean DC Current 1",
+					Data: map[string]interface{}{
+						"address": 2518,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.dc.current",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 4 Mean DC Current 2",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Current,
+					Info:       "Zone 4 Mean DC Current 2",
+					Data: map[string]interface{}{
+						"address": 2520,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.dc.current",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 4 Mean DC Current 3",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Current,
+					Info:       "Zone 4 Mean DC Current 3",
+					Data: map[string]interface{}{
+						"address": 2522,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.frequency",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 1 Frequency 1",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Frequency,
+					Info:       "Zone 1 Frequency 1",
+					Data: map[string]interface{}{
+						"address": 3000,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.fewquency",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 1 Frequency 2",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Frequency,
+					Info:       "Zone 1 Frequency 2",
+					Data: map[string]interface{}{
+						"address": 3002,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.frequency",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 1 Frequency 3",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Frequency,
+					Info:       "Zone 1 Frequency 3",
+					Data: map[string]interface{}{
+						"address": 3004,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.frequency",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone Frequency 1",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Frequency,
+					Info:       "Zone Frequency 1",
+					Data: map[string]interface{}{
+						"address": 3006,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.frequency",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone Frequency 2",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Frequency,
+					Info:       "Zone 2 Frequency 2",
+					Data: map[string]interface{}{
+						"address": 3008,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.frequency",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 2 Frequency 3",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Frequency,
+					Info:       "Zone 2 Frequency 3",
+					Data: map[string]interface{}{
+						"address": 3010,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.frequency",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 3 Frequency 1",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Frequency,
+					Info:       "Zone 3 Frequency 1",
+					Data: map[string]interface{}{
+						"address": 3012,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.frequency",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone Frequency 2",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Frequency,
+					Info:       "Zone 3 Frequency 2",
+					Data: map[string]interface{}{
+						"address": 3014,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.frequency",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 3 Frequency 3",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Frequency,
+					Info:       "Zone 3 Frequency 3",
+					Data: map[string]interface{}{
+						"address": 3016,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.frequency",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 4 Frequency 1",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Frequency,
+					Info:       "Zone 4 Frequency 1",
+					Data: map[string]interface{}{
+						"address": 3018,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.frequency",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 4 Frequency 2",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Frequency,
+					Info:       "Zone 4 Frequency 2",
+					Data: map[string]interface{}{
+						"address": 3020,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.frequency",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 4 Frequency 3",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Current,
+					Info:       "Zone 4 Frequency 3",
+					Data: map[string]interface{}{
+						"address": 3022,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Total Cumulative Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.SItoKWhPower,
+					Info:       "Total Cumulative Power",
+					Data: map[string]interface{}{
+						"address": 5000,
+						"width":   4, // 4 16 bit words.
+						"type":    "s64",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Generated Cumulative Power", // TODO: Verify with Dave.
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.SItoKWhPower,
+					Info:       "Generated Cumulative Power",
+					Data: map[string]interface{}{
+						"address": 5004,
+						"width":   4, // 4 16 bit words.
+						"type":    "s64",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 1 Cumulative Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.SItoKWhPower,
+					Info:       "Zone 1 Cumulative Power",
+					Data: map[string]interface{}{
+						"address": 5008,
+						"width":   4, // 4 16 bit words.
+						"type":    "s64",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 2 Cumulative Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.SItoKWhPower,
+					Info:       "Zone 2 Cumulative Power",
+					Data: map[string]interface{}{
+						"address": 5012,
+						"width":   4, // 4 16 bit words.
+						"type":    "s64",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 3 Cumulative Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.SItoKWhPower,
+					Info:       "Zone 3 Cumulative Power",
+					Data: map[string]interface{}{
+						"address": 5016,
+						"width":   4, // 4 16 bit words.
+						"type":    "s64",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 4 Cumulative Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.SItoKWhPower,
+					Info:       "Zone 4 Cumulative Power",
+					Data: map[string]interface{}{
+						"address": 5020,
+						"width":   4, // 4 16 bit words.
+						"type":    "s64",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.flux",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "L1-L2 Cumulative Flux",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.VoltSeconds,
+					Info:       "L1-L2 Cumulative Flux",
+					Data: map[string]interface{}{
+						"address": 5024,
+						"width":   4, // 4 16 bit words.
+						"type":    "s64",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.flux",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "L2-L3 Cumulative Flux",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.VoltSeconds,
+					Info:       "L2-L3 Cumulative Flux",
+					Data: map[string]interface{}{
+						"address": 5028,
+						"width":   4, // 4 16 bit words.
+						"type":    "s64",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.flux",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "L3-L1 Cumulative Flux",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.VoltSeconds,
+					Info:       "L3-L1 Cumulative Flux",
+					Data: map[string]interface{}{
+						"address": 5032,
+						"width":   4, // 4 16 bit words.
+						"type":    "s64",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 1 L1 Cumulative Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.SItoKWhPower,
+					Info:       "Zone 1 L1 Cumulative Power",
+					Data: map[string]interface{}{
+						"address": 5036,
+						"width":   4, // 4 16 bit words.
+						"type":    "s64",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 1 L2 Cumulative Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.SItoKWhPower,
+					Info:       "Zone 1 L2 Cumulative Power",
+					Data: map[string]interface{}{
+						"address": 5040,
+						"width":   4, // 4 16 bit words.
+						"type":    "s64",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 1 L3 Cumulative Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.SItoKWhPower,
+					Info:       "Zone 1 L3 Cumulative Power",
+					Data: map[string]interface{}{
+						"address": 5044,
+						"width":   4, // 4 16 bit words.
+						"type":    "s64",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 2 L1 Cumulative Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.SItoKWhPower,
+					Info:       "Zone 2 L1 Cumulative Power",
+					Data: map[string]interface{}{
+						"address": 5048,
+						"width":   4, // 4 16 bit words.
+						"type":    "s64",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 2 L2 Cumulative Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.SItoKWhPower,
+					Info:       "Zone 2 L2 Cumulative Power",
+					Data: map[string]interface{}{
+						"address": 5052,
+						"width":   4, // 4 16 bit words.
+						"type":    "s64",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 2 L3 Cumulative Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.SItoKWhPower,
+					Info:       "Zone 2 L3 Cumulative Power",
+					Data: map[string]interface{}{
+						"address": 5056,
+						"width":   4, // 4 16 bit words.
+						"type":    "s64",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 3 L1 Cumulative Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.SItoKWhPower,
+					Info:       "Zone 3 L1 Cumulative Power",
+					Data: map[string]interface{}{
+						"address": 5060,
+						"width":   4, // 4 16 bit words.
+						"type":    "s64",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 3 L2 Cumulative Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.SItoKWhPower,
+					Info:       "Zone 3 L2 Cumulative Power",
+					Data: map[string]interface{}{
+						"address": 5064,
+						"width":   4, // 4 16 bit words.
+						"type":    "s64",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 3 L3 Cumulative Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.SItoKWhPower,
+					Info:       "Zone 3 L3 Cumulative Power",
+					Data: map[string]interface{}{
+						"address": 5068,
+						"width":   4, // 4 16 bit words.
+						"type":    "s64",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 4 L1 Cumulative Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.SItoKWhPower,
+					Info:       "Zone 4 L1 Cumulative Power",
+					Data: map[string]interface{}{
+						"address": 5072,
+						"width":   4, // 4 16 bit words.
+						"type":    "s64",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 4 L2 Cumulative Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.SItoKWhPower,
+					Info:       "Zone 4 L2 Cumulative Power",
+					Data: map[string]interface{}{
+						"address": 5076,
+						"width":   4, // 4 16 bit words.
+						"type":    "s64",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 4 L3 Cumulative Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.SItoKWhPower,
+					Info:       "Zone 4 L3 Cumulative Power",
+					Data: map[string]interface{}{
+						"address": 5080,
+						"width":   4, // 4 16 bit words.
+						"type":    "s64",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Total Instantaneous Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Power,
+					Info:       "Total Instantaneous Power",
+					Data: map[string]interface{}{
+						"address": 6000,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Generated Instantaneous Power", // TODO: Verify with Dave.
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Power,
+					Info:       "Generated Instantaneous Power",
+					Data: map[string]interface{}{
+						"address": 6002,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 1 Instantaneous Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Power,
+					Info:       "Zone 1 Instantaneous Power",
+					Data: map[string]interface{}{
+						"address": 6004,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 2 Instantaneous Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Power,
+					Info:       "Zone 2 Instantaneous Power",
+					Data: map[string]interface{}{
+						"address": 6006,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 3 Instantaneous Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Power,
+					Info:       "Zone 3 Instantaneous Power",
+					Data: map[string]interface{}{
+						"address": 6008,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 4 Instantaneous Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Power,
+					Info:       "Zone 4 Instantaneous Power",
+					Data: map[string]interface{}{
+						"address": 6010,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.flux",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "L1-L2 Instantaneous Flux",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Voltage,
+					Info:       "L1-L2 Instantaneous Flux",
+					Data: map[string]interface{}{
+						"address": 6012,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.flux",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "L2-L3 Instantaneous Flux",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Voltage,
+					Info:       "L2-L3 Instantaneous Flux",
+					Data: map[string]interface{}{
+						"address": 6014,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.flux",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "L3-L1 Instantaneous Flux",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Voltage,
+					Info:       "L3-L1 Instantaneous Flux",
+					Data: map[string]interface{}{
+						"address": 6016,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 1 L1 Instantaneous Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Power,
+					Info:       "Zone 1 L1 Instantaneous Power",
+					Data: map[string]interface{}{
+						"address": 6018,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 1 L2 Instantaneous Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Power,
+					Info:       "Zone 1 L2 Instantaneous Power",
+					Data: map[string]interface{}{
+						"address": 6020,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 1 L3 Instantaneous Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Power,
+					Info:       "Zone 1 L3 Instantaneous Power",
+					Data: map[string]interface{}{
+						"address": 6022,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 2 L1 Instantaneous Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Power,
+					Info:       "Zone 2 L1 Instantaneous Power",
+					Data: map[string]interface{}{
+						"address": 6024,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 2 L2 Instantaneous Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Power,
+					Info:       "Zone 2 L2 Instantaneous Power",
+					Data: map[string]interface{}{
+						"address": 6026,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 2 L3 Instantaneous Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Power,
+					Info:       "Zone 2 L3 Instantaneous Power",
+					Data: map[string]interface{}{
+						"address": 6028,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 3 L1 Instantaneous Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Power,
+					Info:       "Zone 3 L1 Instantaneous Power",
+					Data: map[string]interface{}{
+						"address": 6030,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 3 L2 Instantaneous Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Power,
+					Info:       "Zone 3 L2 Instantaneous Power",
+					Data: map[string]interface{}{
+						"address": 6032,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 3 L3 Instantaneous Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Power,
+					Info:       "Zone 3 L3 Instantaneous Power",
+					Data: map[string]interface{}{
+						"address": 6034,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 4 L1 Instantaneous Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Power,
+					Info:       "Zone 4 L1 Instantaneous Power",
+					Data: map[string]interface{}{
+						"address": 6036,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 4 L2 Instantaneous Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Power,
+					Info:       "Zone 4 L2 Instantaneous Power",
+					Data: map[string]interface{}{
+						"address": 6038,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 4 L3 Instantaneous Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.Power,
+					Info:       "Zone 4 L3 Instantaneous Power",
+					Data: map[string]interface{}{
+						"address": 6040,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Total Cumulative Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.SItoKWhPower,
+					Info:       "Total Cumulative Power",
+					Data: map[string]interface{}{
+						"address": 7000,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Generated Cumulative Power", // TODO: Verify with Dave.
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.SItoKWhPower,
+					Info:       "Generated Cumulative Power",
+					Data: map[string]interface{}{
+						"address": 7002,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 1 Cumulative Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.SItoKWhPower,
+					Info:       "Zone 1 Cumulative Power",
+					Data: map[string]interface{}{
+						"address": 7004,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 2 Cumulative Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.SItoKWhPower,
+					Info:       "Zone 2 Cumulative Power",
+					Data: map[string]interface{}{
+						"address": 7006,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 3 Cumulative Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.SItoKWhPower,
+					Info:       "Zone 3 Cumulative Power",
+					Data: map[string]interface{}{
+						"address": 7008,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 4 Cumulative Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.SItoKWhPower,
+					Info:       "Zone 4 Cumulative Power",
+					Data: map[string]interface{}{
+						"address": 7010,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.flux",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "L1-L2 Cumulative Flux",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.VoltSeconds,
+					Info:       "L1-L2 Cumulative Flux",
+					Data: map[string]interface{}{
+						"address": 7012,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.flux",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "L2-L3 Cumulative Flux",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.VoltSeconds,
+					Info:       "L2-L3 Cumulative Flux",
+					Data: map[string]interface{}{
+						"address": 7014,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.flux",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "L3-L1 Cumulative Flux",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.VoltSeconds,
+					Info:       "L3-L1 Cumulative Flux",
+					Data: map[string]interface{}{
+						"address": 7016,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 1 L1 Cumulative Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.SItoKWhPower,
+					Info:       "Zone 1 L1 Cumulative Power",
+					Data: map[string]interface{}{
+						"address": 7018,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 1 L2 Cumulative Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.SItoKWhPower,
+					Info:       "Zone 1 L2 Cumulative Power",
+					Data: map[string]interface{}{
+						"address": 7020,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 1 L3 Cumulative Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.SItoKWhPower,
+					Info:       "Zone 1 L3 Cumulative Power",
+					Data: map[string]interface{}{
+						"address": 7022,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 2 L1 Cumulative Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.SItoKWhPower,
+					Info:       "Zone 2 L1 Cumulative Power",
+					Data: map[string]interface{}{
+						"address": 7024,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 2 L2 Cumulative Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.SItoKWhPower,
+					Info:       "Zone 2 L2 Cumulative Power",
+					Data: map[string]interface{}{
+						"address": 7026,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 2 L3 Cumulative Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.SItoKWhPower,
+					Info:       "Zone 2 L3 Cumulative Power",
+					Data: map[string]interface{}{
+						"address": 7028,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 3 L1 Cumulative Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.SItoKWhPower,
+					Info:       "Zone 3 L1 Cumulative Power",
+					Data: map[string]interface{}{
+						"address": 7030,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 3 L2 Cumulative Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.SItoKWhPower,
+					Info:       "Zone 3 L2 Cumulative Power",
+					Data: map[string]interface{}{
+						"address": 7032,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 3 L3 Cumulative Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.SItoKWhPower,
+					Info:       "Zone 3 L3 Cumulative Power",
+					Data: map[string]interface{}{
+						"address": 7034,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 4 L1 Cumulative Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.SItoKWhPower,
+					Info:       "Zone 4 L1 Cumulative Power",
+					Data: map[string]interface{}{
+						"address": 7036,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 4 L2 Cumulative Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.SItoKWhPower,
+					Info:       "Zone 4 L2 Cumulative Power",
+					Data: map[string]interface{}{
+						"address": 7038,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+
+		&sdk.Device{
+			Kind:   "egauge.power",
+			Plugin: "synse-modbus-ip-plugin",
+			Info:   "Zone 4 L3 Cumulative Power",
+			Location: &sdk.Location{
+				Rack:  "basx-vec1",
+				Board: "vec",
+			},
+			Data: map[string]interface{}{
+				"host":        egaugeIP1,
+				"port":        egaugePort,
+				"timeout":     defaultTimeout,
+				"failOnError": false,
+			},
+			Outputs: []*sdk.Output{
+				&sdk.Output{
+					OutputType: outputs.SItoKWhPower,
+					Info:       "Zone 4 L3 Cumulative Power",
+					Data: map[string]interface{}{
+						"address": 7040,
+						"width":   2, // 2 16 bit words.
+						"type":    "f32",
+					},
+				},
+			},
+			Handler: &InputRegisterHandler,
+		},
+	}
+	return
+}
+
+///////////////////////////////////////////////////////////////////
+// Tests
 
 // Test000 was the initial test for getting this working.
 func Test000(t *testing.T) {
@@ -1072,8 +4523,11 @@ func TestVEM(t *testing.T) {
 		},
 	}
 
+	egaugeDevices := getEGaugeDevices()
+
 	dumpDevices(t, registerDevices)
 	dumpDevices(t, coilDevices)
+	dumpDevices(t, egaugeDevices)
 
 	t.Logf("--- Mapping bulk read ---")
 	bulkReadMapRegisters, keyOrderRegisters, err := MapBulkRead(registerDevices, true, false)
@@ -1087,10 +4541,19 @@ func TestVEM(t *testing.T) {
 		t.Fatalf(err.Error())
 	}
 	t.Logf("bulkReadMapCoils %#v", bulkReadMapCoils)
+
+	// EGauge is all input registers.
+	bulkReadMapInput, keyOrderInput, err := MapBulkRead(egaugeDevices, true, false)
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+	t.Logf("bulkReadMapInput %#v", bulkReadMapCoils)
+
 	t.Logf("--- Mapping bulk read end ---")
 
 	dumpBulkReadMap(t, bulkReadMapRegisters, keyOrderRegisters)
 	dumpBulkReadMap(t, bulkReadMapCoils, keyOrderCoils)
+	dumpBulkReadMap(t, bulkReadMapInput, keyOrderInput)
 
 	// Validate the maps.
 	// Registers
@@ -1151,7 +4614,140 @@ func TestVEM(t *testing.T) {
 		t.Fatalf("expected 8 devices, got %v", len(readCoil.Devices))
 	}
 
+	// Input
+	// There is one egauge device configured. FUTURE: Six.
+	if len(bulkReadMapInput) != 1 {
+		t.Fatalf("Only one entry should be present, got %v", len(bulkReadMapInput))
+	}
+
+	// This is the configured egauge device/
+	expectedKey = ModbusBulkReadKey{
+		Host:                 "10.193.4.130",
+		Port:                 502,
+		Timeout:              "10s",
+		FailOnError:          false,
+		MaximumRegisterCount: 0x7b,
+	}
+
+	// Get the bulk read map. We should have ten reads (modbus calls to the egauge).
+	// Verify ten and each start register and length.
+	readInputs := bulkReadMapInput[expectedKey]
+	if len(readInputs) != 10 {
+		t.Fatalf("Only one read should be required, got count %v, %#v", len(readInputs), readInputs)
+	}
+
+	readInput := readInputs[0]
+	if readInput.StartRegister != 0 {
+		t.Fatalf("expected startRegister 0, got d%d", readInput.StartRegister)
+	}
+	if readInput.RegisterCount != 10 {
+		t.Fatalf("expected registerCount d10, got d%d", readInput.RegisterCount)
+	}
+	if len(readInput.Devices) != 5 {
+		t.Fatalf("expected 5 devices, got %v", len(readInput.Devices))
+	}
+
+	readInput = readInputs[1]
+	if readInput.StartRegister != 500 {
+		t.Fatalf("expected startRegister 500, got d%d", readInput.StartRegister)
+	}
+	if readInput.RegisterCount != 12 {
+		t.Fatalf("expected registerCount d12, got d%d", readInput.RegisterCount)
+	}
+	if len(readInput.Devices) != 6 {
+		t.Fatalf("expected 6 devices, got %v", len(readInput.Devices))
+	}
+
+	readInput = readInputs[2]
+	if readInput.StartRegister != 1000 {
+		t.Fatalf("expected startRegister 1000, got d%d", readInput.StartRegister)
+	}
+	if readInput.RegisterCount != 12 {
+		t.Fatalf("expected registerCount d12, got d%d", readInput.RegisterCount)
+	}
+	if len(readInput.Devices) != 6 {
+		t.Fatalf("expected 6 devices, got %v", len(readInput.Devices))
+	}
+
+	readInput = readInputs[3]
+	if readInput.StartRegister != 1500 {
+		t.Fatalf("expected startRegister 1500, got d%d", readInput.StartRegister)
+	}
+	if readInput.RegisterCount != 12 {
+		t.Fatalf("expected registerCount d12, got d%d", readInput.RegisterCount)
+	}
+	if len(readInput.Devices) != 6 {
+		t.Fatalf("expected 6 devices, got %v", len(readInput.Devices))
+	}
+
+	readInput = readInputs[4]
+	if readInput.StartRegister != 2000 {
+		t.Fatalf("expected startRegister 2000, got d%d", readInput.StartRegister)
+	}
+	if readInput.RegisterCount != 24 {
+		t.Fatalf("expected registerCount d24, got d%d", readInput.RegisterCount)
+	}
+	if len(readInput.Devices) != 12 {
+		t.Fatalf("expected 12 devices, got %v", len(readInput.Devices))
+	}
+
+	readInput = readInputs[5]
+	if readInput.StartRegister != 2500 {
+		t.Fatalf("expected startRegister 2500, got d%d", readInput.StartRegister)
+	}
+	if readInput.RegisterCount != 24 {
+		t.Fatalf("expected registerCount d24, got d%d", readInput.RegisterCount)
+	}
+	if len(readInput.Devices) != 12 {
+		t.Fatalf("expected 12 devices, got %v", len(readInput.Devices))
+	}
+
+	readInput = readInputs[6]
+	if readInput.StartRegister != 3000 {
+		t.Fatalf("expected startRegister 3000, got d%d", readInput.StartRegister)
+	}
+	if readInput.RegisterCount != 24 {
+		t.Fatalf("expected registerCount d24, got d%d", readInput.RegisterCount)
+	}
+	if len(readInput.Devices) != 12 {
+		t.Fatalf("expected 12 devices, got %v", len(readInput.Devices))
+	}
+
+	readInput = readInputs[7]
+	if readInput.StartRegister != 5000 {
+		t.Fatalf("expected startRegister 5000, got d%d", readInput.StartRegister)
+	}
+	if readInput.RegisterCount != 84 {
+		t.Fatalf("expected registerCount d84, got d%d", readInput.RegisterCount)
+	}
+	if len(readInput.Devices) != 21 {
+		t.Fatalf("expected 21 devices, got %v", len(readInput.Devices))
+	}
+
+	readInput = readInputs[8]
+	if readInput.StartRegister != 6000 {
+		t.Fatalf("expected startRegister 6000, got d%d", readInput.StartRegister)
+	}
+	if readInput.RegisterCount != 42 {
+		t.Fatalf("expected registerCount d42, got d%d", readInput.RegisterCount)
+	}
+	if len(readInput.Devices) != 21 {
+		t.Fatalf("expected 21 devices, got %v", len(readInput.Devices))
+	}
+
+	readInput = readInputs[9]
+	if readInput.StartRegister != 7000 {
+		t.Fatalf("expected startRegister 0, got d%d", readInput.StartRegister)
+	}
+	if readInput.RegisterCount != 42 {
+		t.Fatalf("expected registerCount d42, got d%d", readInput.RegisterCount)
+	}
+	if len(readInput.Devices) != 21 {
+		t.Fatalf("expected 21 devices, got %v", len(readInput.Devices))
+	}
+
 	// Populate the maps to simulate readings and dump.
+
 	// Holding Registers.
 	populateBulkReadMap(t, bulkReadMapRegisters, keyOrderRegisters)
 	dumpBulkReadMap(t, bulkReadMapRegisters, keyOrderRegisters)
@@ -1172,6 +4768,7 @@ func TestVEM(t *testing.T) {
 		t.Fatalf("expected 1 reading in readContextsRegisters[0], got %v", len(readContextsRegisters[0].Reading))
 	}
 
+	// Expected holding register readings from the VEM PLC.
 	expectedRegisterReadings := []*sdk.Reading{
 
 		&sdk.Reading{
@@ -1320,10 +4917,12 @@ func TestVEM(t *testing.T) {
 		t.Fatalf("expected 8 readContexts, got %v", len(readContextsCoils))
 	}
 
+	// All coils fit in one modbus read call.
 	if len(readContextsCoils[0].Reading) != 1 {
 		t.Fatalf("expected 1 reading in readContextsCoils[0], got %v", len(readContextsCoils[0].Reading))
 	}
 
+	// Expected coil readings for the VEM PLC.
 	expectedCoilReadings := []*sdk.Reading{
 
 		&sdk.Reading{
@@ -1393,6 +4992,18 @@ func TestVEM(t *testing.T) {
 	dumpReadings(t, actualCoilReadings)
 	verifyReadings(t, expectedCoilReadings, actualCoilReadings)
 
+	// Input Registers.
+	populateBulkReadMap(t, bulkReadMapInput, keyOrderInput)
+	dumpBulkReadMap(t, bulkReadMapInput, keyOrderInput)
+
+	// Map the read data to the synse read contexts.
+	readContextsInput, err := MapBulkReadData(bulkReadMapInput, keyOrderInput)
+	if err != nil {
+		t.Fatalf("Failed to map bulk read data, error: %v", err.Error())
+	}
+	dumpReadContexts(t, readContextsInput)
+
+	// TODO: Validate EGauge readings when time permits.
 	t.Logf("TestVEM end")
 }
 
@@ -1483,7 +5094,7 @@ func TestReadHoldingRegisters_NoConnection_FailOnError(t *testing.T) {
 	}
 	// This is a good error message from goburrow/modbus that contains the ip and
 	// port. Let's test that.
-	// Possible errors:
+	// Possible errors from observation:
 	// dial tcp 10.193.4.250:502: i/o timeout
 	// dial tcp 10.193.4.250:502: getsockopt: connection refused
 	if !strings.Contains(err.Error(), "dial tcp 10.193.4.250:502") {
@@ -1579,7 +5190,7 @@ func TestReadCoils_NoConnection(t *testing.T) {
 	verifySingleNilReading(t, readContexts)
 }
 
-// We will need a read for each device below due to different IPs.
+// We will need a read (modbus over IP call) for each device below due to different IPs.
 func TestReadHoldingRegisters_MoreThanOneDevice_IP(t *testing.T) {
 
 	devices := []*sdk.Device{
@@ -1698,7 +5309,7 @@ func TestReadHoldingRegisters_MoreThanOneDevice_IP(t *testing.T) {
 	verifyReadings(t, expectedReadings, actualReadings)
 }
 
-// We will need a read for each device below due to different ports.
+// We will need a read (modbus over IP call) for each device below due to different ports.
 func TestReadHoldingRegisters_MoreThanOneDevice_Port(t *testing.T) {
 
 	devices := []*sdk.Device{
@@ -1817,8 +5428,9 @@ func TestReadHoldingRegisters_MoreThanOneDevice_Port(t *testing.T) {
 	verifyReadings(t, expectedReadings, actualReadings)
 }
 
-// We will need a read for each device below because we are spanning more
-// registers than will fit in a single read.
+// We will need a read (modbus over IP call) for each device below because we
+// are spanning more registers than will fit in a single read (modbus over IP
+// call).
 func TestReadHoldingRegisters_MultipleReads000(t *testing.T) {
 
 	devices := []*sdk.Device{

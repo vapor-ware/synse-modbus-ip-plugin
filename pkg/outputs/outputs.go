@@ -57,6 +57,26 @@ var (
 		},
 	}
 
+	// Seconds in the output type for time readings in seconds.
+	Seconds = sdk.OutputType{
+		Name:      "seconds",
+		Precision: 6,
+		Unit: sdk.Unit{
+			Name:   "seconds",
+			Symbol: "s",
+		},
+	}
+
+	// Microseconds in the output type for time readings in microseconds.
+	Microseconds = sdk.OutputType{
+		Name:      "microseconds",
+		Precision: 6,
+		Unit: sdk.Unit{
+			Name:   "microseconds",
+			Symbol: "µs",
+		},
+	}
+
 	// FanSpeedPercent is the output type for the VEM PLC fan.
 	// This is a sliding window that is up to the PLC.
 	// We do not get absolute rpm.
@@ -145,6 +165,16 @@ var (
 		Unit: sdk.Unit{
 			Name:   "pounds per square inch",
 			Symbol: "psi",
+		},
+	}
+
+	// VoltSeconds is for flux.
+	VoltSeconds = sdk.OutputType{
+		Name:      "voltSeconds",
+		Precision: 3,
+		Unit: sdk.Unit{
+			Name:   "volt seconds",
+			Symbol: "Vs",
 		},
 	}
 )
