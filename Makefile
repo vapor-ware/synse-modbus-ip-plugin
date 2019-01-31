@@ -31,7 +31,7 @@ HAS_GOX  := $(shell which gox)
 
 .PHONY: build
 build:  ## Build the plugin Go binary
-	go build -ldflags "${LDFLAGS}" -o build/plugin
+	go build -ldflags "${LDFLAGS}" -o build/plugin || exit
 
 .PHONY: ci
 ci:  ## Run CI checks locally (build, lint)
@@ -39,7 +39,7 @@ ci:  ## Run CI checks locally (build, lint)
 
 .PHONY: clean
 clean:  ## Remove temporary files
-	go clean -v
+	go clean -v || exit
 
 .PHONY: dep
 dep:  ## Ensure and prune dependencies
@@ -63,7 +63,7 @@ docker:  ## Build the docker image
 
 .PHONY: fmt
 fmt:  ## Run goimports on all go files
-	find . -name '*.go' -not -wholename './vendor/*' | while read -r file; do goimports -w "$$file"; done
+	find . -name '*.go' -not -wholename './vendor/*' | while read -r file; do goimports -w "$$file" || exit ; done
 
 .PHONY: github-tag
 github-tag:  ## Create and push a tag with the current plugin version
@@ -82,7 +82,7 @@ endif
 		--tests \
 		--sort=path --sort=line \
 		--aggregate \
-		--deadline=5m
+		--deadline=5m || exit
 
 .PHONY: setup
 setup:  ## Install the build and development dependencies and set up vendoring
@@ -96,7 +96,7 @@ endif
 
 .PHONY: test
 test:  ## Run project tests
-	go test -race -cover ./pkg/...
+	go test -race -cover ./pkg/... || exit
 
 .PHONY: version
 version:  ## Print the version of the plugin

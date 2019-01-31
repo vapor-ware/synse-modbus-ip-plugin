@@ -18,6 +18,8 @@ func MakePlugin() *sdk.Plugin {
 		&outputs.Voltage,
 		&outputs.Frequency,
 		&outputs.SItoKWhPower,
+		&outputs.Seconds,
+		&outputs.Microseconds,
 		&outputs.FanSpeedPercent,
 		&outputs.FanSpeedPercentTenths,
 		&outputs.Temperature,
@@ -26,6 +28,7 @@ func MakePlugin() *sdk.Plugin {
 		&outputs.Coil,
 		&outputs.InWCThousanths,
 		&outputs.PsiTenths,
+		&outputs.VoltSeconds,
 	)
 	if err != nil {
 		log.Fatal(err)
