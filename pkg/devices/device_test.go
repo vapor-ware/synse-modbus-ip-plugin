@@ -4529,7 +4529,7 @@ func TestVEM(t *testing.T) {
 	dumpDevices(t, coilDevices)
 	dumpDevices(t, egaugeDevices)
 
-	t.Logf("--- Mapping bulk read ---")
+	t.Logf("--- Mapping bulk read (holding registers) ---")
 	bulkReadMapRegisters, keyOrderRegisters, err := MapBulkRead(registerDevices, true, false)
 	if err != nil {
 		t.Fatalf(err.Error())
@@ -4556,11 +4556,12 @@ func TestVEM(t *testing.T) {
 	dumpBulkReadMap(t, bulkReadMapInput, keyOrderInput)
 
 	// Validate the maps.
-	// Registers
+	// Holding Registers.
 	if len(bulkReadMapRegisters) != 1 {
 		t.Fatalf("Only one entry should be present, got %v", len(bulkReadMapRegisters))
 	}
 
+	// Expected key for the VEM PLC holding registers.
 	expectedKey := ModbusBulkReadKey{
 		Host:                 "10.193.4.250",
 		Port:                 502,
@@ -4760,6 +4761,7 @@ func TestVEM(t *testing.T) {
 	dumpReadContexts(t, readContextsRegisters)
 
 	// Verify read contexts and each reading.
+	// 17 for VEM PLC.
 	if len(readContextsRegisters) != 17 {
 		t.Fatalf("expected 17 readContexts, got %v", len(readContextsRegisters))
 	}

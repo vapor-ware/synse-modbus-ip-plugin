@@ -29,6 +29,9 @@ func MakePlugin() *sdk.Plugin {
 		&outputs.InWCThousanths,
 		&outputs.PsiTenths,
 		&outputs.VoltSeconds,
+		&outputs.CarouselPosition,
+		&outputs.StatusCode,
+		&outputs.StatusOutput,
 	)
 	if err != nil {
 		log.Fatal(err)
