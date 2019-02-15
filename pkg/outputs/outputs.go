@@ -177,4 +177,19 @@ var (
 			Symbol: "Vs",
 		},
 	}
+
+	// CarouselPosition is for the position of the Carousel, result is Wedge Id
+	// facing the customer.
+	CarouselPosition = sdk.OutputType{
+		Name:      "carouselPosition",
+		Precision: 3,
+		Unit:      sdk.Unit{Name: "position"},
+	}
+
+	// StatusCode is the integer assosciated with a status response.
+	StatusCode = sdk.OutputType{Name: "statusCode"}
+
+	// StatusOutput is for an arbitrary string output which is meant to be the
+	// string translation for status code.
+	StatusOutput = sdk.OutputType{Name: "status"}
 )
