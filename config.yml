@@ -1,8 +1,8 @@
-version: 1.0
-debug: true
+version: 3
+debug: false
 network:
   type: tcp
-  address: ":5004"
+  address: ":5001"
 settings:
   mode: serial
   read:

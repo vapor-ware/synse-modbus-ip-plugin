@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"sort"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/goburrow/modbus"
 	"github.com/mitchellh/mapstructure"
-	log "github.com/sirupsen/logrus"
 	"github.com/vapor-ware/synse-modbus-ip-plugin/pkg/config"
 	"github.com/vapor-ware/synse-modbus-ip-plugin/pkg/utils"
 	"github.com/vapor-ware/synse-sdk/sdk"
+	"github.com/vapor-ware/synse-sdk/sdk/output"
 )
 
 // NextSortOrdinal doles out the next sort ordinal for scan sort order.
@@ -56,33 +57,9 @@ func GetBulkReadClient(k ModbusBulkReadKey) (client modbus.Client, modbusDeviceD
 	return
 }
 
-// GetOutput is a helper to get the first output for a device. Called by Write functions.
-func GetOutput(device *sdk.Device) (output *sdk.Output, err error) {
-
-	if device == nil {
-		return nil, fmt.Errorf("device is nil")
-	}
-	if device.Outputs == nil {
-		return nil, fmt.Errorf("device.Outputs is nil")
-	}
-
-	// Checking for one output for now. We need the register to write.
-	// We could support multiple outputs in the future by matching against
-	// info if we like.
-	length := len(device.Outputs)
-	if length == 0 {
-		return nil, fmt.Errorf("no device outputs")
-	}
-
-	if length > 1 {
-		return nil, fmt.Errorf("multiple device outputs unsupported")
-	}
-	return device.Outputs[0], nil
-}
-
 // UnpackCoilReading gets a coil (true / false) from a ReadCoils result buffer.
-func UnpackCoilReading(output *sdk.Output, rawReading []byte, startAddress uint16, coilAddress uint16, failOnErr bool) (
-	reading *sdk.Reading, err error) {
+func UnpackCoilReading(output *output.Output, rawReading []byte, startAddress uint16, coilAddress uint16, failOnErr bool) (
+	reading *output.Reading, err error) {
 	log.Debugf("Unpack Coil. rawReading %x, startAddress: %v, coilAddress: %v", rawReading, startAddress, coilAddress)
 	bitIndex := coilAddress - startAddress
 	byteIndex := bitIndex / 8
@@ -99,14 +76,14 @@ func UnpackCoilReading(output *sdk.Output, rawReading []byte, startAddress uint1
 	mask := byte(0x01 << bitIndex)
 	coilState := (coilByte & mask) != 0
 
-	return output.MakeReading(coilState)
+	return output.MakeReading(coilState), nil
 	// In this case we will not check the 'failOnError' flag because
 	// this isn't an issue with reading the device, its a configuration
 	// issue and the error should be noted.
 }
 
 // UnpackReading is a wrapper for CastToType and MakeReading.
-func UnpackReading(output *sdk.Output, typeName string, rawReading []byte, failOnErr bool) (reading *sdk.Reading, err error) {
+func UnpackReading(output *output.Output, typeName string, rawReading []byte, failOnErr bool) (reading *output.Reading, err error) {
 
 	// Cast the raw reading value to the specified output type
 	data, err := utils.CastToType(typeName, rawReading)
@@ -118,13 +95,7 @@ func UnpackReading(output *sdk.Output, typeName string, rawReading []byte, failO
 		return nil, nil // No reading.
 	}
 
-	reading, err = output.MakeReading(data)
-	if err != nil {
-		// In this case we will not check the 'failOnError' flag because
-		// this isn't an issue with reading the device, its a configuration
-		// issue and the error should be noted.
-		return nil, err
-	}
+	reading = output.MakeReading(data)
 	return
 }
 
@@ -227,31 +198,15 @@ func SortDevices(devices []*sdk.Device, setSortOrdinal bool) (
 			return nil, nil, err
 		}
 
-		// For each device output.
-		outputs := device.Outputs
-		for j := 0; j < len(outputs); j++ {
+		key := ModbusDevice{
+			Host:     deviceData.Host,
+			Port:     deviceData.Port,
+			Register: uint16(deviceData.Address), // TODO: Can we have uint16 in the config struct.
+		}
 
-			// Get the data to form the key.
-			output := outputs[j]
-			var outputData config.ModbusOutputData
-			err := mapstructure.Decode(output.Data, &outputData)
-			if err != nil { // This is a configuration issue, so fail hard here.
-				log.Errorf(
-					"SortDevices failed parsing output.Data device at:[%v], device: %#v, output at:[%v], output: %#v",
-					i, device, j, output)
-				return nil, nil, err
-			}
-
-			key := ModbusDevice{
-				Host:     deviceData.Host,
-				Port:     deviceData.Port,
-				Register: uint16(outputData.Address), // TODO: Can we have uint16 in the config struct.
-			}
-
-			// Add to locals.
-			sorted = append(sorted, key)
-			deviceMap[key] = device
-		} // end for each output
+		// Add to locals.
+		sorted = append(sorted, key)
+		deviceMap[key] = device
 	} // end for each device
 
 	// Sort / trace.
@@ -279,7 +234,7 @@ func SortDevices(devices []*sdk.Device, setSortOrdinal bool) (
 	// Add SortOrdinal to all devices.
 	if setSortOrdinal {
 		for k := 0; k < len(sorted); k++ {
-			deviceMap[sorted[k]].SortOrdinal = NextSortOrdinal
+			deviceMap[sorted[k]].SortIndex = NextSortOrdinal
 			NextSortOrdinal++
 		}
 	}
@@ -337,30 +292,41 @@ func MapBulkRead(devices []*sdk.Device, setSortOrdinal bool, isCoil bool) (
 
 		log.Debugf("len(keyValues): %v", len(keyValues))
 
-		// For each device output.
-		outputs := device.Outputs
-		for j := 0; j < len(outputs); j++ {
-			output := outputs[j]
-			var outputData config.ModbusOutputData
-			// Get the output data. Need address and width.
-			err := mapstructure.Decode(output.Data, &outputData)
-			if err != nil { // Hard failure on configuration issue.
-				log.Errorf(
-					"MapBulkRead failed parsing output.Data device at:[%v], device: %#v, output at:[%v], output: %#v",
-					i, device, j, output)
+		outputDataAddress := uint16(deviceData.Address) // TODO: Can we have uint16 in the config struct?
+		outputDataWidth := uint16(deviceData.Width)     // TODO: As above.
+
+		log.Debugf("outputDataAddress: 0x%04x", outputDataAddress)
+		log.Debugf("outputDataWidth: %d", outputDataWidth)
+
+		// Insert.
+		// If the key is not present, this is a simple insert to the map.
+		if !keyPresent {
+			log.Debugf("Key not present.")
+			modbusBulkRead, err := NewModbusBulkRead(device, outputDataAddress, outputDataWidth, isCoil)
+			if err != nil {
 				return nil, keyOrder, err
 			}
+			log.Debugf("modbusBulkRead: %#v", modbusBulkRead)
+			bulkReadMap[key] = append(bulkReadMap[key], modbusBulkRead)
+			keyOrder = append(keyOrder, key)
+		} else {
+			log.Debugf("Key present")
+			// See if this fits on the end of the slice.
+			//  If so, update the ModbusBulkRead RegisterCount.
+			//  If not, create a new ModbusBulkRead.
+			reads := bulkReadMap[key]
+			lastRead := reads[len(reads)-1]
+			startRegister := lastRead.StartRegister
+			log.Debugf("startRegister: 0x%0x", startRegister)
+			newRegisterCount := outputDataAddress + outputDataWidth - startRegister
 
-			outputDataAddress := uint16(outputData.Address) // TODO: Can we have uint16 in the config struct?
-			outputDataWidth := uint16(outputData.Width)     // TODO: As above.
-
-			log.Debugf("outputDataAddress: 0x%04x", outputDataAddress)
-			log.Debugf("outputDataWidth: %d", outputDataWidth)
-
-			// Insert.
-			// If the key is not present, this is a simple insert to the map.
-			if !keyPresent {
-				log.Debugf("Key not present.")
+			if newRegisterCount < key.MaximumRegisterCount {
+				log.Debugf("read fits in existing. newRegisterCount: %v", newRegisterCount)
+				lastRead.RegisterCount = newRegisterCount
+				lastRead.Devices = append(lastRead.Devices, device)
+			} else {
+				// Add a new read.
+				log.Debugf("read does not fit in existing. newRegisterCount: %v", newRegisterCount)
 				modbusBulkRead, err := NewModbusBulkRead(device, outputDataAddress, outputDataWidth, isCoil)
 				if err != nil {
 					return nil, keyOrder, err
@@ -368,34 +334,8 @@ func MapBulkRead(devices []*sdk.Device, setSortOrdinal bool, isCoil bool) (
 				log.Debugf("modbusBulkRead: %#v", modbusBulkRead)
 				bulkReadMap[key] = append(bulkReadMap[key], modbusBulkRead)
 				keyOrder = append(keyOrder, key)
-			} else {
-				log.Debugf("Key present")
-				// See if this fits on the end of the slice.
-				//  If so, update the ModbusBulkRead RegisterCount.
-				//  If not, create a new ModbusBulkRead.
-				reads := bulkReadMap[key]
-				lastRead := reads[len(reads)-1]
-				startRegister := lastRead.StartRegister
-				log.Debugf("startRegister: 0x%0x", startRegister)
-				newRegisterCount := outputDataAddress + outputDataWidth - startRegister
-
-				if newRegisterCount < key.MaximumRegisterCount {
-					log.Debugf("read fits in existing. newRegisterCount: %v", newRegisterCount)
-					lastRead.RegisterCount = newRegisterCount
-					lastRead.Devices = append(lastRead.Devices, device)
-				} else {
-					// Add a new read.
-					log.Debugf("read does not fit in existing. newRegisterCount: %v", newRegisterCount)
-					modbusBulkRead, err := NewModbusBulkRead(device, outputDataAddress, outputDataWidth, isCoil)
-					if err != nil {
-						return nil, keyOrder, err
-					}
-					log.Debugf("modbusBulkRead: %#v", modbusBulkRead)
-					bulkReadMap[key] = append(bulkReadMap[key], modbusBulkRead)
-					keyOrder = append(keyOrder, key)
-				}
 			}
-		} // For each output
+		}
 	} // For each device.
 	return bulkReadMap, keyOrder, nil
 }
