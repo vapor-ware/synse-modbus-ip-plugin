@@ -15,7 +15,7 @@ const (
 
 func main() {
 	// Set the plugin metadata
-	sdk.SetPluginMeta(
+	sdk.SetPluginInfo(
 		pluginName,
 		pluginMaintainer,
 		pluginDesc,

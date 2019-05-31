@@ -1,0 +1,31 @@
+#
+# compose.yml
+#
+# A simple compose file to run a dockerized modbus-ip plugin
+# instance with Synse Server, both in debug mode.
+#
+# To run:
+#    docker-compose -f compose.yml up -d
+#
+
+version: '3'
+services:
+  synse-server:
+    container_name: synse-server
+    image: vaporio/synse-server
+    ports:
+    - '5000:5000'
+    links:
+    - modbus-ip-plugin
+    environment:
+      SYNSE_LOGGING: debug
+      SYNSE_PLUGIN_TCP: modbus-ip-plugin:5001
+
+  modbus-ip-plugin:
+    container_name: modbus-ip-plugin
+    image: vaporio/modbus-ip-plugin
+    command: ["--debug"]
+    expose:
+    - 5001
+    volumes:
+    - ./example/device:/etc/synse/plugin/config/device
