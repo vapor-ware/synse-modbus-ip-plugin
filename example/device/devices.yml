@@ -1,0 +1,36 @@
+#
+# devices.yml
+#
+# A simple example device configuration for the modbus-ip plugin.
+#
+
+version: 3
+devices:
+- type: eg4115.power
+  metadata:
+    device: eGauge 4115 power meter
+  handler: input_register
+  data:
+    host: 127.0.0.1
+    port: 502
+    slave_id: 3
+    timeout: 5s
+  instances:
+    - info: Leg 1 to neutral RMS voltage
+      output: voltage
+      data:
+        address: 500
+        width: 2
+        type: f32
+    - info: Leg 2 to neutral RMS voltage
+      output: voltage
+      data:
+        address: 502
+        width: 2
+        type: f32
+    - info: Leg 1 to Leg 2 RMS voltage
+      output: voltage
+      data:
+        address: 506
+        width: 2
+        type: f32

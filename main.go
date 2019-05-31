@@ -1,7 +1,7 @@
 package main
 
 import (
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/vapor-ware/synse-modbus-ip-plugin/pkg"
 	"github.com/vapor-ware/synse-sdk/sdk"
 )
@@ -15,7 +15,7 @@ const (
 
 func main() {
 	// Set the plugin metadata
-	sdk.SetPluginMeta(
+	sdk.SetPluginInfo(
 		pluginName,
 		pluginMaintainer,
 		pluginDesc,

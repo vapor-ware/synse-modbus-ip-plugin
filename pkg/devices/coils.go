@@ -3,8 +3,8 @@ package devices
 import (
 	"fmt"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/goburrow/modbus"
+	log "github.com/sirupsen/logrus"
 	"github.com/vapor-ware/synse-modbus-ip-plugin/pkg/config"
 	"github.com/vapor-ware/synse-sdk/sdk"
 )
@@ -90,11 +90,6 @@ func writeCoils(device *sdk.Device, data *sdk.WriteData) (err error) {
 	// Pull out the data to send on the wire from data.Data.
 	modbusData := data.Data
 
-	output, err := GetOutput(device)
-	if err != nil {
-		return err
-	}
-
 	// Translate the data. For whatever reason, the modbus interface wants 0
 	// for false and FF00 for true.
 	dataString := string(modbusData)
@@ -108,12 +103,11 @@ func writeCoils(device *sdk.Device, data *sdk.WriteData) (err error) {
 		return fmt.Errorf("unknown coil data %v", coilData)
 	}
 
-	register := (*output).Data["address"]
-	registerInt, ok := register.(int)
+	register, ok := device.Data["address"].(int)
 	if !ok {
-		return fmt.Errorf("Unable to convert (*output).Data[address] to uint16: %v", (*output).Data["address"])
+		return fmt.Errorf("Unable to convert (*output).Data[address] to uint16: %v", device.Data["address"])
 	}
-	registerUint16 := uint16(registerInt)
+	registerUint16 := uint16(register)
 
 	log.Debugf("Writing coil 0x%x, data 0x%x", registerUint16, coilData)
 	_, err = (*client).WriteSingleCoil(registerUint16, coilData)

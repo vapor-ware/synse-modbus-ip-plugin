@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/goburrow/modbus"
 	"github.com/vapor-ware/synse-modbus-ip-plugin/pkg/config"
 	"github.com/vapor-ware/synse-sdk/sdk"
@@ -91,11 +91,6 @@ func writeHoldingRegister(device *sdk.Device, data *sdk.WriteData) (err error) {
 	// Pull out the data to send on the wire from data.Data.
 	modbusData := data.Data
 
-	output, err := GetOutput(device)
-	if err != nil {
-		return err
-	}
-
 	// Translate the data. This is currently a hex string.
 	dataString := string(modbusData)
 	register64, err := strconv.ParseUint(dataString, 16, 16)
@@ -104,12 +99,11 @@ func writeHoldingRegister(device *sdk.Device, data *sdk.WriteData) (err error) {
 	}
 	registerData := uint16(register64)
 
-	register := (*output).Data["address"]
-	registerInt, ok := register.(int)
+	register, ok := device.Data["address"].(int)
 	if !ok {
-		return fmt.Errorf("Unable to convert (*output).Data[address] to uint16: %v", (*output).Data["address"])
+		return fmt.Errorf("Unable to convert (*output).Data[address] to uint16: %v", device.Data["address"])
 	}
-	registerUint16 := uint16(registerInt)
+	registerUint16 := uint16(register)
 
 	log.Debugf("Writing holding register 0x%x, data 0x%x", registerUint16, registerData)
 	_, err = (*client).WriteSingleRegister(registerUint16, registerData)

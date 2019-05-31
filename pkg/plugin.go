@@ -1,7 +1,7 @@
 package pkg
 
 import (
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/vapor-ware/synse-modbus-ip-plugin/pkg/devices"
 	"github.com/vapor-ware/synse-modbus-ip-plugin/pkg/outputs"
 	"github.com/vapor-ware/synse-sdk/sdk"
@@ -9,10 +9,13 @@ import (
 
 // MakePlugin creates a new instance of the Synse Modbus TCP/IP Plugin.
 func MakePlugin() *sdk.Plugin {
-	plugin := sdk.NewPlugin()
+	plugin, err := sdk.NewPlugin()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	// Register the output types
-	err := plugin.RegisterOutputTypes(
+	// Register output types
+	err = plugin.RegisterOutputs(
 		&outputs.Current,
 		&outputs.Power,
 		&outputs.Voltage,
@@ -38,11 +41,14 @@ func MakePlugin() *sdk.Plugin {
 	}
 
 	// Register device handlers
-	plugin.RegisterDeviceHandlers(
+	err = plugin.RegisterDeviceHandlers(
 		&devices.CoilsHandler,
 		&devices.HoldingRegisterHandler,
 		&devices.InputRegisterHandler,
 	)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	return plugin
 }
