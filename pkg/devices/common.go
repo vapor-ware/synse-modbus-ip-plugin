@@ -347,7 +347,7 @@ func MapBulkReadData(bulkReadMap map[ModbusBulkReadKey][]*ModbusBulkRead, keyOrd
 	// device and output. We can hit the same device and output more than once in
 	// this loop when there are multiple modbus reads for a single device (more
 	// than 123 register addresses)
-	accountedFor := make(map[*sdk.Device][]*sdk.Output)
+	accountedFor := make(map[*sdk.Device][]*output.Output)
 
 	for a := 0; a < len(keyOrder); a++ {
 		k := keyOrder[a]
@@ -360,10 +360,10 @@ func MapBulkReadData(bulkReadMap map[ModbusBulkReadKey][]*ModbusBulkRead, keyOrd
 				device := devices[i]
 
 				// For each device output.
-				outputs := device.Outputs
-				readings := []*sdk.Reading{}
+				outputs := []*output.Output{output.Get(device.Output)}
+				readings := []*output.Reading{}
 				for j := 0; j < len(outputs); j++ {
-					output := outputs[j]
+					out := outputs[j]
 
 					// Have we accounted for this device and output yet?
 					// This can happen when multiple reads are required for a single ModbusBulkReadKey.
@@ -372,24 +372,24 @@ func MapBulkReadData(bulkReadMap map[ModbusBulkReadKey][]*ModbusBulkRead, keyOrd
 					if keyPresent {
 						// Device is there. Is the output there?
 						for b := 0; b < len(accountedFor[device]); b++ {
-							if accountedFor[device][b] == output {
+							if accountedFor[device][b] == out {
 								inMap = true
 								break // for
 							}
 						}
 						if inMap {
-							log.Debugf("device[output] already accounted for: device %p, output %p", device, output)
+							log.Debugf("device[output] already accounted for: device %p, output %p", device, out)
 							continue // next output
 						}
 					}
 
-					var outputData config.ModbusOutputData
+					var outputData config.ModbusDeviceData
 					// Get the output data. Need address and width.
-					err := mapstructure.Decode(output.Data, &outputData)
+					err := mapstructure.Decode(device.Data, &outputData)
 					if err != nil { // This is not a configuration issue. Device may not have responded.
 						log.Errorf(
 							"MapBulkReadData failed parsing output.Data device at:[%v], device: %#v, output at:[%v], output: %#v",
-							i, device, j, output)
+							i, device, j, out)
 						if k.FailOnError {
 							return nil, err
 						}
@@ -403,9 +403,9 @@ func MapBulkReadData(bulkReadMap map[ModbusBulkReadKey][]*ModbusBulkRead, keyOrd
 
 					readResults := read.ReadResults // Raw byte results from modbus call.
 
-					var reading *sdk.Reading
+					var reading *output.Reading
 					if read.IsCoil {
-						reading, err = UnpackCoilReading(output, read.ReadResults, read.StartRegister, outputDataAddress, k.FailOnError)
+						reading, err = UnpackCoilReading(out, read.ReadResults, read.StartRegister, outputDataAddress, k.FailOnError)
 						if err != nil {
 							return nil, err
 						}
@@ -434,16 +434,16 @@ func MapBulkReadData(bulkReadMap map[ModbusBulkReadKey][]*ModbusBulkRead, keyOrd
 						rawReading := readResults[startDataOffset:endDataOffset]
 						log.Debugf("rawReading: len: %v, %x", len(rawReading), rawReading)
 
-						reading, err = UnpackReading(output, outputData.Type, rawReading, k.FailOnError)
+						reading, err = UnpackReading(out, outputData.Type, rawReading, k.FailOnError)
 						if err != nil {
 							return nil, err
 						}
 					}
-					log.Debugf("Appending reading: %#v, device: %v, output: %#v", reading, device, output)
+					log.Debugf("Appending reading: %#v, device: %v, output: %#v", reading, device, out)
 					readings = append(readings, reading)
 
 					// Add to accounted for.
-					accountedFor[device] = append(accountedFor[device], output)
+					accountedFor[device] = append(accountedFor[device], out)
 
 				} // End for each output.
 				// Only append a read context if we have readings. (Including nil readings)
