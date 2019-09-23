@@ -1,7 +1,7 @@
 package pkg
 
 import (
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/vapor-ware/synse-modbus-ip-plugin/pkg/devices"
 	"github.com/vapor-ware/synse-modbus-ip-plugin/pkg/outputs"
 	"github.com/vapor-ware/synse-sdk/sdk"

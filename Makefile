@@ -20,8 +20,7 @@ LDFLAGS := -w \
 	-X ${PKG_CTX}.PluginVersion=${PLUGIN_VERSION}
 
 
-HAS_LINT := $(shell which gometalinter)
-HAS_DEP  := $(shell which dep)
+HAS_LINT := $(shell which golangci-lint)
 HAS_GOX  := $(shell which gox)
 
 
@@ -40,13 +39,6 @@ ci:  ## Run CI checks locally (build, lint)
 .PHONY: clean
 clean:  ## Remove temporary files
 	go clean -v || exit
-
-.PHONY: dep
-dep:  ## Ensure and prune dependencies
-ifndef HAS_DEP
-	go get -u github.com/golang/dep/cmd/dep
-endif
-	dep ensure -v
 
 .PHONY: deploy
 deploy:  ## Run a local deployment of Synse Server, and the Modbus TCP/IP plugin.
@@ -73,26 +65,13 @@ github-tag:  ## Create and push a tag with the current plugin version
 .PHONY: lint
 lint:  ## Lint project source files
 ifndef HAS_LINT
-	go get -u github.com/alecthomas/gometalinter
-	gometalinter --install
+		$(shell curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $$(go env GOPATH)/bin v1.18.0)
 endif
-	@ # disable gotype: https://github.com/alecthomas/gometalinter/issues/40
-	gometalinter --vendor ./... \
-		--disable=gotype --disable=gocyclo \
-		--tests \
-		--sort=path --sort=line \
-		--aggregate \
-		--deadline=5m || exit
+	golangci-lint run
 
 .PHONY: setup
 setup:  ## Install the build and development dependencies and set up vendoring
-	go get -u github.com/alecthomas/gometalinter
-	go get -u github.com/golang/dep/cmd/dep
-	gometalinter --install
-ifeq (,$(wildcard ./Gopkg.toml))
-	dep init
-endif
-	@$(MAKE) dep
+	$(shell curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $$(go env GOPATH)/bin v1.18.0)
 
 .PHONY: test
 test:  ## Run project tests

@@ -1,11 +1,8 @@
 # Builder Image
-FROM vaporio/golang:1.11 as builder
+FROM vaporio/golang:1.13 as builder
 WORKDIR /go/src/github.com/vapor-ware/synse-modbus-ip-plugin
 COPY . .
 
-# If the vendored dependencies are not present in the docker build context,
-# we'll need to do the vendoring prior to building the binary.
-RUN if [ ! -d "vendor" ]; then make dep; fi
 RUN make build CGO_ENABLED=0
 
 
