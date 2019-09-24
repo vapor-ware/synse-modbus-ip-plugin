@@ -5,7 +5,6 @@ pipeline {
   agent any
 
   environment {
-    PROJ_PATH = '/go/src/github.com/vapor-ware/synse-modbus-ip-plugin'
     IMAGE_NAME = 'vaporio/modbus-ip-plugin'
   }
 
@@ -17,54 +16,16 @@ pipeline {
       }
     }
 
-    // This stage is done first in order to get the vendored dependencies
-    // if they do not already exist. This should improve the build time of
-    // all subsequent stages which require the vendored dependencies to
-    // exist (e.g. testing, building)
-    stage('Vendor Dependencies') {
-      agent {
-        docker {
-          image 'vaporio/golang:1.11'
-          reuseNode true
-        }
-      }
-      steps {
-        // Set up the project in the docker container. The project must be
-        // on the GOPATH (/go) in order to correctly vendor dependencies and
-        // build the project artifacts.
-        sh 'mkdir -p ${PROJ_PATH} && cp -r ${WORKSPACE}/* ${PROJ_PATH}'
-
-        // The pipeline's 'dir()' directive is broken when run inside a docker
-        // container, so we need to 'cd' into the project directory prior to
-        // running the required commands.
-        sh 'cd ${PROJ_PATH} && make dep'
-
-        // Copy the vendor directory back down to the WORKSPACE, since it is
-        // volume mounted. This way all subsequent stages will have the
-        // project already vendored.
-        sh 'mkdir -p ${WORKSPACE}/vendor'
-        sh 'cp -r ${PROJ_PATH}/vendor/* ${WORKSPACE}/vendor'
-      }
-    }
-
     // Run linting on project source code.
     stage('Lint') {
       agent {
         docker {
-          image 'vaporio/golang:1.11'
+          image 'vaporio/golang:1.13'
           reuseNode true
         }
       }
       steps {
-        // Set up the project in the docker container. The project must be
-        // on the GOPATH (/go) in order to correctly vendor dependencies and
-        // build the project artifacts.
-        sh 'mkdir -p ${PROJ_PATH} && cp -r ${WORKSPACE}/* ${PROJ_PATH}'
-
-        // The pipeline's 'dir()' directive is broken when run inside a docker
-        // container, so we need to 'cd' into the project directory prior to
-        // running the required commands.
-        sh 'cd ${PROJ_PATH} && make lint'
+        sh 'make lint'
       }
     }
 
@@ -72,20 +33,12 @@ pipeline {
     stage('Test') {
       agent {
         docker {
-          image 'vaporio/golang:1.11'
+          image 'vaporio/golang:1.13'
           reuseNode true
         }
       }
       steps {
-        // Set up the project in the docker container. The project must be
-        // on the GOPATH (/go) in order to correctly vendor dependencies and
-        // build the project artifacts.
-        sh 'mkdir -p ${PROJ_PATH} && cp -r ${WORKSPACE}/* ${PROJ_PATH}'
-
-        // The pipeline's 'dir()' directive is broken when run inside a docker
-        // container, so we need to 'cd' into the project directory prior to
-        // running the required commands.
-        sh 'cd ${PROJ_PATH} && make test'
+        sh 'make test'
       }
 }
 
@@ -113,7 +66,7 @@ pipeline {
     stage('Build Release Artifacts') {
       agent {
         docker {
-          image 'vaporio/golang:1.11'
+          image 'vaporio/golang:1.13'
           reuseNode true
         }
       }
@@ -122,13 +75,7 @@ pipeline {
         tag pattern: '(0|[1-9]*)\\.(0|[1-9]*)\\.(0|[1-9]*)(-(\\S*))?$', comparator: "REGEXP"
       }
       steps {
-        // Set up the project in the docker container. The project must be
-        // on the GOPATH (/go) in order to correctly vendor dependencies and
-        // build the project artifacts.
-        sh 'mkdir -p ${PROJ_PATH} && cp -r ${WORKSPACE}/* ${PROJ_PATH}'
-
         // Build the project artifacts
-        sh 'mkdir -p ${WORKSPACE}/build'
         sh 'make ci-build'
       }
     }
