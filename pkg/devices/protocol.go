@@ -1,4 +1,4 @@
-package utils
+package devices
 
 import (
 	"fmt"
@@ -12,8 +12,7 @@ import (
 func NewClient(data *config.ModbusDeviceData) (modbus.Client, error) {
 
 	// Validate that the device config has all required fields.
-	err := data.Validate()
-	if err != nil {
+	if err := data.Validate(); err != nil {
 		return nil, err
 	}
 
