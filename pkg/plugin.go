@@ -16,12 +16,8 @@ func MakePlugin() *sdk.Plugin {
 
 	// Register output types
 	err = plugin.RegisterOutputs(
-		&outputs.Current,
 		&outputs.Power,
-		&outputs.Voltage,
-		&outputs.Frequency,
 		&outputs.SItoKWhPower,
-		&outputs.Seconds,
 		&outputs.Microseconds,
 		&outputs.FanSpeedPercent,
 		&outputs.FanSpeedPercentTenths,
