@@ -9,9 +9,8 @@ var (
 	// to SI unit is 2.60E+06, so the inverse is used to convert from SI
 	// to kWh 1/2.60E+06 ~= 2.77777778e-7
 	SItoKWhPower = output.Output{
-		Name:          "si-to-kwh.power",
-		Precision:     5,
-		ScalingFactor: "2.77777778e-7",
+		Name:      "si-to-kwh.power",
+		Precision: 5,
 		Unit: &output.Unit{
 			Name:   "kilowatt hour",
 			Symbol: "kWh",
@@ -52,9 +51,8 @@ var (
 
 	// FanSpeedPercentTenths is the output type for the VEM PLC fan in tenths.
 	FanSpeedPercentTenths = output.Output{
-		Name:          "fan_speed_percent_tenths",
-		Precision:     3,
-		ScalingFactor: ".1", // Raw reading for VEM PLC minimum fan speed is tenths of percent.
+		Name:      "fan_speed_percent_tenths",
+		Precision: 3,
 		Unit: &output.Unit{
 			Name:   "percent",
 			Symbol: "%",
@@ -63,14 +61,12 @@ var (
 
 	// Temperature is the output type for temperature readings.
 	Temperature = output.Output{
-		Name:          "temperature",
-		Precision:     3,
-		ScalingFactor: ".1", // Raw reading for VEM PLC is tenths of degrees F.
+		Name:      "temperature",
+		Precision: 3,
 		Unit: &output.Unit{
 			Name:   "celsius",
 			Symbol: "C",
 		},
-		Conversion: "englishToMetricTemperature", // Farenheit to Celsius.
 	}
 
 	// FlowGpm is the output type for flow readings in gallons per minute. FUTURE: Metric / English.
@@ -85,9 +81,8 @@ var (
 
 	// FlowGpmTenths is the output type for flow readings in tenths of gallons per minute. FUTURE: Metric / English.
 	FlowGpmTenths = output.Output{
-		Name:          "flowGpmTenths",
-		ScalingFactor: ".1",
-		Precision:     4,
+		Name:      "flowGpmTenths",
+		Precision: 4,
 		Unit: &output.Unit{
 			Name:   "gallons per minute",
 			Symbol: "gpm",
@@ -109,9 +104,8 @@ var (
 
 	// InWCThousanths is the output type for pressure readings measured in thousanths of inches of water column..
 	InWCThousanths = output.Output{
-		Name:          "InWCThousanths",
-		ScalingFactor: ".001",
-		Precision:     4,
+		Name:      "InWCThousanths",
+		Precision: 4,
 		Unit: &output.Unit{
 			Name:   "inches of water column",
 			Symbol: "InWC",
@@ -120,9 +114,8 @@ var (
 
 	// PsiTenths is the output type for pressure readings measured in tenths of pounds per square inch..
 	PsiTenths = output.Output{
-		Name:          "psiTenths",
-		ScalingFactor: ".1",
-		Precision:     3,
+		Name:      "psiTenths",
+		Precision: 3,
 		Unit: &output.Unit{
 			Name:   "pounds per square inch",
 			Symbol: "psi",
@@ -141,12 +134,13 @@ var (
 
 	// FIXME: not clear that this belongs here, as this is Vapor-specific and not
 	//   modbus related. We could define a position output in the SDK.
+
 	// CarouselPosition is for the position of the Carousel, result is Wedge Id
 	// facing the customer.
 	CarouselPosition = output.Output{
 		Name:      "carouselPosition",
 		Precision: 3,
-		Unit:      &output.Unit{
+		Unit: &output.Unit{
 			Name: "position",
 		},
 	}

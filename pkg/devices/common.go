@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"sort"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/goburrow/modbus"
 	"github.com/mitchellh/mapstructure"
+	log "github.com/sirupsen/logrus"
 	"github.com/vapor-ware/synse-modbus-ip-plugin/pkg/config"
 	"github.com/vapor-ware/synse-modbus-ip-plugin/pkg/utils"
 	"github.com/vapor-ware/synse-sdk/sdk"
