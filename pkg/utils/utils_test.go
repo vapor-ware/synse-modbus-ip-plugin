@@ -263,7 +263,7 @@ func TestCastToType_Ok(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
+		t.Run(fmt.Sprintf("%s-%d", tt.typeName, i), func(t *testing.T) {
 			actual, err := CastToType(tt.typeName, tt.value)
 			assert.NoError(t, err)
 			assert.Equal(t, tt.expected, actual)
@@ -302,7 +302,7 @@ func TestCastToType_Error(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
+		t.Run(fmt.Sprintf("%s-%d", tt.typeName, i), func(t *testing.T) {
 			_, err := CastToType(tt.typeName, tt.value)
 			assert.Error(t, err)
 		})

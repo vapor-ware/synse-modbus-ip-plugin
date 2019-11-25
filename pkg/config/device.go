@@ -3,6 +3,9 @@ package config
 import (
 	"fmt"
 	"time"
+
+	"github.com/mitchellh/mapstructure"
+	"github.com/vapor-ware/synse-sdk/sdk"
 )
 
 // ModbusDeviceData models the scheme for the supported config values
@@ -26,10 +29,10 @@ type ModbusDeviceData struct {
 	FailOnError bool `yaml:"failOnError,omitempty"`
 
 	// Address is the register address which holds the output reading.
-	Address int
+	Address uint16
 
 	// Width is the number of registers to read, starting from the `Address`.
-	Width int
+	Width uint16
 
 	// Type is the type of the data held in the registers. The supported
 	// types are as follows:
@@ -44,6 +47,16 @@ type ModbusDeviceData struct {
 	//  "f32", "float32": 32-bit floating point number
 	//  "f64", "float64": 64-bit floating point number
 	Type string
+}
+
+// ModbusDeviceDataFromDevice creates a new instance of a ModbusDeviceData and loads
+// it with values from the provided SDK Device's Data field.
+func ModbusDeviceDataFromDevice(device *sdk.Device) (*ModbusDeviceData, error) {
+	var cfg ModbusDeviceData
+	if err := mapstructure.Decode(device.Data, &cfg); err != nil {
+		return nil, err
+	}
+	return &cfg, nil
 }
 
 // GetTimeout gets the timeout configuration as a duration.
