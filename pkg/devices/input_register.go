@@ -40,10 +40,12 @@ func bulkReadInputRegisters(managers []*ModbusDeviceManager) ([]*sdk.ReadContext
 				results = []byte{}
 			}
 
-			// TODO: check if this is needed.
-			//if len(results) > 0 {
-			//	block.Results = results[0:2*block.RegisterCount]
-			//}
+			// Trim the result bytes to the expected length of bytes as per the calculated
+			// register count. This ensures there are no padded values included in the data
+			// for subsequent processing.
+			if len(results) > 0 {
+				results = results[0 : 2*block.RegisterCount] // Two bytes per register
+			}
 			block.Results = results
 
 			// Parse the results from the bulk read. This will create the readings
@@ -51,7 +53,7 @@ func bulkReadInputRegisters(managers []*ModbusDeviceManager) ([]*sdk.ReadContext
 			for _, device := range block.Devices {
 				out := output.Get(device.Device.Output)
 
-				reading, err := UnpackRegisterReading(out, block.Results, block.StartRegister, device.Config.Address, device.Config.Width, device.Config.Type, device.Config.FailOnError)
+				reading, err := UnpackRegisterReading(out, block, device)
 				if err != nil {
 					return nil, err
 				}
@@ -64,56 +66,3 @@ func bulkReadInputRegisters(managers []*ModbusDeviceManager) ([]*sdk.ReadContext
 
 	return readings, nil
 }
-
-//// bulkReadInputRegisters performs a bulk read on the devices parameter
-//// reducing round trips to the physical device.
-//func bulkReadInputRegistersOrig(devices []*sdk.Device) (readContexts []*sdk.ReadContext, err error) {
-//	log.Errorf("----------- bulkReadInputRegisters start ---------------")
-//
-//	// Ideally this would be done in setup, but for now this should work.
-//	// Map out the bulk read.
-//	bulkReadMap, keyOrder, err := MapBulkRead(devices, !sortOrdinalSetForInput, false)
-//	if err != nil {
-//		return nil, err
-//	}
-//	log.Debugf("bulkReadMap: %#v", bulkReadMap)
-//	sortOrdinalSetForInput = true
-//
-//	// Perform the bulk reads.
-//	for a := 0; a < len(keyOrder); a++ {
-//		k := keyOrder[a]
-//		v := bulkReadMap[k]
-//		log.Debugf("bulkReadMap[%#v]: %#v", k, v)
-//
-//		// New connection for each key.
-//		var client modbus.Client
-//		var modbusDeviceData *config.ModbusConfig
-//		client, modbusDeviceData, err = GetBulkReadClient(k)
-//		if err != nil {
-//			return nil, err
-//		}
-//
-//		// For read in v, perform each read.
-//		for i := 0; i < len(v); i++ { // For each required read.
-//			read := v[i]
-//			log.Debugf("Reading bulkReadMap[%#v][%#v]", k, read)
-//
-//			var readResults []byte
-//			readResults, err = client.ReadInputRegisters(read.StartRegister, read.RegisterCount)
-//			if err != nil {
-//				log.Errorf("modbus bulk read input registers failure: %v", err.Error())
-//				if modbusDeviceData.FailOnError {
-//					return nil, err
-//				}
-//				// No data from device. If fail on error is false, we should keep trying the remaining reads.
-//				read.ReadResults = []byte{}
-//				continue
-//			}
-//			log.Debugf("ReadInputRegisters: results: 0x%0x, len(results) 0x%0x", readResults, len(readResults))
-//			read.ReadResults = readResults[0 : 2*(read.RegisterCount)] // Store raw results. Two bytes per register.
-//		} // end for each read
-//	} // end for each modbus connection
-//
-//	readContexts, err = MapBulkReadData(bulkReadMap, keyOrder)
-//	return
-//}

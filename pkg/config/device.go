@@ -21,6 +21,8 @@ type ModbusConfig struct {
 	SlaveID int `yaml:"slaveId,omitempty"`
 
 	// Timeout is the duration to wait for a modbus request to resolve.
+	// FIXME: could the type here just be a duration? That may parse it automatically?
+	//   need to check the capabilities of the mapstructure package
 	Timeout string `yaml:"timeout,omitempty"`
 
 	// FailOnError will cause a read to fail (e.g. return an error) if
