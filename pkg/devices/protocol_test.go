@@ -8,7 +8,7 @@ import (
 )
 
 func TestNewClient(t *testing.T) {
-	cfg := config.ModbusDeviceData{
+	cfg := config.ModbusConfig{
 		Host: "localhost",
 		Port: 7777,
 	}
@@ -20,7 +20,7 @@ func TestNewClient(t *testing.T) {
 }
 
 func TestNewClient_ValidationError(t *testing.T) {
-	cfg := config.ModbusDeviceData{
+	cfg := config.ModbusConfig{
 		// missing field: host
 		Port: 7777,
 	}
@@ -31,7 +31,7 @@ func TestNewClient_ValidationError(t *testing.T) {
 }
 
 func TestNewClient_InvalidTimeoutError(t *testing.T) {
-	cfg := config.ModbusDeviceData{
+	cfg := config.ModbusConfig{
 		Host:    "localhost",
 		Port:    7777,
 		Timeout: "not-a-duration-string",

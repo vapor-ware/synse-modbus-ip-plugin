@@ -9,7 +9,7 @@ import (
 
 // Get the timeout successfully.
 func TestModbusDeviceData_GetTimeout(t *testing.T) {
-	data := ModbusDeviceData{
+	data := ModbusConfig{
 		Timeout: "5s",
 	}
 	actual, err := data.GetTimeout()
@@ -19,7 +19,7 @@ func TestModbusDeviceData_GetTimeout(t *testing.T) {
 
 // Get an invalid timeout.
 func TestModbusDeviceData_GetTimeout2(t *testing.T) {
-	data := ModbusDeviceData{
+	data := ModbusConfig{
 		Timeout: "foobar",
 	}
 	_, err := data.GetTimeout()
@@ -28,7 +28,7 @@ func TestModbusDeviceData_GetTimeout2(t *testing.T) {
 
 // Validate successfully.
 func TestModbusDeviceData_Validate(t *testing.T) {
-	data := ModbusDeviceData{
+	data := ModbusConfig{
 		Host:    "localhost",
 		Port:    5000,
 		Timeout: "10s",
@@ -45,7 +45,7 @@ func TestModbusDeviceData_Validate(t *testing.T) {
 
 // Invalid: No host
 func TestModbusDeviceData_Validate2(t *testing.T) {
-	data := ModbusDeviceData{
+	data := ModbusConfig{
 		Port: 5000,
 	}
 	err := data.Validate()
@@ -54,7 +54,7 @@ func TestModbusDeviceData_Validate2(t *testing.T) {
 
 // Invalid: No port
 func TestModbusDeviceData_Validate3(t *testing.T) {
-	data := ModbusDeviceData{
+	data := ModbusConfig{
 		Host: "localhost",
 	}
 	err := data.Validate()
@@ -63,7 +63,7 @@ func TestModbusDeviceData_Validate3(t *testing.T) {
 
 // Valid: No timeout
 func TestModbusDeviceData_Validate4(t *testing.T) {
-	data := ModbusDeviceData{
+	data := ModbusConfig{
 		Host: "localhost",
 		Port: 5000,
 	}
