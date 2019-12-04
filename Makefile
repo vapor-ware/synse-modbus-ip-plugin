@@ -34,6 +34,10 @@ clean:  ## Remove temporary files
 	go clean -v
 	rm -rf dist
 
+.PHONY: cover
+cover: test ## Run tests and open the coverage report
+	go tool cover -html=coverage.out
+
 .PHONY: dep
 dep:  ## Ensure and prune dependencies
 	dep ensure -v
@@ -65,7 +69,8 @@ lint:  ## Lint project source files
 
 .PHONY: test
 test:  ## Run project tests
-	go test -race -cover ./pkg/...
+	@ # Note: this requires go1.10+ in order to do multi-package coverage reports
+	go test -race -coverprofile=coverage.out -covermode=atomic ./pkg/...
 
 .PHONY: version
 version:  ## Print the version of the plugin
