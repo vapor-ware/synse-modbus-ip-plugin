@@ -5,8 +5,18 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/vapor-ware/synse-modbus-ip-plugin/internal/testutils"
+	"github.com/vapor-ware/synse-modbus-ip-plugin/pkg/config"
 	"github.com/vapor-ware/synse-sdk/sdk"
+	"github.com/vapor-ware/synse-sdk/sdk/output"
 )
+
+func TestCoilsHandler_BulkRead_Error(t *testing.T) {
+	defer clearDeviceManagers()
+
+	ctxs, err := CoilsHandler.BulkRead([]*sdk.Device{})
+	assert.Error(t, err)
+	assert.Nil(t, ctxs)
+}
 
 func TestCoilsHandler_Write_NilDevice(t *testing.T) {
 	err := CoilsHandler.Write(nil, &sdk.WriteData{})
@@ -113,4 +123,142 @@ func TestGetCoilDataError(t *testing.T) {
 	addr, err := getCoilData([]byte("unexpected"))
 	assert.Equal(t, uint16(0), addr)
 	assert.Error(t, err)
+}
+
+func TestBulkReadCoils(t *testing.T) {
+	cli := testutils.NewFakeModbusClient()
+	cli.WithResponse([]byte{0x01, 0x02, 0x03, 0x04, 0x00, 0x00})
+
+	cfg := config.ModbusConfig{
+		Address:     0,
+		Width:       1,
+		FailOnError: true,
+		Type:        "b",
+	}
+	managers := []*ModbusDeviceManager{
+		{
+			ModbusConfig: cfg,
+			Devices: []*ModbusDevice{{
+				Device: &sdk.Device{
+					Output: "status",
+				},
+				Config: &cfg,
+			}},
+			Client: cli,
+			parsed: false,
+			sorted: true,
+		},
+	}
+
+	ctxs, err := bulkReadCoils(managers)
+	assert.NoError(t, err)
+	assert.Len(t, ctxs, 1)
+	assert.Len(t, ctxs[0].Reading, 1)
+
+	r := ctxs[0].Reading[0]
+	assert.Equal(t, true, r.Value)
+	assert.Equal(t, output.Status.Unit, r.Unit)
+	assert.Equal(t, output.Status.Type, r.Type)
+	assert.NotEmpty(t, r.Timestamp)
+	assert.Empty(t, r.Context)
+
+	// Verify the correct number of blocks were created.
+	assert.Len(t, managers[0].Blocks, 1)
+	// Verify the block has the correct number of devices.
+	assert.Len(t, managers[0].Blocks[0].Devices, 1)
+	// Verify that the results were trimmed to the block width
+	assert.Equal(t, []byte{0x01, 0x02}, managers[0].Blocks[0].Results)
+}
+
+func TestBulkReadCoils_ErrorParseBlocks(t *testing.T) {
+	cli := testutils.NewFakeModbusClient()
+	cli.WithResponse([]byte{0x01, 0x02, 0x03, 0x04, 0x00, 0x00})
+
+	cfg := config.ModbusConfig{
+		Address:     0,
+		Width:       1,
+		FailOnError: true,
+		Type:        "b",
+	}
+	managers := []*ModbusDeviceManager{
+		{
+			ModbusConfig: cfg,
+			Devices: []*ModbusDevice{{
+				Device: &sdk.Device{
+					Output: "status",
+				},
+				Config: &cfg,
+			}},
+			Client: cli,
+			parsed: false,
+			sorted: false, // results must be sorted prior to parsing blocks
+		},
+	}
+
+	ctxs, err := bulkReadCoils(managers)
+	assert.Error(t, err)
+	assert.Equal(t, ErrDevicesNotSorted, err)
+	assert.Nil(t, ctxs)
+}
+
+func TestBulkReadCoils_ModbusError_FailOnError(t *testing.T) {
+	cli := testutils.NewFakeModbusClient()
+	cli.WithError()
+
+	cfg := config.ModbusConfig{
+		Address:     0,
+		Width:       1,
+		FailOnError: true,
+		Type:        "b",
+	}
+	managers := []*ModbusDeviceManager{
+		{
+			ModbusConfig: cfg,
+			Devices: []*ModbusDevice{{
+				Device: &sdk.Device{
+					Output: "status",
+				},
+				Config: &cfg,
+			}},
+			Client: cli,
+			parsed: false,
+			sorted: true,
+		},
+	}
+
+	ctxs, err := bulkReadCoils(managers)
+	assert.Error(t, err)
+	assert.Nil(t, ctxs)
+}
+
+func TestBulkReadCoils_ModbusError_NoFailOnError(t *testing.T) {
+	cli := testutils.NewFakeModbusClient()
+	cli.WithError()
+
+	cfg := config.ModbusConfig{
+		Address:     0,
+		Width:       1,
+		FailOnError: false,
+		Type:        "b",
+	}
+	managers := []*ModbusDeviceManager{
+		{
+			ModbusConfig: cfg,
+			Devices: []*ModbusDevice{{
+				Device: &sdk.Device{
+					Output: "status",
+				},
+				Config: &cfg,
+			}},
+			Client: cli,
+			parsed: false,
+			sorted: true,
+		},
+	}
+
+	ctxs, err := bulkReadCoils(managers)
+	assert.NoError(t, err)
+	assert.Len(t, ctxs, 1)
+	assert.Len(t, ctxs[0].Reading, 1)
+	assert.Nil(t, ctxs[0].Reading[0])
 }

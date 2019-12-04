@@ -47,6 +47,22 @@ func TestLoadModbusDevices_Action_NoManagerForHandler(t *testing.T) {
 	assert.False(t, manager.parsed)
 }
 
+// No manager exists for the handler yet, fail to create a new manager (device data is empty)
+func TestLoadModbusDevices_Action_NoManagerForHandlerError(t *testing.T) {
+	defer clearDeviceManagers()
+
+	d := &sdk.Device{
+		Data:    map[string]interface{}{"failOnError": true},
+		Handler: "test-handler",
+	}
+
+	assert.Empty(t, DeviceManagers)
+
+	err := LoadModbusDevices.Action(&sdk.Plugin{}, d)
+	assert.Error(t, err)
+	assert.Empty(t, DeviceManagers)
+}
+
 // A manager does not yet exist for the device.
 func TestLoadModbusDevices_Action_NoManagerForDevice(t *testing.T) {
 	defer clearDeviceManagers()
@@ -82,6 +98,29 @@ func TestLoadModbusDevices_Action_NoManagerForDevice(t *testing.T) {
 	assert.Len(t, manager2.Blocks, 0)
 	assert.True(t, manager2.sorted)
 	assert.False(t, manager2.parsed)
+}
+
+// A manager does not yet exist for the device, fail to create a new manager (device data is empty)
+func TestLoadModbusDevices_Action_NoManagerForDeviceError(t *testing.T) {
+	defer clearDeviceManagers()
+
+	d := &sdk.Device{
+		Data:    map[string]interface{}{"failOnError": true},
+		Handler: "test-handler",
+		Info:    "dev-1",
+	}
+
+	// Create an empty entry for a manager. The device should not match
+	// this manager, so it should create a new one.
+	DeviceManagers["test-handler"] = []*ModbusDeviceManager{{}}
+	assert.Len(t, DeviceManagers, 1)
+	assert.Len(t, DeviceManagers["test-handler"], 1)
+
+	err := LoadModbusDevices.Action(&sdk.Plugin{}, d)
+	assert.Error(t, err)
+	assert.Len(t, DeviceManagers, 1)
+	assert.Contains(t, DeviceManagers, "test-handler")
+	assert.Len(t, DeviceManagers["test-handler"], 1)
 }
 
 // A manager does exist for the device.
