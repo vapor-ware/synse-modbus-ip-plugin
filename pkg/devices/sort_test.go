@@ -10,9 +10,9 @@ import (
 
 func TestByModbusConfig_Len(t *testing.T) {
 	devs := ByModbusConfig([]*ModbusDevice{
-		{Config: &config.ModbusDeviceData{Address: 1}},
-		{Config: &config.ModbusDeviceData{Address: 2}},
-		{Config: &config.ModbusDeviceData{Address: 3}},
+		{Config: &config.ModbusConfig{Address: 1}},
+		{Config: &config.ModbusConfig{Address: 2}},
+		{Config: &config.ModbusConfig{Address: 3}},
 	})
 	assert.Equal(t, 3, devs.Len())
 }
@@ -31,7 +31,7 @@ func TestSort_ByModbusConfig_Empty(t *testing.T) {
 
 func TestSort_ByModbusConfig_Single(t *testing.T) {
 	devs := ByModbusConfig([]*ModbusDevice{
-		{Config: &config.ModbusDeviceData{Address: 1}},
+		{Config: &config.ModbusConfig{Address: 1}},
 	})
 
 	sort.Sort(devs)
@@ -43,12 +43,12 @@ func TestSort_ByModbusConfig_MultipleInOrder(t *testing.T) {
 	devs := ByModbusConfig([]*ModbusDevice{
 		// These configs hijack the Type field to provide identity in the test
 		// assertions -- the type does not look like this in reality.
-		{Config: &config.ModbusDeviceData{Host: "a", Port: 500, Address: 1, Type: "dev-1"}},
-		{Config: &config.ModbusDeviceData{Host: "a", Port: 500, Address: 2, Type: "dev-2"}},
-		{Config: &config.ModbusDeviceData{Host: "a", Port: 501, Address: 1, Type: "dev-3"}},
-		{Config: &config.ModbusDeviceData{Host: "b", Port: 502, Address: 1, Type: "dev-4"}},
-		{Config: &config.ModbusDeviceData{Host: "c", Port: 503, Address: 1, Type: "dev-5"}},
-		{Config: &config.ModbusDeviceData{Host: "c", Port: 503, Address: 4, Type: "dev-6"}},
+		{Config: &config.ModbusConfig{Host: "a", Port: 500, Address: 1, Type: "dev-1"}},
+		{Config: &config.ModbusConfig{Host: "a", Port: 500, Address: 2, Type: "dev-2"}},
+		{Config: &config.ModbusConfig{Host: "a", Port: 501, Address: 1, Type: "dev-3"}},
+		{Config: &config.ModbusConfig{Host: "b", Port: 502, Address: 1, Type: "dev-4"}},
+		{Config: &config.ModbusConfig{Host: "c", Port: 503, Address: 1, Type: "dev-5"}},
+		{Config: &config.ModbusConfig{Host: "c", Port: 503, Address: 4, Type: "dev-6"}},
 	})
 
 	sort.Sort(devs)
@@ -65,9 +65,9 @@ func TestSort_ByModbusConfig_Duplicate(t *testing.T) {
 	devs := ByModbusConfig([]*ModbusDevice{
 		// These configs hijack the Type field to provide identity in the test
 		// assertions -- the type does not look like this in reality.
-		{Config: &config.ModbusDeviceData{Host: "a", Port: 500, Address: 1, Type: "dev-1"}},
-		{Config: &config.ModbusDeviceData{Host: "a", Port: 500, Address: 1, Type: "dev-2"}},
-		{Config: &config.ModbusDeviceData{Host: "a", Port: 500, Address: 1, Type: "dev-3"}},
+		{Config: &config.ModbusConfig{Host: "a", Port: 500, Address: 1, Type: "dev-1"}},
+		{Config: &config.ModbusConfig{Host: "a", Port: 500, Address: 1, Type: "dev-2"}},
+		{Config: &config.ModbusConfig{Host: "a", Port: 500, Address: 1, Type: "dev-3"}},
 	})
 
 	sort.Sort(devs)
@@ -81,18 +81,18 @@ func TestSort_ByModbusConfig_MultipleOutOfOrder(t *testing.T) {
 	devs := ByModbusConfig([]*ModbusDevice{
 		// These configs hijack the Type field to provide identity in the test
 		// assertions -- the type does not look like this in reality.
-		{Config: &config.ModbusDeviceData{Host: "a", Port: 500, Address: 1, Type: "dev-1"}},
-		{Config: &config.ModbusDeviceData{Host: "b", Port: 501, Address: 2, Type: "dev-2"}},
-		{Config: &config.ModbusDeviceData{Host: "a", Port: 500, Address: 3, Type: "dev-3"}},
-		{Config: &config.ModbusDeviceData{Host: "a", Port: 501, Address: 1, Type: "dev-4"}},
-		{Config: &config.ModbusDeviceData{Host: "c", Port: 501, Address: 1, Type: "dev-5"}},
-		{Config: &config.ModbusDeviceData{Host: "b", Port: 502, Address: 3, Type: "dev-6"}},
-		{Config: &config.ModbusDeviceData{Host: "a", Port: 503, Address: 4, Type: "dev-7"}},
-		{Config: &config.ModbusDeviceData{Host: "d", Port: 506, Address: 2, Type: "dev-8"}},
-		{Config: &config.ModbusDeviceData{Host: "c", Port: 503, Address: 4, Type: "dev-9"}},
-		{Config: &config.ModbusDeviceData{Host: "d", Port: 504, Address: 1, Type: "dev-10"}},
-		{Config: &config.ModbusDeviceData{Host: "c", Port: 504, Address: 5, Type: "dev-11"}},
-		{Config: &config.ModbusDeviceData{Host: "c", Port: 504, Address: 1, Type: "dev-12"}},
+		{Config: &config.ModbusConfig{Host: "a", Port: 500, Address: 1, Type: "dev-1"}},
+		{Config: &config.ModbusConfig{Host: "b", Port: 501, Address: 2, Type: "dev-2"}},
+		{Config: &config.ModbusConfig{Host: "a", Port: 500, Address: 3, Type: "dev-3"}},
+		{Config: &config.ModbusConfig{Host: "a", Port: 501, Address: 1, Type: "dev-4"}},
+		{Config: &config.ModbusConfig{Host: "c", Port: 501, Address: 1, Type: "dev-5"}},
+		{Config: &config.ModbusConfig{Host: "b", Port: 502, Address: 3, Type: "dev-6"}},
+		{Config: &config.ModbusConfig{Host: "a", Port: 503, Address: 4, Type: "dev-7"}},
+		{Config: &config.ModbusConfig{Host: "d", Port: 506, Address: 2, Type: "dev-8"}},
+		{Config: &config.ModbusConfig{Host: "c", Port: 503, Address: 4, Type: "dev-9"}},
+		{Config: &config.ModbusConfig{Host: "d", Port: 504, Address: 1, Type: "dev-10"}},
+		{Config: &config.ModbusConfig{Host: "c", Port: 504, Address: 5, Type: "dev-11"}},
+		{Config: &config.ModbusConfig{Host: "c", Port: 504, Address: 1, Type: "dev-12"}},
 	})
 
 	sort.Sort(devs)

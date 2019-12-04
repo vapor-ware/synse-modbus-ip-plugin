@@ -133,7 +133,7 @@ func bulkReadCoils(managers []*ModbusDeviceManager) ([]*sdk.ReadContext, error) 
 //
 //		// New connection for each key.
 //		var client modbus.Client
-//		var modbusDeviceData *config.ModbusDeviceData
+//		var modbusDeviceData *config.ModbusConfig
 //		client, modbusDeviceData, err = GetBulkReadClient(k)
 //		if err != nil {
 //			return nil, err
