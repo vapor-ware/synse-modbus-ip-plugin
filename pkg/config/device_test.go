@@ -5,7 +5,48 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/vapor-ware/synse-sdk/sdk"
 )
+
+func TestModbusConfigFromDevice(t *testing.T) {
+	d := &sdk.Device{
+		Data: map[string]interface{}{
+			"host":        "localhost",
+			"port":        5050,
+			"slaveId":     10,
+			"timeout":     "10s",
+			"failOnError": true,
+			"address":     5,
+			"width":       2,
+			"type":        "u32",
+		},
+	}
+
+	cfg, err := ModbusConfigFromDevice(d)
+	assert.NoError(t, err)
+	assert.Equal(t, "localhost", cfg.Host)
+	assert.Equal(t, 5050, cfg.Port)
+	assert.Equal(t, 10, cfg.SlaveID)
+	assert.Equal(t, "10s", cfg.Timeout)
+	assert.Equal(t, true, cfg.FailOnError)
+	assert.Equal(t, uint16(5), cfg.Address)
+	assert.Equal(t, uint16(2), cfg.Width)
+	assert.Equal(t, "u32", cfg.Type)
+}
+
+func TestModbusConfigFromDevice_Error(t *testing.T) {
+	d := &sdk.Device{
+		Data: map[string]interface{}{
+			"host": "localhost",
+			"port": "5050", // should be int
+		},
+	}
+
+	cfg, err := ModbusConfigFromDevice(d)
+	assert.Error(t, err)
+	assert.Nil(t, cfg)
+
+}
 
 // Get the timeout successfully.
 func TestModbusDeviceData_GetTimeout(t *testing.T) {
