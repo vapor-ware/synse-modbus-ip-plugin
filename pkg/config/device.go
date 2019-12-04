@@ -8,9 +8,9 @@ import (
 	"github.com/vapor-ware/synse-sdk/sdk"
 )
 
-// ModbusDeviceData models the scheme for the supported config values
+// ModbusConfig models the scheme for the supported config values
 // of device's Data field for the Modbus TCP/IP plugin.
-type ModbusDeviceData struct {
+type ModbusConfig struct {
 	// Host is the hostname/ip of the device to connect to.
 	Host string `yaml:"host,omitempty"`
 
@@ -49,10 +49,10 @@ type ModbusDeviceData struct {
 	Type string
 }
 
-// ModbusDeviceDataFromDevice creates a new instance of a ModbusDeviceData and loads
+// ModbusConfigFromDevice creates a new instance of a ModbusConfig and loads
 // it with values from the provided SDK Device's Data field.
-func ModbusDeviceDataFromDevice(device *sdk.Device) (*ModbusDeviceData, error) {
-	var cfg ModbusDeviceData
+func ModbusConfigFromDevice(device *sdk.Device) (*ModbusConfig, error) {
+	var cfg ModbusConfig
 	if err := mapstructure.Decode(device.Data, &cfg); err != nil {
 		return nil, err
 	}
@@ -60,13 +60,13 @@ func ModbusDeviceDataFromDevice(device *sdk.Device) (*ModbusDeviceData, error) {
 }
 
 // GetTimeout gets the timeout configuration as a duration.
-func (data *ModbusDeviceData) GetTimeout() (time.Duration, error) {
+func (data *ModbusConfig) GetTimeout() (time.Duration, error) {
 	return time.ParseDuration(data.Timeout)
 }
 
-// Validate makes sure that the ModbusDeviceData instance has all of its
+// Validate makes sure that the ModbusConfig instance has all of its
 // required fields set.
-func (data *ModbusDeviceData) Validate() error {
+func (data *ModbusConfig) Validate() error {
 	if data.Host == "" {
 		return fmt.Errorf("'host' not found in device config, %v", data)
 	}

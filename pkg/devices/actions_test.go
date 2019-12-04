@@ -100,20 +100,20 @@ func TestLoadModbusDevices_Action_DeviceHasManager(t *testing.T) {
 	// expect that the new device falls between the two existing.
 	DeviceManagers["test-handler"] = []*ModbusDeviceManager{
 		{
-			ModbusDeviceData: config.ModbusDeviceData{
+			ModbusConfig: config.ModbusConfig{
 				Host: "localhost",
 				Port: 5050,
 			},
 			Devices: []*ModbusDevice{
 				{
-					Config: &config.ModbusDeviceData{
+					Config: &config.ModbusConfig{
 						Host:    "localhost",
 						Port:    5050,
 						Address: 5, // Less than the device being added
 					},
 				},
 				{
-					Config: &config.ModbusDeviceData{
+					Config: &config.ModbusConfig{
 						Host:    "localhost",
 						Port:    5050,
 						Address: 20, // Greater than the device being added

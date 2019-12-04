@@ -22,17 +22,17 @@ var ErrDevicesNotSorted = errors.New("devices not sorted; unable to parse bulk r
 // is 123 for ReadHoldingRegisters over IP.
 const MaximumRegisterCount uint16 = 123
 
-// ModbusDevice wraps an SDK Device and associates it with a ModbusDeviceData
+// ModbusDevice wraps an SDK Device and associates it with a ModbusConfig
 // configuration parsed from the SDK Device's Data field.
 type ModbusDevice struct {
 	Device *sdk.Device
-	Config *config.ModbusDeviceData
+	Config *config.ModbusConfig
 }
 
 // NewModbusDevice creates a new instance of the ModbusDevice wrapper for the
 // given SDK Device.
 func NewModbusDevice(dev *sdk.Device) (*ModbusDevice, error) {
-	cfg, err := config.ModbusDeviceDataFromDevice(dev)
+	cfg, err := config.ModbusConfigFromDevice(dev)
 	if err != nil {
 		return nil, err
 	}
@@ -51,11 +51,11 @@ func NewModbusDevice(dev *sdk.Device) (*ModbusDevice, error) {
 // a read call for each register for each device, a contiguous block of registers could
 // be read at once, reducing the number of calls which need to be made.
 //
-// For convenience, this struct embeds the ModbusDeviceData struct, which generally
+// For convenience, this struct embeds the ModbusConfig struct, which generally
 // contains all the pertinent connection configuration information specified by devices
 // in their Data field.
 type ModbusDeviceManager struct {
-	config.ModbusDeviceData
+	config.ModbusConfig
 
 	Client  modbus.Client
 	Blocks  []*ReadBlock
@@ -174,7 +174,7 @@ func (b *ReadBlock) Add(dev *ModbusDevice) {
 
 // NewModbusDeviceManager creates a new instance of a ModbusDeviceManager from
 // a given seed device. The particulars of the device are not used by the manager,
-// but the device's Data field is used to fill in the ModbusDeviceData.
+// but the device's Data field is used to fill in the ModbusConfig.
 //
 // Note: It is not within the purview of this function to check whether an existing
 // ModbusDeviceManager exists for the given configuration. This responsibility is
@@ -185,9 +185,9 @@ func NewModbusDeviceManager(seed *ModbusDevice) (*ModbusDeviceManager, error) {
 	}
 
 	manager := &ModbusDeviceManager{
-		ModbusDeviceData: *seed.Config,
-		Devices:          []*ModbusDevice{seed},
-		Blocks:           []*ReadBlock{},
+		ModbusConfig: *seed.Config,
+		Devices:      []*ModbusDevice{seed},
+		Blocks:       []*ReadBlock{},
 	}
 	c, err := newModbusClientFromManager(manager)
 	if err != nil {
@@ -199,7 +199,7 @@ func NewModbusDeviceManager(seed *ModbusDevice) (*ModbusDeviceManager, error) {
 }
 
 func newModbusClientFromManager(manager *ModbusDeviceManager) (modbus.Client, error) {
-	client, err := NewClient(&manager.ModbusDeviceData)
+	client, err := NewClient(&manager.ModbusConfig)
 	if err != nil {
 		if manager.FailOnError {
 			return nil, err
@@ -213,7 +213,7 @@ func newModbusClientFromManager(manager *ModbusDeviceManager) (modbus.Client, er
 
 // NewModbusClient creates a new modbus client from the given device configuration.
 func NewModbusClient(device *sdk.Device) (modbus.Client, error) {
-	var cfg config.ModbusDeviceData
+	var cfg config.ModbusConfig
 	if err := mapstructure.Decode(device.Data, &cfg); err != nil {
 		return nil, err
 	}
@@ -231,10 +231,10 @@ func NewModbusClient(device *sdk.Device) (modbus.Client, error) {
 }
 
 //// GetModbusClientAndConfig is common code to get the modbus configuration and client from the device configuration.
-//func GetModbusClientAndConfig(device *sdk.Device) (modbusConfig *config.ModbusDeviceData, client modbus.Client, err error) {
+//func GetModbusClientAndConfig(device *sdk.Device) (modbusConfig *config.ModbusConfig, client modbus.Client, err error) {
 //
 //	// Pull the modbus configuration out of the device Data fields.
-//	var deviceData config.ModbusDeviceData
+//	var deviceData config.ModbusConfig
 //	err = mapstructure.Decode(device.Data, &deviceData)
 //	if err != nil {
 //		return nil, nil, err
@@ -250,9 +250,9 @@ func NewModbusClient(device *sdk.Device) (modbus.Client, error) {
 
 //// GetBulkReadClient gets the modbus client and device data for the
 //// connection information in k.
-//func GetBulkReadClient(k ModbusBulkReadKey) (client modbus.Client, modbusDeviceData *config.ModbusDeviceData, err error) {
+//func GetBulkReadClient(k ModbusBulkReadKey) (client modbus.Client, modbusDeviceData *config.ModbusConfig, err error) {
 //	log.Debugf("Creating modbus connection")
-//	modbusDeviceData = &config.ModbusDeviceData{
+//	modbusDeviceData = &config.ModbusConfig{
 //		Host:        k.Host,
 //		Port:        k.Port,
 //		Timeout:     k.Timeout,
@@ -413,7 +413,7 @@ func UnpackReading(output *output.Output, typeName string, rawReading []byte, fa
 //		device := devices[i]
 //
 //		// Deserialize the modbus configuration.
-//		var deviceData config.ModbusDeviceData
+//		var deviceData config.ModbusConfig
 //		err = mapstructure.Decode(device.Data, &deviceData)
 //		if err != nil {
 //			return nil, nil, err
@@ -501,7 +501,7 @@ func UnpackReading(output *output.Output, typeName string, rawReading []byte, fa
 //		// Create the key for this device from the device data.
 //		device := sortedDevices[sorted[i]]
 //		log.Debugf("--- next synse device: %v", device)
-//		var deviceData config.ModbusDeviceData
+//		var deviceData config.ModbusConfig
 //		err = mapstructure.Decode(device.Data, &deviceData)
 //		if err != nil {
 //			return nil, keyOrder, err
@@ -617,7 +617,7 @@ func UnpackReading(output *output.Output, typeName string, rawReading []byte, fa
 //						}
 //					}
 //
-//					var outputData config.ModbusDeviceData
+//					var outputData config.ModbusConfig
 //					// Get the output data. Need address and width.
 //					err := mapstructure.Decode(device.Data, &outputData)
 //					if err != nil { // This is not a configuration issue. Device may not have responded.
