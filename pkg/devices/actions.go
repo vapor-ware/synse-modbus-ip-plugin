@@ -1,17 +1,18 @@
 package devices
 
 import (
+	log "github.com/sirupsen/logrus"
 	"github.com/vapor-ware/synse-sdk/sdk"
 )
 
-// DeviceManagers maps device managers to the handler which they belong to. Devices
+// DeviceManagers maps device handler to their corresponding device managers. Devices
 // are associated to handlers via their device configuration.
 //
 // This mapping provides the same information about associated devices as would the
 // `devices` parameter from a DeviceHandler's BulkRead function. The SDK tracks which
-// devices belong to which handler, just as this map tracks the same info, albeit with
-// greater data complexity. As such, the Devices to read should come from a manager,
-// not from the Device slice provided by the SDK.
+// devices belong to which handler, just as this map does albeit with greater data
+// complexity. As such, the Devices to read should come from a manager, not from the
+// Device slice provided by the SDK.
 var DeviceManagers = map[string][]*ModbusDeviceManager{}
 
 // clearDeviceManagers is a utility function used by tests which is used to clean up the
@@ -33,6 +34,7 @@ var LoadModbusDevices = sdk.DeviceAction{
 		// the Device's Data field into a struct for easier access.
 		dev, err := NewModbusDevice(d)
 		if err != nil {
+			log.WithError(err).Error("failed to create new ModbusDevice wrapper")
 			return err
 		}
 
@@ -40,6 +42,11 @@ var LoadModbusDevices = sdk.DeviceAction{
 		// manager exists for the device. If one does not, create a new one.
 		managers, found := DeviceManagers[d.Handler]
 		if !found {
+			log.WithFields(log.Fields{
+				"handler": d.Handler,
+				"host":    dev.Config.Host,
+				"port":    dev.Config.Port,
+			}).Debug("no device managers found for handler, creating new manager")
 			manager, err := NewModbusDeviceManager(dev)
 			if err != nil {
 				return err
@@ -47,9 +54,13 @@ var LoadModbusDevices = sdk.DeviceAction{
 			manager.Sort()
 			DeviceManagers[d.Handler] = []*ModbusDeviceManager{manager}
 		} else {
+			log.WithFields(log.Fields{
+				"handler": d.Handler,
+			}).Debug("found manager(s) for handler - searching for match")
 			var matched bool
 			for _, m := range managers {
 				if m.MatchesDevice(dev) {
+					log.Debug("found match - adding device to existing manager")
 					m.AddDevice(dev)
 					m.Sort()
 					matched = true
@@ -58,6 +69,7 @@ var LoadModbusDevices = sdk.DeviceAction{
 			}
 
 			if !matched {
+				log.Debug("no match found, creating new manager")
 				manager, err := NewModbusDeviceManager(dev)
 				if err != nil {
 					return err

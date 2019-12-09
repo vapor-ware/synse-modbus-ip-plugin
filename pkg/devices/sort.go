@@ -4,10 +4,9 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// ByModbusConfig is a slice of *sdk.Device which implements the Sort
-// interface. It is is sortable by the devices' configured modbus config,
-// found in the Data field for the device.
-
+// ByModbusConfig is a slice of *ModbusDevice which implements the Sort
+// interface. It is used to ensure devices are sorted prior to parsing them
+// into read blocks for bulk read actions.
 type ByModbusConfig []*ModbusDevice
 
 func (a ByModbusConfig) Len() int {

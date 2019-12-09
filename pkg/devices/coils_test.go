@@ -258,7 +258,5 @@ func TestBulkReadCoils_ModbusError_NoFailOnError(t *testing.T) {
 
 	ctxs, err := bulkReadCoils(managers)
 	assert.NoError(t, err)
-	assert.Len(t, ctxs, 1)
-	assert.Len(t, ctxs[0].Reading, 1)
-	assert.Nil(t, ctxs[0].Reading[0])
+	assert.Len(t, ctxs, 0)
 }

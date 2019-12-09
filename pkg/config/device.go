@@ -8,8 +8,8 @@ import (
 	"github.com/vapor-ware/synse-sdk/sdk"
 )
 
-// ModbusConfig models the scheme for the supported config values
-// of device's Data field for the Modbus TCP/IP plugin.
+// ModbusConfig is a device's modbus configuration. This is generally set
+// in the SDK Device's Data field.
 type ModbusConfig struct {
 	// Host is the hostname/ip of the device to connect to.
 	Host string `yaml:"host,omitempty"`
@@ -26,11 +26,11 @@ type ModbusConfig struct {
 	Timeout string `yaml:"timeout,omitempty"`
 
 	// FailOnError will cause a read to fail (e.g. return an error) if
-	// any of the device's outputs fails to read. When failOnError is not
-	// set, the error will only be logged. This is false by default.
+	// any of the device fail to read in bulk. When failOnError is not
+	// set, the error will typically only be logged. This is false by default.
 	FailOnError bool `yaml:"failOnError,omitempty"`
 
-	// Address is the register address which holds the output reading.
+	// Address is the register address which holds the reading value.
 	Address uint16
 
 	// Width is the number of registers to read, starting from the `Address`.
