@@ -13,8 +13,8 @@ import (
 
 const handlerHoldingRegister = "holding_register"
 
-// HoldingRegisterHandler is a handler which should be used for all devices/outputs
-// that read from/write to holding registers.
+// HoldingRegisterHandler is a device handler used to read from and write to modbus
+// holding registers.
 var HoldingRegisterHandler = sdk.DeviceHandler{
 	Name: handlerHoldingRegister,
 	BulkRead: func(devices []*sdk.Device) (contexts []*sdk.ReadContext, e error) {
@@ -45,22 +45,33 @@ var HoldingRegisterHandler = sdk.DeviceHandler{
 	},
 }
 
+// bulkReadHoldingRegisters performs a bulk read for modbus devices configured to use the holding
+// register handler. It gets those devices from the device manager(s) associated with the handler,
+// which is populated on plugin startup.
 func bulkReadHoldingRegisters(managers []*ModbusDeviceManager) ([]*sdk.ReadContext, error) {
 	var readings []*sdk.ReadContext
 
+	log.Debug("starting bulk read for holding registers")
 	for _, manager := range managers {
-		err := manager.ParseBlocks()
-		if err != nil {
+		// Attempt to parse the manager's devices into register blocks for bulk read
+		// if they have not already been parsed.
+		if err := manager.ParseBlocks(); err != nil {
+			log.WithError(err).Error("failed to parse devices into read blocks")
 			return nil, err
 		}
-		for _, block := range manager.Blocks {
 
+		for _, block := range manager.Blocks {
+			log.WithFields(log.Fields{
+				"startRegister": block.StartRegister,
+				"registerCount": block.RegisterCount,
+			}).Debug("reading holding registers for block")
 			results, err := manager.Client.ReadHoldingRegisters(block.StartRegister, block.RegisterCount)
 			if err != nil {
 				if manager.FailOnError {
 					return nil, err
 				}
-				results = []byte{}
+				log.WithError(err).Warning("ignoring error on read holding registers (failOnError is false)")
+				continue
 			}
 
 			// Trim the result bytes to the expected length of bytes as per the calculated
@@ -69,6 +80,7 @@ func bulkReadHoldingRegisters(managers []*ModbusDeviceManager) ([]*sdk.ReadConte
 			if len(results) > 0 {
 				results = results[0 : 2*block.RegisterCount] // Two bytes per register
 			}
+			log.WithField("results", results).Debug("got block read results for holding registers")
 			block.Results = results
 
 			// Parse the results from the bulk read. This will create the readings
@@ -78,9 +90,18 @@ func bulkReadHoldingRegisters(managers []*ModbusDeviceManager) ([]*sdk.ReadConte
 
 				reading, err := UnpackRegisterReading(out, block, device)
 				if err != nil {
-					return nil, err
+					if manager.FailOnError {
+						return nil, err
+					}
+					log.WithError(err).Warning("ignoring error on register unpack (failOnError is false)")
+					continue
 				}
 
+				log.WithFields(log.Fields{
+					"device": device.Device.GetID(),
+					"type":   reading.Type,
+					"value":  reading.Value,
+				}).Debug("created new reading from holding register")
 				readCtx := sdk.NewReadContext(device.Device, []*output.Reading{reading})
 				readings = append(readings, readCtx)
 			}
@@ -90,11 +111,16 @@ func bulkReadHoldingRegisters(managers []*ModbusDeviceManager) ([]*sdk.ReadConte
 	return readings, nil
 }
 
+// writeHoldingRegister validates and writes the provided data to the specified modbus register
+// for the given modbus client.
+//
+// This is broken apart from the device handler write function to make it easier to test.
 func writeHoldingRegister(client modbus.Client, register uint16, data *sdk.WriteData) error {
 	// Translate the configured holding register data into a format accepted
 	// by the modbus client.
 	registerData, err := getHoldingRegisterData(data.Data)
 	if err != nil {
+		log.WithError(err).Error("failed to parse holding register write data")
 		return err
 	}
 
