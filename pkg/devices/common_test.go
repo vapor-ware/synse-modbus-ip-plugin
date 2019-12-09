@@ -216,6 +216,17 @@ func (suite *ModbusDeviceManagerTestSuite) TestMatchesDevice() {
 	suite.True(manager.MatchesDevice(&dev))
 }
 
+func (suite *ModbusDeviceManagerTestSuite) TestMatchesDeviceNil() {
+	manager := ModbusDeviceManager{
+		ModbusConfig: config.ModbusConfig{
+			Host: "localhost",
+			Port: 5050,
+		},
+	}
+
+	suite.False(manager.MatchesDevice(nil))
+}
+
 func (suite *ModbusDeviceManagerTestSuite) TestDoesNotMatchDeviceHost() {
 	manager := ModbusDeviceManager{
 		ModbusConfig: config.ModbusConfig{
@@ -306,6 +317,23 @@ func (suite *ModbusDeviceManagerTestSuite) TestAddDevice() {
 	suite.Len(manager.Blocks, 0)
 	suite.False(manager.sorted)
 	suite.False(manager.parsed)
+}
+
+func (suite *ModbusDeviceManagerTestSuite) TestAddDeviceNil() {
+	manager := ModbusDeviceManager{}
+
+	// Set internal flags to ensure they do not get reset after calling AddDevice
+	manager.sorted = true
+	manager.parsed = true
+	suite.Len(manager.Devices, 0)
+	suite.Len(manager.Blocks, 0)
+
+	manager.AddDevice(nil)
+
+	suite.Len(manager.Devices, 0)
+	suite.Len(manager.Blocks, 0)
+	suite.True(manager.sorted)
+	suite.True(manager.parsed)
 }
 
 func (suite *ModbusDeviceManagerTestSuite) TestSort() {
@@ -511,6 +539,20 @@ func (suite *ReadBlockTestSuite) TestAdd() {
 	suite.Len(block.Devices, 1)
 	suite.Equal(uint16(13), block.StartRegister)
 	suite.Equal(uint16(4), block.RegisterCount)
+	suite.Empty(block.Results)
+}
+
+func (suite *ReadBlockTestSuite) TestAddNil() {
+	block := ReadBlock{
+		StartRegister: 13,
+		RegisterCount: 2,
+	}
+
+	block.Add(nil)
+
+	suite.Len(block.Devices, 0)
+	suite.Equal(uint16(13), block.StartRegister)
+	suite.Equal(uint16(2), block.RegisterCount)
 	suite.Empty(block.Results)
 }
 
