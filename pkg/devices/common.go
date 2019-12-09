@@ -1,6 +1,5 @@
 package devices
 
-// This file contains common modbus device code.
 import (
 	"errors"
 	"sort"
@@ -14,18 +13,22 @@ import (
 	"github.com/vapor-ware/synse-sdk/sdk/output"
 )
 
-var ErrDevicesNotSorted = errors.New("devices not sorted; unable to parse bulk read blocks")
-
 // MaximumRegisterCount is the max number of registers to read in one modbus
-// call. We may need to tune this for some devices (not clear). Technical max
-// is 123 for ReadHoldingRegisters over IP.
+// call.
+//
+// The technical maximum is 123 for ReadHoldingRegisters over IP.
 const MaximumRegisterCount uint16 = 123
+
+// ErrDevicesNotSorted is an error which specifies that the plugin is unable
+// to parse devices into read blocks correctly because the devices have not
+// yet been sorted.
+var ErrDevicesNotSorted = errors.New("devices not sorted; unable to parse bulk read blocks")
 
 // ModbusDevice wraps an SDK Device and associates it with a ModbusConfig
 // configuration parsed from the SDK Device's Data field.
 type ModbusDevice struct {
-	Device *sdk.Device
 	Config *config.ModbusConfig
+	Device *sdk.Device
 }
 
 // NewModbusDevice creates a new instance of the ModbusDevice wrapper for the
@@ -45,10 +48,10 @@ func NewModbusDevice(dev *sdk.Device) (*ModbusDevice, error) {
 // read operations for configured devices.
 //
 // Having the ModbusDeviceManager as a higher-level abstraction above SDK devices allows
-// us to aggregate the devices based on their common modbus configurations. This enables
-// the plugin to try and optimize reads by performing them in bulk. Instead of issuing
-// a read call for each register for each device, a contiguous block of registers could
-// be read at once, reducing the number of calls which need to be made.
+// us to aggregate the devices based on their common modbus configurations. This lets
+// the plugin optimize reads by performing them in bulk. Instead of issuing a read call
+// for each register for each device, a contiguous block of registers could be read at
+// once, reducing the number of calls which need to be made.
 //
 // For convenience, this struct embeds the ModbusConfig struct, which generally
 // contains all the pertinent connection configuration information specified by devices
@@ -92,8 +95,12 @@ func NewModbusDeviceManager(seed *ModbusDevice) (*ModbusDeviceManager, error) {
 	return manager, nil
 }
 
-// MatchesDevice
+// MatchesDevice checks whether the ModbusDeviceManager "matches" a device. There
+// is a match when the device's modbus configuration matches that of the manager.
 func (d *ModbusDeviceManager) MatchesDevice(dev *ModbusDevice) bool {
+	if dev == nil {
+		return false
+	}
 	// TODO: determine whether all four of these data points are required to determine
 	//   equality. Host and Port definitely are. Timeout and FailOnError seem less necessary
 	//   for equality, but at the same time, if those values differ, it introduces some undefined
@@ -101,8 +108,14 @@ func (d *ModbusDeviceManager) MatchesDevice(dev *ModbusDevice) bool {
 	return d.Host == dev.Config.Host && d.Port == dev.Config.Port && d.Timeout == dev.Config.Timeout && d.FailOnError == dev.Config.FailOnError
 }
 
-// AddDevice
+// AddDevice adds a ModbusDevice to the manager to be tracked. It is the responsibility
+// of the caller to ensure that the device being added matches the modbus config for the
+// manager (MatchesDevice).
 func (d *ModbusDeviceManager) AddDevice(dev *ModbusDevice) {
+	if dev == nil {
+		return
+	}
+
 	// Set internal flags indicating that the collection of devices needs to
 	// be re-sorted and re-parsed.
 	d.sorted = false
@@ -111,7 +124,8 @@ func (d *ModbusDeviceManager) AddDevice(dev *ModbusDevice) {
 	d.Devices = append(d.Devices, dev)
 }
 
-// Sort
+// Sort the devices managed by the ModbusDeviceManager. Sorting is done based on the
+// device's modbus configuration, such as host, port, and register address.
 func (d *ModbusDeviceManager) Sort() {
 	sort.Sort(ByModbusConfig(d.Devices))
 
@@ -120,7 +134,14 @@ func (d *ModbusDeviceManager) Sort() {
 	d.sorted = true
 }
 
-// ParseBlocks
+// ParseBlocks parses the ModbusDeviceManager's devices into blocks of registers for
+// bulk reading. If the devices have already been parsed, this will do nothing. If
+// another device has been added to the device manager since last parse, the devices
+// will need to be re-sorted and re-pased.
+//
+// Parsing works by sorting the devices and calculating the number of registers between
+// them. All devices whose registers fall within a maximum register count will be part
+// of the same block.
 func (d *ModbusDeviceManager) ParseBlocks() error {
 	// If the blocks have already been parsed, there is nothing to do here.
 	if d.parsed {
@@ -132,6 +153,8 @@ func (d *ModbusDeviceManager) ParseBlocks() error {
 	if !d.sorted {
 		return ErrDevicesNotSorted
 	}
+
+	log.Debug("parsing ModbusDeviceManager into bulk read blocks...")
 
 	// If we get here, the devices have not yet been parsed into blocks and they have
 	// been sorted, so they are ready to be parsed into blocks. A block does not need to
@@ -156,11 +179,21 @@ func (d *ModbusDeviceManager) ParseBlocks() error {
 		// size exceeds the maximum.
 		newRegisterCount := (dev.Config.Address + dev.Config.Width) - currentBlock.StartRegister
 
+		log.WithFields(log.Fields{
+			"deviceAddress":    dev.Config.Address,
+			"deviceWidth":      dev.Config.Width,
+			"startRegister":    currentBlock.StartRegister,
+			"registerCount":    currentBlock.RegisterCount,
+			"newRegisterCount": newRegisterCount,
+		}).Debug("calculating block envelope")
+
 		// The new register is less than the max count, add the device to the current block.
 		if newRegisterCount < MaximumRegisterCount {
+			log.Debug("device within block bounds - adding to block")
 			currentBlock.Add(dev)
 
 		} else {
+			log.Debug("device outside block bounds - creating new block")
 			// The new register is over the max count. Store the current block and create a
 			// new block starting with the current device.
 			d.Blocks = append(d.Blocks, currentBlock)
@@ -171,12 +204,13 @@ func (d *ModbusDeviceManager) ParseBlocks() error {
 	// the device manager Blocks field.
 	d.Blocks = append(d.Blocks, currentBlock)
 
+	log.WithField("blocks", len(d.Blocks)).Debug("successfully parsed read blocks")
 	// We have now successfully parsed the devices into blocks suitable for bulk reads.
 	d.parsed = true
 	return nil
 }
 
-// ReadBlock
+// ReadBlock holds the information for a single block of registers for a bulk read.
 type ReadBlock struct {
 	Devices       []*ModbusDevice
 	StartRegister uint16
@@ -184,7 +218,8 @@ type ReadBlock struct {
 	Results       []byte
 }
 
-// NewReadBlock
+// NewReadBlock creates a new ReadBlock, using the provided device as a seed for the
+// read block, which it inherits its start address and start register count from.
 func NewReadBlock(seed *ModbusDevice) *ReadBlock {
 	return &ReadBlock{
 		Devices:       []*ModbusDevice{seed},
@@ -194,12 +229,18 @@ func NewReadBlock(seed *ModbusDevice) *ReadBlock {
 	}
 }
 
-// Add
+// Add a modbus device to the ReadBlock. It is expected that the device being added
+// has already been sorted. It is the responsibility of the caller to ensure this.
 func (b *ReadBlock) Add(dev *ModbusDevice) {
+	if dev == nil {
+		return
+	}
 	b.Devices = append(b.Devices, dev)
 	b.RegisterCount = (dev.Config.Address + dev.Config.Width) - b.StartRegister
 }
 
+// newModbusClientFromManager creates a new modbus Client, using a ModbusDeviceManager
+// as the source of client modbus configuration info.
 func newModbusClientFromManager(manager *ModbusDeviceManager) (modbus.Client, error) {
 	client, err := NewClient(&manager.ModbusConfig)
 	if err != nil {
@@ -232,6 +273,9 @@ func NewModbusClient(device *sdk.Device) (modbus.Client, error) {
 	return client, nil
 }
 
+// UnpackRegisterReading creates a reading for the specified device using the device
+// info and the device's modbus configuration as indices into the bulk read block results
+// to get the reading value.
 func UnpackRegisterReading(output *output.Output, block *ReadBlock, device *ModbusDevice) (*output.Reading, error) {
 	startOffset := (2 * device.Config.Address) - (2 * block.StartRegister) // Results are in bytes, need 16-bit words.
 	endOffset := startOffset + (2 * device.Config.Width)
@@ -258,7 +302,8 @@ func UnpackRegisterReading(output *output.Output, block *ReadBlock, device *Modb
 	return UnpackReading(output, device, raw)
 }
 
-// UnpackCoilReading gets a coil (true / false) from a ReadCoils result buffer.
+// UnpackCoilReading gets a coil reading (true / false) for the specified device from the
+// bulk read block results bytes.
 func UnpackCoilReading(output *output.Output, block *ReadBlock, device *ModbusDevice) (*output.Reading, error) {
 	bitIndex := device.Config.Address - block.StartRegister
 	byteIndex := bitIndex / 8
@@ -295,7 +340,7 @@ func UnpackCoilReading(output *output.Output, block *ReadBlock, device *ModbusDe
 	return output.MakeReading(coilState), nil
 }
 
-// UnpackReading is a wrapper for CastToType and MakeReading.
+// UnpackReading is a convenience wrapper for CastToType and MakeReading.
 func UnpackReading(output *output.Output, device *ModbusDevice, reading []byte) (*output.Reading, error) {
 
 	// Cast the reading bytes value to the specified type
