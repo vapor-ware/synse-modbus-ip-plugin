@@ -7,7 +7,7 @@
 version: 3
 devices:
 - type: eg4115.power
-  metadata:
+  context:
     device: eGauge 4115 power meter
   handler: input_register
   data:
