@@ -9,5 +9,5 @@ require (
 	github.com/pkg/errors v0.8.0
 	github.com/sirupsen/logrus v1.4.2
 	github.com/stretchr/testify v1.4.0
-	github.com/vapor-ware/synse-sdk v0.1.0-alpha.0.20191105134802-f8ee5dba84f4
+	github.com/vapor-ware/synse-sdk v0.1.0-alpha.0.20200118035017-928b1ad899c4
 )
