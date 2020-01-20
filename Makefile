@@ -45,7 +45,7 @@ dep:  ## Verify and tidy gomod dependencies
 
 .PHONY: deploy
 deploy:  ## Run a local deployment of the plugin with Synse Server
-	docker-compose -f compose.yml up -d
+	docker-compose up -d
 
 .PHONY: docker
 docker:  ## Build the docker image
