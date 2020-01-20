@@ -8,7 +8,7 @@ version: 3
 devices:
 - type: eg4115.power
   context:
-    device: eGauge 4115 power meter
+    model: eGauge 4115
   handler: input_register
   data:
     host: 127.0.0.1

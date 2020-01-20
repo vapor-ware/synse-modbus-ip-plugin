@@ -39,8 +39,9 @@ cover: test ## Run tests and open the coverage report
 	go tool cover -html=coverage.out
 
 .PHONY: dep
-dep:  ## Ensure and prune dependencies
-	dep ensure -v
+dep:  ## Verify and tidy gomod dependencies
+	go mod verify
+	go mod tidy
 
 .PHONY: deploy
 deploy:  ## Run a local deployment of the plugin with Synse Server
