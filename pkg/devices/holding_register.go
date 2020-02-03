@@ -50,13 +50,20 @@ var HoldingRegisterHandler = sdk.DeviceHandler{
 // which is populated on plugin startup.
 func bulkReadHoldingRegisters(managers []*ModbusDeviceManager) ([]*sdk.ReadContext, error) {
 	var readings []*sdk.ReadContext
+	var managersInErr []*ModbusDeviceManager
 
-	log.Debug("starting bulk read for holding registers")
 	for _, manager := range managers {
+		log.WithFields(log.Fields{
+			"host":     manager.Host,
+			"port":     manager.Port,
+			"slave id": manager.SlaveID,
+			"address":  manager.Address,
+		}).Debug("[modbus] starting bulk read for holding registers")
+
 		// Attempt to parse the manager's devices into register blocks for bulk read
 		// if they have not already been parsed.
 		if err := manager.ParseBlocks(); err != nil {
-			log.WithError(err).Error("failed to parse devices into read blocks")
+			log.WithError(err).Error("[modbus] failed to parse devices into read blocks")
 			return nil, err
 		}
 
@@ -64,13 +71,23 @@ func bulkReadHoldingRegisters(managers []*ModbusDeviceManager) ([]*sdk.ReadConte
 			log.WithFields(log.Fields{
 				"startRegister": block.StartRegister,
 				"registerCount": block.RegisterCount,
-			}).Debug("reading holding registers for block")
+			}).Debug("[modbus] reading holding registers for block")
 			results, err := manager.Client.ReadHoldingRegisters(block.StartRegister, block.RegisterCount)
 			if err != nil {
 				if manager.FailOnError {
-					return nil, err
+					// Since there may be multiple managers (e.g. modbus sources) configured,
+					// we don't want a failure to connect/read from one host to fail the read
+					// on another host. As such, we will skip over the manager on a read error
+					// and try the next one. If all managers fail to read, the bulk read will
+					// return an error.
+					managersInErr = append(managersInErr, manager)
+					log.WithFields(log.Fields{
+						"host": manager.Host,
+						"port": manager.Port,
+					}).Warn("[modbus] failed to read holding registers - skipping configured host")
+					break
 				}
-				log.WithError(err).Warning("ignoring error on read holding registers (failOnError is false)")
+				log.WithError(err).Warning("[modbus] ignoring error on read holding registers (failOnError is false)")
 				continue
 			}
 
@@ -80,7 +97,7 @@ func bulkReadHoldingRegisters(managers []*ModbusDeviceManager) ([]*sdk.ReadConte
 			if len(results) > 0 {
 				results = results[0 : 2*block.RegisterCount] // Two bytes per register
 			}
-			log.WithField("results", results).Debug("got block read results for holding registers")
+			log.WithField("results", results).Debug("[modbus] got block read results for holding registers")
 			block.Results = results
 
 			// Parse the results from the bulk read. This will create the readings
@@ -93,7 +110,7 @@ func bulkReadHoldingRegisters(managers []*ModbusDeviceManager) ([]*sdk.ReadConte
 					if manager.FailOnError {
 						return nil, err
 					}
-					log.WithError(err).Warning("ignoring error on register unpack (failOnError is false)")
+					log.WithError(err).Warning("[modbus] ignoring error on register unpack (failOnError is false)")
 					continue
 				}
 
@@ -101,13 +118,22 @@ func bulkReadHoldingRegisters(managers []*ModbusDeviceManager) ([]*sdk.ReadConte
 					"device": device.Device.GetID(),
 					"type":   reading.Type,
 					"value":  reading.Value,
-				}).Debug("created new reading from holding register")
+				}).Debug("[modbus] created new reading from holding register")
 				readCtx := sdk.NewReadContext(device.Device, []*output.Reading{reading})
 				readings = append(readings, readCtx)
 			}
 		}
 	}
 
+	if len(managersInErr) == len(managers) {
+		for _, manager := range managersInErr {
+			log.WithFields(log.Fields{
+				"host": manager.Host,
+				"port": manager.Port,
+			}).Error("[modbus] failed to read holding registers from host")
+		}
+		return nil, errors.New("failed to read holding registers from all configured hosts")
+	}
 	return readings, nil
 }
 
@@ -120,14 +146,14 @@ func writeHoldingRegister(client modbus.Client, register uint16, data *sdk.Write
 	// by the modbus client.
 	registerData, err := getHoldingRegisterData(data.Data)
 	if err != nil {
-		log.WithError(err).Error("failed to parse holding register write data")
+		log.WithError(err).Error("[modbus] failed to parse holding register write data")
 		return err
 	}
 
 	log.WithFields(log.Fields{
 		"address": register,
 		"data":    registerData,
-	}).Debug("writing to holding register")
+	}).Debug("[modbus] writing to holding register")
 	_, err = client.WriteSingleRegister(register, registerData)
 	return err
 }
