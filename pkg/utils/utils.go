@@ -80,6 +80,11 @@ func (b Bytes) Bool() bool {
 	return !(b[0] == 0)
 }
 
+// Utf8 converts the byte slice to a UTF-8 string.
+func (b Bytes) Utf8() string {
+	return string(b[:clen(b)])
+}
+
 // CastToType takes a typeName, which represents a well-known type, and
 // a byte slice and will attempt to cast the byte slice to the named type.
 func CastToType(typeName string, value []byte) (interface{}, error) {
@@ -130,7 +135,23 @@ func CastToType(typeName string, value []byte) (interface{}, error) {
 		// bool
 		return Bytes(value).Bool(), nil
 
+	case "t", "string", "utf8":
+		// utf-8 string
+		return Bytes(value).Utf8(), nil
+
 	default:
 		return nil, fmt.Errorf("unsupported output data type: %s", typeName)
 	}
+}
+
+// clen returns the index of the first NULL byte in n or len(n) if n contains no NULL byte.
+// This is from golang syscall, but it is not exported. BSD license.
+// https://golang.org/src/syscall/syscall_unix.go
+func clen(n []byte) int {
+	for i := 0; i < len(n); i++ {
+		if n[i] == 0 {
+			return i
+		}
+	}
+	return len(n)
 }
