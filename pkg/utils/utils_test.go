@@ -9,9 +9,10 @@ import (
 
 func TestCastToType_Ok(t *testing.T) {
 	var tests = []struct {
-		typeName string
-		value    []byte
-		expected interface{}
+		typeName       string
+		value          []byte
+		expected       interface{}
+		expectedLength int
 	}{
 		// unsigned 8-bit integer
 		{
@@ -260,6 +261,32 @@ func TestCastToType_Ok(t *testing.T) {
 			value:    []byte{0xff},
 			expected: true,
 		},
+
+		// utf-8 string
+		{
+			typeName:       "t",
+			value:          []byte{},
+			expected:       "",
+			expectedLength: 0,
+		},
+		{
+			typeName:       "string",
+			value:          []byte(nil),
+			expected:       "",
+			expectedLength: 0,
+		},
+		{
+			typeName:       "utf8",
+			value:          []byte{0x31, 0x38, 0x30, 0x35, 0x32, 0x32, 0x30, 0x32, 0x31, 0x38, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
+			expected:       "1805220218",
+			expectedLength: len("1805220218"),
+		},
+		{
+			typeName:       "t16",
+			value:          []byte{0x34, 0x2e, 0x30, 0x2e, 0x36, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
+			expected:       "4.0.6",
+			expectedLength: len("4.0.6"),
+		},
 	}
 
 	for i, tt := range tests {
@@ -267,6 +294,9 @@ func TestCastToType_Ok(t *testing.T) {
 			actual, err := CastToType(tt.typeName, tt.value)
 			assert.NoError(t, err)
 			assert.Equal(t, tt.expected, actual)
+			if tt.expectedLength != 0 {
+				assert.Equal(t, tt.expectedLength, len(actual.(string)))
+			}
 		})
 	}
 }
