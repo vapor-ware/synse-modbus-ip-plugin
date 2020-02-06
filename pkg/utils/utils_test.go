@@ -282,7 +282,7 @@ func TestCastToType_Ok(t *testing.T) {
 			expectedLength: len("1805220218"),
 		},
 		{
-			typeName:       "t",
+			typeName:       "t16",
 			value:          []byte{0x34, 0x2e, 0x30, 0x2e, 0x36, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
 			expected:       "4.0.6",
 			expectedLength: len("4.0.6"),
@@ -294,6 +294,9 @@ func TestCastToType_Ok(t *testing.T) {
 			actual, err := CastToType(tt.typeName, tt.value)
 			assert.NoError(t, err)
 			assert.Equal(t, tt.expected, actual)
+			if tt.expectedLength != 0 {
+				assert.Equal(t, tt.expectedLength, len(actual.(string)))
+			}
 		})
 	}
 }

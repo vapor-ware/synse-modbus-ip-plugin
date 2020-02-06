@@ -135,7 +135,7 @@ func CastToType(typeName string, value []byte) (interface{}, error) {
 		// bool
 		return Bytes(value).Bool(), nil
 
-	case "t", "string", "utf8":
+	case "t", "t16", "string", "utf8":
 		// utf-8 string
 		return Bytes(value).Utf8(), nil
 
