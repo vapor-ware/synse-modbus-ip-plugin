@@ -210,6 +210,18 @@ func (d *ModbusDeviceManager) ParseBlocks() error {
 	return nil
 }
 
+// ResetClient resets the client used by the manager. This is done when an error
+// occurs while reading from a device. This will ensure that a potentially closed
+// client connection will not be used next time around.
+func (d *ModbusDeviceManager) ResetClient() error {
+	c, err := newModbusClientFromManager(d)
+	if err != nil {
+		return err
+	}
+	d.Client = c
+	return nil
+}
+
 // ReadBlock holds the information for a single block of registers for a bulk read.
 type ReadBlock struct {
 	Devices       []*ModbusDevice
