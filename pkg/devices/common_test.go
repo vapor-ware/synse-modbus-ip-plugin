@@ -507,6 +507,29 @@ func (suite *ModbusDeviceManagerTestSuite) TestParseBlocks_MultipleBlocks() {
 	suite.Equal(int32(2), d3.Device.SortIndex)
 }
 
+func (suite *ModbusDeviceManagerTestSuite) TestResetClient() {
+	manager := ModbusDeviceManager{
+		ModbusConfig: config.ModbusConfig{
+			Host:        "localhost",
+			Port:        6543,
+			FailOnError: true,
+		},
+	}
+	suite.Nil(manager.Client)
+
+	err := manager.ResetClient()
+	suite.NoError(err)
+
+	// hold a reference to the first client
+	firstClient := manager.Client
+
+	err = manager.ResetClient()
+	suite.NoError(err)
+
+	// verify the first client is different than the new one
+	suite.False(firstClient == manager.Client)
+}
+
 type ReadBlockTestSuite struct {
 	suite.Suite
 }
