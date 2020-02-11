@@ -222,6 +222,20 @@ func (d *ModbusDeviceManager) ResetClient() error {
 	return nil
 }
 
+// resetManagerClients resets the clients for the managers passed to it.
+func resetManagerClients(managers []*ModbusDeviceManager) {
+	for _, manager := range managers {
+		log.WithFields(log.Fields{
+			"host": manager.Host,
+			"port": manager.Port,
+		}).Warn("[modbus] resetting manager client")
+
+		if err := manager.ResetClient(); err != nil {
+			log.WithError(err).Error("[modbus] failed to reset client connection")
+		}
+	}
+}
+
 // ReadBlock holds the information for a single block of registers for a bulk read.
 type ReadBlock struct {
 	Devices       []*ModbusDevice
