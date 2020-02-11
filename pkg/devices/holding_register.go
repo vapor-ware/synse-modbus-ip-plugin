@@ -3,7 +3,6 @@ package devices
 import (
 	"fmt"
 	"strconv"
-	"sync"
 
 	"github.com/goburrow/modbus"
 	"github.com/pkg/errors"
@@ -54,9 +53,6 @@ func bulkReadHoldingRegisters(managers []*ModbusDeviceManager) ([]*sdk.ReadConte
 	var managersInErr []*ModbusDeviceManager
 
 	for _, manager := range managers {
-		// Synchronization for resetting client only once on read failure.
-		var resetOnce sync.Once
-
 		log.WithFields(log.Fields{
 			"host":     manager.Host,
 			"port":     manager.Port,
@@ -79,16 +75,6 @@ func bulkReadHoldingRegisters(managers []*ModbusDeviceManager) ([]*sdk.ReadConte
 
 			results, err := manager.Client.ReadHoldingRegisters(block.StartRegister, block.RegisterCount)
 			if err != nil {
-				// An error occurred while reading - this could be due to a connection which
-				// has been timed out, reset, or closed. To ensure we are not using a stale
-				// connection, reset the client for use on next read.
-				defer resetOnce.Do(func() {
-					log.WithFields(log.Fields{}).Info("[modbus] error on client read, will reset client connection")
-					if err := manager.ResetClient(); err != nil {
-						log.WithError(err).Error("[modbus] failed to reset client connection")
-					}
-				})
-
 				if manager.FailOnError {
 					// Since there may be multiple managers (e.g. modbus sources) configured,
 					// we don't want a failure to connect/read from one host to fail the read
@@ -140,13 +126,12 @@ func bulkReadHoldingRegisters(managers []*ModbusDeviceManager) ([]*sdk.ReadConte
 		}
 	}
 
+	// An error occurred while reading - this could be due to a connection which
+	// has been timed out, reset, or closed. To ensure we are not using a stale
+	// connection, reset the client for use on next read.
+	resetManagerClients(managersInErr)
+
 	if len(managersInErr) == len(managers) {
-		for _, manager := range managersInErr {
-			log.WithFields(log.Fields{
-				"host": manager.Host,
-				"port": manager.Port,
-			}).Error("[modbus] failed to read holding registers from host")
-		}
 		return nil, errors.New("failed to read holding registers from all configured hosts")
 	}
 	return readings, nil
