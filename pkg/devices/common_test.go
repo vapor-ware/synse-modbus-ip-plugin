@@ -13,7 +13,6 @@ import (
 func TestRunSuites(t *testing.T) {
 	suite.Run(t, new(NewModbusDeviceTestSuite))
 	suite.Run(t, new(NewModbusClientTestSuite))
-	suite.Run(t, new(NewModbusClientFromManagerTestSuite))
 	suite.Run(t, new(ModbusDeviceManagerTestSuite))
 	suite.Run(t, new(ReadBlockTestSuite))
 	suite.Run(t, new(UnpackRegisterReadingTestSuite))
@@ -110,51 +109,6 @@ func (suite *NewModbusClientTestSuite) TestNewClientError_NoFailOnError() {
 	suite.Nil(client)
 }
 
-type NewModbusClientFromManagerTestSuite struct {
-	suite.Suite
-}
-
-func (suite *NewModbusClientFromManagerTestSuite) TestOK() {
-	manager := ModbusDeviceManager{
-		ModbusConfig: config.ModbusConfig{
-			Host: "localhost",
-			Port: 5050,
-		},
-	}
-
-	c, err := newModbusClientFromManager(&manager)
-	suite.NoError(err)
-	suite.NotNil(c)
-}
-
-func (suite *NewModbusClientFromManagerTestSuite) TestError_FailOnError() {
-	manager := ModbusDeviceManager{
-		ModbusConfig: config.ModbusConfig{
-			Host:        "", // requires host
-			Port:        5050,
-			FailOnError: true,
-		},
-	}
-
-	c, err := newModbusClientFromManager(&manager)
-	suite.Error(err)
-	suite.Nil(c)
-}
-
-func (suite *NewModbusClientFromManagerTestSuite) TestError_NoFailOnError() {
-	manager := ModbusDeviceManager{
-		ModbusConfig: config.ModbusConfig{
-			Host:        "", // requires host
-			Port:        5050,
-			FailOnError: false,
-		},
-	}
-
-	c, err := newModbusClientFromManager(&manager)
-	suite.NoError(err)
-	suite.Nil(c)
-}
-
 type ModbusDeviceManagerTestSuite struct {
 	suite.Suite
 }
@@ -174,7 +128,6 @@ func (suite *ModbusDeviceManagerTestSuite) TestNewManager() {
 	suite.Len(manager.Blocks, 0)
 	suite.Equal("localhost", manager.Host)
 	suite.Equal(5050, manager.Port)
-	suite.NotNil(manager.Client)
 }
 
 func (suite *ModbusDeviceManagerTestSuite) TestNewManager_NilSeed() {
@@ -507,27 +460,45 @@ func (suite *ModbusDeviceManagerTestSuite) TestParseBlocks_MultipleBlocks() {
 	suite.Equal(int32(2), d3.Device.SortIndex)
 }
 
-func (suite *ModbusDeviceManagerTestSuite) TestResetClient() {
+func (suite *ModbusDeviceManagerTestSuite) TestNewClient_OK() {
 	manager := ModbusDeviceManager{
 		ModbusConfig: config.ModbusConfig{
-			Host:        "localhost",
-			Port:        6543,
+			Host: "localhost",
+			Port: 5050,
+		},
+	}
+
+	c, err := manager.NewClient()
+	suite.NoError(err)
+	suite.NotNil(c)
+}
+
+func (suite *ModbusDeviceManagerTestSuite) TestNewClient_Error_FailOnError() {
+	manager := ModbusDeviceManager{
+		ModbusConfig: config.ModbusConfig{
+			Host:        "", // requires host
+			Port:        5050,
 			FailOnError: true,
 		},
 	}
-	suite.Nil(manager.Client)
 
-	err := manager.ResetClient()
+	c, err := manager.NewClient()
+	suite.Error(err)
+	suite.Nil(c)
+}
+
+func (suite *ModbusDeviceManagerTestSuite) TestNewClient_Error_NoFailOnError() {
+	manager := ModbusDeviceManager{
+		ModbusConfig: config.ModbusConfig{
+			Host:        "", // requires host
+			Port:        5050,
+			FailOnError: false,
+		},
+	}
+
+	c, err := manager.NewClient()
 	suite.NoError(err)
-
-	// hold a reference to the first client
-	firstClient := manager.Client
-
-	err = manager.ResetClient()
-	suite.NoError(err)
-
-	// verify the first client is different than the new one
-	suite.False(firstClient == manager.Client)
+	suite.Nil(c)
 }
 
 type ReadBlockTestSuite struct {

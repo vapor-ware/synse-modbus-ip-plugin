@@ -80,6 +80,15 @@ func bulkReadCoils(managers []*ModbusDeviceManager) ([]*sdk.ReadContext, error) 
 			"address":  manager.Address,
 		}).Debug("[modbus] starting bulk read for coils")
 
+		client, err := manager.NewClient()
+		if err != nil {
+			log.WithError(err).Error("[modbus] failed to create new client for manager")
+			if !manager.FailOnError {
+				continue
+			}
+			return nil, err
+		}
+
 		// Attempt to parse the manager's devices into register blocks for bulk read
 		// if they have not already been parsed.
 		if err := manager.ParseBlocks(); err != nil {
@@ -93,7 +102,7 @@ func bulkReadCoils(managers []*ModbusDeviceManager) ([]*sdk.ReadContext, error) 
 				"registerCount": block.RegisterCount,
 			}).Debug("[modbus] reading coils for block")
 
-			results, err := manager.Client.ReadCoils(block.StartRegister, block.RegisterCount)
+			results, err := client.ReadCoils(block.StartRegister, block.RegisterCount)
 			if err != nil {
 				if manager.FailOnError {
 					// Since there may be multiple managers (e.g. modbus sources) configured,
@@ -146,11 +155,6 @@ func bulkReadCoils(managers []*ModbusDeviceManager) ([]*sdk.ReadContext, error) 
 			}
 		}
 	}
-
-	// An error occurred while reading - this could be due to a connection which
-	// has been timed out, reset, or closed. To ensure we are not using a stale
-	// connection, reset the client for use on next read.
-	resetManagerClients(managersInErr)
 
 	if len(managersInErr) == len(managers) {
 		return nil, errors.New("failed to read coils from all configured hosts")
