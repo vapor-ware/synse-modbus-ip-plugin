@@ -59,7 +59,6 @@ func NewModbusDevice(dev *sdk.Device) (*ModbusDevice, error) {
 type ModbusDeviceManager struct {
 	config.ModbusConfig
 
-	Client  modbus.Client
 	Blocks  []*ReadBlock
 	Devices []*ModbusDevice
 
@@ -81,17 +80,15 @@ func NewModbusDeviceManager(seed *ModbusDevice) (*ModbusDeviceManager, error) {
 		return nil, errors.New("unable to create new ModbusDeviceManager: seed device is nil")
 	}
 
+	if err := seed.Config.Validate(); err != nil {
+		return nil, err
+	}
+
 	manager := &ModbusDeviceManager{
 		ModbusConfig: *seed.Config,
 		Devices:      []*ModbusDevice{seed},
 		Blocks:       []*ReadBlock{},
 	}
-	c, err := newModbusClientFromManager(manager)
-	if err != nil {
-		return nil, err
-	}
-	manager.Client = c
-
 	return manager, nil
 }
 
@@ -210,30 +207,21 @@ func (d *ModbusDeviceManager) ParseBlocks() error {
 	return nil
 }
 
-// ResetClient resets the client used by the manager. This is done when an error
-// occurs while reading from a device. This will ensure that a potentially closed
-// client connection will not be used next time around.
-func (d *ModbusDeviceManager) ResetClient() error {
-	c, err := newModbusClientFromManager(d)
+// NewClient creates a new modbus client using the manager's modbus configuration.
+//
+// A new client is created for each run of a BulkRead. The manager does not cache
+// a client to prevent issues with long-lived connections and session resets.
+func (d *ModbusDeviceManager) NewClient() (modbus.Client, error) {
+	client, err := NewClient(&d.ModbusConfig)
 	if err != nil {
-		return err
-	}
-	d.Client = c
-	return nil
-}
-
-// resetManagerClients resets the clients for the managers passed to it.
-func resetManagerClients(managers []*ModbusDeviceManager) {
-	for _, manager := range managers {
-		log.WithFields(log.Fields{
-			"host": manager.Host,
-			"port": manager.Port,
-		}).Warn("[modbus] resetting manager client")
-
-		if err := manager.ResetClient(); err != nil {
-			log.WithError(err).Error("[modbus] failed to reset client connection")
+		if d.FailOnError {
+			return nil, err
 		}
+		log.WithField("error", err).Warning(
+			"failed creating client when failOnError is disabled",
+		)
 	}
+	return client, nil
 }
 
 // ReadBlock holds the information for a single block of registers for a bulk read.
@@ -263,21 +251,6 @@ func (b *ReadBlock) Add(dev *ModbusDevice) {
 	}
 	b.Devices = append(b.Devices, dev)
 	b.RegisterCount = (dev.Config.Address + dev.Config.Width) - b.StartRegister
-}
-
-// newModbusClientFromManager creates a new modbus Client, using a ModbusDeviceManager
-// as the source of client modbus configuration info.
-func newModbusClientFromManager(manager *ModbusDeviceManager) (modbus.Client, error) {
-	client, err := NewClient(&manager.ModbusConfig)
-	if err != nil {
-		if manager.FailOnError {
-			return nil, err
-		}
-		log.WithField("error", err).Warning(
-			"failed creating client when failOnError is disabled",
-		)
-	}
-	return client, nil
 }
 
 // NewModbusClient creates a new modbus client from the given device configuration.
