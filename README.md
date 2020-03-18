@@ -211,6 +211,43 @@ devices:
           type: f32
 ```
 
+## Troubleshooting
+
+### Debugging
+
+The plugin can be run in debug mode for additional logging. This is done by:
+
+- Setting the `debug` option  to `true` in the plugin configuration YAML ([config.yml](config.yml))
+
+  ```yaml
+  debug: true
+  ```
+
+- Passing the `--debug` flag when running the binary/image
+
+  ```
+  docker run vaporio/modbus-ip-plugin --debug
+  ```
+
+- Running the image with the `PLUGIN_DEBUG` environment variable set to `true`
+
+  ```
+  docker run -e PLUGIN_DEBUG=true vaporio/modbus-ip-plugin
+  ```
+
+A [development/debug Dockerfile](Dockerfile.dev) is provided in the project repository to enable
+building image which may be useful when developing or debugging a plugin. Unlike the slim `scratch`-based
+production image, the development image uses an ubuntu base, bringing with it all the standard command line
+tools one would expect. To build a development image:
+
+```
+make docker-dev
+```
+
+The built image will be tagged using the format `dev-{COMMIT}`, where `COMMIT` is the short commit for
+the repository at the time. This image is not published as part of the CI pipeline, but those with access
+to the Docker Hub repo may publish manually.
+
 ## Feedback
 
 Feedback for this plugin, or any component of the Synse ecosystem, is greatly appreciated!
