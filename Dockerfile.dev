@@ -1,0 +1,23 @@
+#
+# Development Dockerfile
+#
+# This Dockerfile produces an image intended to only be used for
+# development and debugging. It should NOT be used in production.
+# Development images contain additional tooling that makes it easier
+# to exec into a contain and dig into whatever may be going on inside.
+#
+
+FROM vaporio/foundation:xenial
+
+WORKDIR /synse
+
+# Add in default plugin configuration.
+COPY config.yml /etc/synse/plugin/config/config.yml
+
+# Copy the executable and README information. The executable should be
+# built prior to the image build (see Makefile).
+COPY synse-modbus-ip-plugin ./plugin
+COPY README.md .
+
+EXPOSE 5001
+ENTRYPOINT ["./plugin"]
