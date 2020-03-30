@@ -3,7 +3,7 @@
 #
 
 PLUGIN_NAME    := modbus-ip
-PLUGIN_VERSION := 1.1.1
+PLUGIN_VERSION := 1.1.2
 IMAGE_NAME     := vaporio/modbus-ip-plugin
 
 GIT_COMMIT ?= $(shell git rev-parse --short HEAD 2> /dev/null || true)
