@@ -50,7 +50,7 @@ You can then use Synse's HTTP API or the [Synse CLI][synse-cli] to query Synse f
 
 ## Modbus Plugin Configuration
 
-Plugin and device configuration are described in detail in the SDK Documentation.
+Plugin and device configuration are described in detail in the [SDK Documentation][sdk-docs].
 
 There is an additional config scheme specific to this plugin for the contents of a configured
 device's `data` field. Device `data` may be specified in two places (the prototype config and
@@ -131,7 +131,7 @@ Outputs are referenced by name. A single device may have more than one instance
 of an output type. A value of `-` in the table below indicates that there is no value
 set for that field. The *custom* section describes outputs which this plugin defines
 while the *built-in* section describes outputs this plugin uses which are [built-in to
-the SDK](https://github.com/vapor-ware/synse-sdk/blob/v3/staging/sdk/output/builtins.go).
+the SDK](https://synse.readthedocs.io/en/latest/sdk/concepts/reading_outputs/#built-ins).
 
 **Custom**
 
@@ -277,7 +277,8 @@ The Synse Modbus-IP Plugin is licensed under GPLv3. See [LICENSE](LICENSE) for m
 
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fvapor-ware%2Fsynse-modbus-ip-plugin.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fvapor-ware%2Fsynse-modbus-ip-plugin?ref=badge_large)
 
+[synse-cli]: https://github.com/vapor-ware/synse-cli
 [synse-server]: https://github.com/vapor-ware/synse-server
 [plugin-dockerhub]: https://hub.docker.com/r/vaporio/modbus-ip-plugin
 [plugin-release]: https://github.com/vapor-ware/synse-modbus-ip-plugin/releases
-[sdk-docs]: http://synse-sdk.readthedocs.io/en/latest/user/configuration.html
+[sdk-docs]: https://synse.readthedocs.io/en/latest/sdk/intro/
