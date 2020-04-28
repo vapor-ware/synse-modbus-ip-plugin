@@ -31,21 +31,21 @@ build-linux:  ## Build the plugin binarry for linux amd64
 
 .PHONY: clean
 clean:  ## Remove temporary files
-	go clean -v
+	go clean -v || exit
 	rm -rf dist
 
 .PHONY: cover
 cover: test ## Run tests and open the coverage report
-	go tool cover -html=coverage.out
+	go tool cover -html=coverage.out || exit
 
 .PHONY: dep
 dep:  ## Verify and tidy gomod dependencies
-	go mod verify
-	go mod tidy
+	go mod verify || exit
+	go mod tidy || exit
 
 .PHONY: deploy
 deploy:  ## Run a local deployment of the plugin with Synse Server
-	docker-compose up -d
+	docker-compose up -d || exit
 
 .PHONY: docker
 docker:  ## Build the production docker image locally
@@ -53,15 +53,15 @@ docker:  ## Build the production docker image locally
 		--label "org.label-schema.build-date=${BUILD_DATE}" \
 		--label "org.label-schema.vcs-ref=${GIT_COMMIT}" \
 		--label "org.label-schema.version=${PLUGIN_VERSION}" \
-		-t ${IMAGE_NAME}:latest .
+		-t ${IMAGE_NAME}:latest . || exit
 
 .PHONY: docker-dev
 docker-dev:  ## Build the development docker image locally
-	docker build -f Dockerfile.dev -t ${IMAGE_NAME}:dev-${GIT_COMMIT} .
+	docker build -f Dockerfile.dev -t ${IMAGE_NAME}:dev-${GIT_COMMIT} . || exit
 
 .PHONY: fmt
 fmt:  ## Run goimports on all go files
-	find . -name '*.go' -not -wholename './vendor/*' | while read -r file; do goimports -w "$$file"; done
+	find . -name '*.go' -not -wholename './vendor/*' | while read -r file; do goimports -w "$$file" || exit ; done
 
 .PHONY: github-tag
 github-tag:  ## Create and push a tag with the current plugin version
@@ -70,12 +70,12 @@ github-tag:  ## Create and push a tag with the current plugin version
 
 .PHONY: lint
 lint:  ## Lint project source files
-	golint -set_exit_status ./pkg/...
+	golint -set_exit_status ./pkg/... || exit
 
 .PHONY: test
 test:  ## Run project tests
 	@ # Note: this requires go1.10+ in order to do multi-package coverage reports
-	go test -race -coverprofile=coverage.out -covermode=atomic ./pkg/...
+	go test -race -coverprofile=coverage.out -covermode=atomic ./pkg/... || exit
 
 .PHONY: version
 version:  ## Print the version of the plugin
