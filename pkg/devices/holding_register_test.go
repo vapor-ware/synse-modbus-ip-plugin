@@ -316,3 +316,10 @@ func TestBulkReadHoldingRegisters_ErrorParseBlocks(t *testing.T) {
 //	assert.NoError(t, err)
 //	assert.Len(t, ctxs, 0)
 //}
+
+// Make sure that read and write functions are not implemented, just BulkRead.
+func TestReadOnlyHoldingRegister(t *testing.T) {
+	assert.Nil(t, ReadOnlyHoldingRegisterHandler.Read)
+	assert.NotNil(t, ReadOnlyHoldingRegisterHandler.BulkRead)
+	assert.Nil(t, ReadOnlyHoldingRegisterHandler.Write)
+}

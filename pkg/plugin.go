@@ -27,6 +27,7 @@ func MakePlugin() *sdk.Plugin {
 	err = plugin.RegisterDeviceHandlers(
 		&devices.CoilsHandler,
 		&devices.HoldingRegisterHandler,
+		&devices.ReadOnlyHoldingRegisterHandler,
 		&devices.InputRegisterHandler,
 	)
 	if err != nil {
