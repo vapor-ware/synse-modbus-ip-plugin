@@ -11,7 +11,10 @@ import (
 	"github.com/vapor-ware/synse-sdk/sdk/output"
 )
 
+// Handler name definitions. These are used in the modbus device config
+// (under the "handler" key) to relate devices to a handler.
 const handlerHoldingRegister = "holding_register"
+const handlerReadOnlyHoldingRegister = "read_only_holding_register"
 
 // HoldingRegisterHandler is a device handler used to read from and write to modbus
 // holding registers.
@@ -42,6 +45,20 @@ var HoldingRegisterHandler = sdk.DeviceHandler{
 		}
 
 		return writeHoldingRegister(client, uint16(register), data)
+	},
+}
+
+// ReadOnlyHoldingRegisterHandler is a device handler used to read modbus
+// holding registers. No write method is available. This can be used to
+// restrict write access to holding registers
+var ReadOnlyHoldingRegisterHandler = sdk.DeviceHandler{
+	Name: handlerReadOnlyHoldingRegister,
+	BulkRead: func(devices []*sdk.Device) (contexts []*sdk.ReadContext, e error) {
+		managers, found := DeviceManagers[handlerReadOnlyHoldingRegister]
+		if !found {
+			return nil, errors.New("no device manager(s) found for read only holding register handler")
+		}
+		return bulkReadHoldingRegisters(managers)
 	},
 }
 
