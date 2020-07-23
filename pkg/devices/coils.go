@@ -11,7 +11,10 @@ import (
 	"github.com/vapor-ware/synse-sdk/sdk/output"
 )
 
+// Handler name definitions. These are used in the modbus device config
+// (under the "handler" key) to relate devices to a handler.
 const handlerCoil = "coil"
+const handlerReadOnlyCoil = "read_only_coil"
 
 // CoilsHandler is a device handler used to read from and write to modbus coils.
 var CoilsHandler = sdk.DeviceHandler{
@@ -41,6 +44,18 @@ var CoilsHandler = sdk.DeviceHandler{
 		}
 
 		return writeCoil(client, uint16(register), data)
+	},
+}
+
+// ReadOnlyCoilsHandler is a device handler used to read from and write to modbus coils.
+var ReadOnlyCoilsHandler = sdk.DeviceHandler{
+	Name: handlerReadOnlyCoil,
+	BulkRead: func(devices []*sdk.Device) (contexts []*sdk.ReadContext, e error) {
+		managers, found := DeviceManagers[handlerCoil]
+		if !found {
+			return nil, errors.New("no device manager(s) found for coil handler")
+		}
+		return bulkReadCoils(managers)
 	},
 }
 

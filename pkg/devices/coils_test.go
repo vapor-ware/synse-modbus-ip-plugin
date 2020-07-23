@@ -226,6 +226,13 @@ func TestBulkReadCoils_ErrorParseBlocks(t *testing.T) {
 	assert.Nil(t, ctxs)
 }
 
+// Make sure that read and write functions are not implemented, just BulkRead.
+func TestReadOnlyCoils(t *testing.T) {
+	assert.Nil(t, ReadOnlyCoilsHandler.Read)
+	assert.NotNil(t, ReadOnlyCoilsHandler.BulkRead)
+	assert.Nil(t, ReadOnlyCoilsHandler.Write)
+}
+
 // FIXME (etd): need to re-implement. since client is not stored on the manager
 //	 anymore, need to find a different way to manually set it to the fake client.
 //func TestBulkReadCoils_ModbusError_FailOnError(t *testing.T) {
