@@ -1,4 +1,5 @@
 package testendpoints
+
 //package devices
 
 import (
@@ -7,9 +8,8 @@ import (
 
 	"github.com/goburrow/modbus"
 	"github.com/stretchr/testify/assert"
-	//modbusDevices "github.com/vapor-ware/synse-modbus-ip-plugin/devices"
+	modbusDevices "github.com/vapor-ware/synse-modbus-ip-plugin/pkg/devices"
 	"github.com/vapor-ware/synse-sdk/sdk"
-  modbusDevices "github.com/vapor-ware/synse-modbus-ip-plugin/pkg/devices"
 )
 
 var host = "localhost" // run on local machine
@@ -35,8 +35,10 @@ func TestEmulatorSanity(t *testing.T) {
 	assert.Equal(t, "0000000100020003000400050006000700080009000a000b000c000d000e000f00100011001200130014001500160017", fmt.Sprintf("%x", result))
 }
 
-// Test a bulk read with the coils we currently (7/28/2020) read on the VEM PLC.
-func TestBulkReadCoils(t *testing.T) {
+// TODO: Test a bulk read with the coils we currently (7/28/2020) read on the VEM PLC.
+
+// Test a bulk read on coils 1-103 with handler coil.
+func TestBulkReadCoils_CoilHandler(t *testing.T) {
 	// Create the device slice.
 	fmt.Printf("Creating devices\n")
 	var devices []*sdk.Device
@@ -52,13 +54,21 @@ func TestBulkReadCoils(t *testing.T) {
 				"failOnError": false,
 				"address":     i,
 			},
+			Output: "switch",
 		}
 
-		if i == 3 {
-			device.Handler = "coil"
-		} else {
-			device.Handler = "read_only_coil"
-		}
+		// *** TODO: This looks like it probably works with all device.Handler == "coil"
+		// *** TODO: The read_only_coil looks like it causes trouble.
+		device.Handler = "coil"
+
+		/*
+			if i == 3 {
+				device.Handler = "coil"
+			} else {
+				device.Handler = "read_only_coil"
+			}
+		*/
+
 		devices = append(devices, device)
 	} // end for
 
@@ -75,11 +85,25 @@ func TestBulkReadCoils(t *testing.T) {
 	}
 	fmt.Printf("Loaded devices\n")
 
-  fmt.Printf("Calling bulk read\n")
-  // TODO: Is this call correct? Two different handlers.
-  // TODO: It panics.
-  contexts, err := modbusDevices.CoilsHandler.BulkRead(devices)
-  fmt.Printf("contexts: %+v\n", contexts)
-  fmt.Printf("err: %v\n", err)
-  fmt.Printf("Called bulk read\n")
+	fmt.Printf("Dumping DeviceManagers\n")
+	fmt.Printf("DeviceManagers: %T, %+v\n", modbusDevices.DeviceManagers, modbusDevices.DeviceManagers)
+
+	fmt.Printf("Calling bulk read\n")
+	// TODO: Is this call correct? Two different handlers.
+	contexts, err := modbusDevices.CoilsHandler.BulkRead(devices)
+	fmt.Printf("contexts (len %d): %+v\n", len(contexts), contexts)
+	fmt.Printf("err: %v\n", err)
+	fmt.Printf("Called bulk read\n")
+
+	fmt.Printf("Dumping contexts\n")
+	assert.NoError(t, err)
+	for i := 0; i < len(contexts); i++ {
+		fmt.Printf("contexts[%d]: %+v\n", i, contexts[i])
+		fmt.Printf("\tReading: %T, len(%d),  %+v\n", contexts[i].Reading, len(contexts[i].Reading), contexts[i].Reading)
+
+		// Dump readings.
+		for j := 0; j < len(contexts[i].Reading); j++ {
+			fmt.Printf("\tReading[%d], %T, %+v\n", j, contexts[i].Reading[j], contexts[i].Reading[j])
+		}
+	}
 }

@@ -2,6 +2,7 @@ package devices
 
 import (
 	"errors"
+	"fmt"
 	"sort"
 
 	"github.com/goburrow/modbus"
@@ -304,6 +305,10 @@ func UnpackRegisterReading(output *output.Output, block *ReadBlock, device *Modb
 // UnpackCoilReading gets a coil reading (true / false) for the specified device from the
 // bulk read block results bytes.
 func UnpackCoilReading(output *output.Output, block *ReadBlock, device *ModbusDevice) (*output.Reading, error) {
+	fmt.Printf("UnpackCoilReading start\n")
+	fmt.Printf("output: %+v\n", output)
+	fmt.Printf("block: %+v\n", block)
+	fmt.Printf("device: %+v\n", device)
 	bitIndex := device.Config.Address - block.StartRegister
 	byteIndex := bitIndex / 8
 	bitIndex = bitIndex % 8
