@@ -99,6 +99,7 @@ func bulkReadHoldingRegisters(managers []*ModbusDeviceManager) ([]*sdk.ReadConte
 				"registerCount": block.RegisterCount,
 			}).Debug("[modbus] reading holding registers for block")
 
+			fmt.Printf("Callng modbus ReadHoldingRegisters\n")
 			results, err := client.ReadHoldingRegisters(block.StartRegister, block.RegisterCount)
 			if err != nil {
 				if manager.FailOnError {

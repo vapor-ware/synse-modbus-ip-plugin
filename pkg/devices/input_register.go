@@ -2,6 +2,7 @@ package devices
 
 import (
 	"errors"
+	"fmt"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/vapor-ware/synse-sdk/sdk"
@@ -59,6 +60,7 @@ func bulkReadInputRegisters(managers []*ModbusDeviceManager) ([]*sdk.ReadContext
 				"registerCount": block.RegisterCount,
 			}).Debug("[modbus] reading input registers for block")
 
+			fmt.Printf("Calling modbus ReadInputRegisters\n")
 			results, err := client.ReadInputRegisters(block.StartRegister, block.RegisterCount)
 			if err != nil {
 				if manager.FailOnError {
