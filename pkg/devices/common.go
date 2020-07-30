@@ -1,6 +1,6 @@
 package devices
 
-import (
+/*
 	"errors"
 	"fmt"
 	"sort"
@@ -12,13 +12,15 @@ import (
 	"github.com/vapor-ware/synse-modbus-ip-plugin/pkg/utils"
 	"github.com/vapor-ware/synse-sdk/sdk"
 	"github.com/vapor-ware/synse-sdk/sdk/output"
-)
+*/
 
 // MaximumRegisterCount is the max number of registers to read in one modbus
 // call.
 //
 // The technical maximum is 123 for ReadHoldingRegisters over IP.
 const MaximumRegisterCount uint16 = 123
+
+/*
 
 // ErrDevicesNotSorted is an error which specifies that the plugin is unable
 // to parse devices into read blocks correctly because the devices have not
@@ -365,3 +367,4 @@ func UnpackReading(output *output.Output, device *ModbusDevice, reading []byte) 
 
 	return output.MakeReading(data), nil
 }
+*/

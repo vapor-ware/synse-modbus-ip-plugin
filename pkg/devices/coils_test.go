@@ -1,14 +1,15 @@
 package devices
 
-import (
+/*
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/vapor-ware/synse-modbus-ip-plugin/internal/testutils"
 	"github.com/vapor-ware/synse-modbus-ip-plugin/pkg/config"
 	"github.com/vapor-ware/synse-sdk/sdk"
-)
+*/
 
+/*
 func TestCoilsHandler_BulkRead_Error(t *testing.T) {
 	defer clearDeviceManagers()
 
@@ -296,3 +297,4 @@ func TestReadOnlyCoils(t *testing.T) {
 //	assert.NoError(t, err)
 //	assert.Len(t, ctxs, 0)
 //}
+*/

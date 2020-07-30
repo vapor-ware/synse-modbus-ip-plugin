@@ -1,6 +1,6 @@
 package devices
 
-import (
+/*
 	"fmt"
 	"strconv"
 
@@ -9,8 +9,9 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/vapor-ware/synse-sdk/sdk"
 	"github.com/vapor-ware/synse-sdk/sdk/output"
-)
+*/
 
+/*
 // Handler name definitions. These are used in the modbus device config
 // (under the "handler" key) to relate devices to a handler.
 const handlerHoldingRegister = "holding_register"
@@ -189,3 +190,4 @@ func getHoldingRegisterData(data []byte) (uint16, error) {
 	}
 	return uint16(r), nil
 }
+*/

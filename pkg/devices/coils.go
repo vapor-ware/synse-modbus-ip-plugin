@@ -1,6 +1,6 @@
 package devices
 
-import (
+/*
 	"errors"
 	"fmt"
 	"strings"
@@ -9,8 +9,9 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/vapor-ware/synse-sdk/sdk"
 	"github.com/vapor-ware/synse-sdk/sdk/output"
-)
+*/
 
+/*
 // Handler name definitions. These are used in the modbus device config
 // (under the "handler" key) to relate devices to a handler.
 const handlerCoil = "coil"
@@ -190,3 +191,4 @@ func getCoilData(data []byte) (uint16, error) {
 		return 0, fmt.Errorf("unexpected coil data: %v", data)
 	}
 }
+*/

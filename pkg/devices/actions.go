@@ -1,5 +1,6 @@
 package devices
 
+/*
 import (
 	log "github.com/sirupsen/logrus"
 	"github.com/vapor-ware/synse-sdk/sdk"
@@ -82,3 +83,4 @@ var LoadModbusDevices = sdk.DeviceAction{
 		return nil
 	},
 }
+*/

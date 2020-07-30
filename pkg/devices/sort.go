@@ -1,5 +1,6 @@
 package devices
 
+/*
 import (
 	log "github.com/sirupsen/logrus"
 )
@@ -46,3 +47,4 @@ func (a ByModbusConfig) Less(i, j int) bool {
 func (a ByModbusConfig) Swap(i, j int) {
 	a[i], a[j] = a[j], a[i]
 }
+*/

@@ -1,5 +1,6 @@
 package devices
 
+/*
 import (
 	"testing"
 
@@ -182,3 +183,4 @@ func TestLoadModbusDevices_Action_DeviceHasManager(t *testing.T) {
 	assert.Equal(t, uint16(10), manager.Devices[1].Config.Address)
 	assert.Equal(t, uint16(20), manager.Devices[2].Config.Address)
 }
+*/

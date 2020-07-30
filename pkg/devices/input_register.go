@@ -1,14 +1,15 @@
 package devices
 
-import (
+/*
 	"errors"
 	"fmt"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/vapor-ware/synse-sdk/sdk"
 	"github.com/vapor-ware/synse-sdk/sdk/output"
-)
+*/
 
+/*
 const handlerInputRegister = "input_register"
 
 // InputRegisterHandler is a device handler used to read from modbus input registers.
@@ -119,3 +120,4 @@ func bulkReadInputRegisters(managers []*ModbusDeviceManager) ([]*sdk.ReadContext
 	}
 	return readings, nil
 }
+*/
