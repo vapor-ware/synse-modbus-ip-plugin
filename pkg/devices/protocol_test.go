@@ -1,12 +1,8 @@
 package devices
 
-import (
-	"testing"
+// TODO: Possibly re-add this (?)
 
-	"github.com/stretchr/testify/assert"
-	"github.com/vapor-ware/synse-modbus-ip-plugin/pkg/config"
-)
-
+/*
 func TestNewClient(t *testing.T) {
 	cfg := config.ModbusConfig{
 		Host: "localhost",
@@ -41,3 +37,4 @@ func TestNewClient_InvalidTimeoutError(t *testing.T) {
 	assert.Error(t, err)
 	assert.Nil(t, client)
 }
+*/
