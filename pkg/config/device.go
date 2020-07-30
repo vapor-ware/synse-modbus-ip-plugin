@@ -33,10 +33,10 @@ type ModbusDeviceData struct {
 	// set, the error will typically only be logged. This is false by default.
 	FailOnError bool `yaml:"failOnError,omitempty"`
 
-	// We many or may not need these (unclear).
-
 	// Address is the register address which holds the reading value.
 	Address uint16
+
+	// TODO: Not clear if we need below.
 
 	// Width is the number of registers to read, starting from the `Address`.
 	Width uint16
