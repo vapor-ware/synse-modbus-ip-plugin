@@ -1,11 +1,11 @@
 package devices
 
-/*
 import (
 	log "github.com/sirupsen/logrus"
 	"github.com/vapor-ware/synse-sdk/sdk"
 )
 
+/*
 // DeviceManagers maps device handler to their corresponding device managers. Devices
 // are associated to handlers via their device configuration.
 //
@@ -21,6 +21,10 @@ var DeviceManagers = map[string][]*ModbusDeviceManager{}
 func clearDeviceManagers() {
 	DeviceManagers = map[string][]*ModbusDeviceManager{}
 }
+*/
+
+// TODO: This function below is weird because it doesn't return anything.
+// It just contructs some thinggy internally and hides it. (DeviceManglers)
 
 // LoadModbusDevices is an SDK DeviceAction which loads all registered devices into
 // ModbusDevices, a higher-level wrapper which aggregates devices based on their modbus
@@ -83,4 +87,3 @@ var LoadModbusDevices = sdk.DeviceAction{
 		return nil
 	},
 }
-*/
