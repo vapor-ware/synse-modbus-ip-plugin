@@ -78,23 +78,27 @@ func TestBulkReadCoils_CoilHandlerOnly(t *testing.T) {
 		fmt.Printf("device[%d]: %+v\n", i, *(devices[i]))
 	}
 
-	// Load the devices in the thinggy.
-	fmt.Printf("Loading devices\n")
-	for i := 0; i < len(devices); i++ {
-		err := modbusDevices.LoadModbusDevices.Action(&sdk.Plugin{}, devices[i])
-		assert.NoError(t, err)
-	}
-	fmt.Printf("Loaded devices\n")
+	/*
 
-	fmt.Printf("Dumping DeviceManagers\n")
-	//fmt.Printf("DeviceManagers: %T, %+v\n", modbusDevices.DeviceManagers, modbusDevices.DeviceManagers)
-	fmt.Printf("DeviceMangers:\n")
-	for k, v := range modbusDevices.DeviceManagers {
-		fmt.Printf("DeviceManager[%v]:\n", k)
-		for i := 0; i < len(v); i++ {
-			fmt.Printf("[%d]: %+v\n", i, *v[i])
+		// Load the devices in the thinggy.
+		fmt.Printf("Loading devices\n")
+		for i := 0; i < len(devices); i++ {
+			err := modbusDevices.LoadModbusDevices.Action(&sdk.Plugin{}, devices[i])
+			assert.NoError(t, err)
 		}
-	}
+		fmt.Printf("Loaded devices\n")
+
+		fmt.Printf("Dumping DeviceManagers\n")
+		//fmt.Printf("DeviceManagers: %T, %+v\n", modbusDevices.DeviceManagers, modbusDevices.DeviceManagers)
+		fmt.Printf("DeviceMangers:\n")
+		for k, v := range modbusDevices.DeviceManagers {
+			fmt.Printf("DeviceManager[%v]:\n", k)
+			for i := 0; i < len(v); i++ {
+				fmt.Printf("[%d]: %+v\n", i, *v[i])
+			}
+		}
+
+	*/
 
 	fmt.Printf("Calling bulk read\n")
 	// TODO: Is this call correct? Two different handlers.

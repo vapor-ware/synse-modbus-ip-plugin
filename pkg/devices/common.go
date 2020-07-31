@@ -599,25 +599,46 @@ func MapBulkReadData(bulkReadMap map[ModbusBulkReadKey][]*ModbusBulkRead, keyOrd
 // yet been sorted.
 var ErrDevicesNotSorted = errors.New("devices not sorted; unable to parse bulk read blocks")
 
-// ModbusDevice wraps an SDK Device and associates it with a ModbusConfig
+*/
+
+/*
+// ModbusDeviceAndData wraps an SDK Device and associates it with a ModbusDeviceData
+//// ModbusDevice wraps an SDK Device and associates it with a ModbusConfig
 // configuration parsed from the SDK Device's Data field.
-type ModbusDevice struct {
-	Config *config.ModbusConfig
+type ModbusDeviceAndData struct {
+	//Config *config.ModbusConfig
+	Data   *config.ModbusDeviceData
 	Device *sdk.Device
 }
 
-// NewModbusDevice creates a new instance of the ModbusDevice wrapper for the
-// given SDK Device.
-func NewModbusDevice(dev *sdk.Device) (*ModbusDevice, error) {
-	cfg, err := config.ModbusConfigFromDevice(dev)
+// NewModbusDeviceAndData creates a new instance of the ModbusDeviceAndData
+// wrapper for the given SDK Device. This is here to only have to deserialize
+// the generic device.Data field to ModbusDeviceData once.
+func NewModbusDeviceAndData(dev *sdk.Device) (*ModbusDeviceAndData, error) {
+	//cfg, err := config.ModbusConfigFromDevice(dev)
+	cfg, err := config.ModbusDeviceDataFromDevice(dev)
 	if err != nil {
 		return nil, err
 	}
-	return &ModbusDevice{
+	return &ModbusDeviceAndData{
 		Device: dev,
-		Config: cfg,
+		Data:   cfg,
 	}, nil
 }
+
+
+func LoadModbusDevice(plugin *sdk.Plugin, device *sdk.Device) (err error) {
+  dev, err := NewModbusDeviceAndData(device)
+  if err != nil {
+    log.WithError(err).Error("failed to create new ModbusDeviceAndData"
+    return
+  }
+
+  // TODO: Remainder.
+}
+*/
+
+/*
 
 // ModbusDeviceManager holds the information needed by the Modbus plugin to perform bulk
 // read operations for configured devices.
