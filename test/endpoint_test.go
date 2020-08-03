@@ -42,6 +42,8 @@ func TestEmulatorSanity(t *testing.T) {
 
 // TODO: The bug here is that this should be one network round trip for all 103 coils. It's currently 103 round trips.
 // Test a bulk read on coils 1-103 with handler coil. No read_only_coil.
+
+/*
 func TestBulkReadCoils_CoilHandlerOnly(t *testing.T) {
 	// Create the device slice.
 	fmt.Printf("Creating devices\n")
@@ -58,20 +60,9 @@ func TestBulkReadCoils_CoilHandlerOnly(t *testing.T) {
 				"failOnError": false,
 				"address":     i,
 			},
-			Output: "switch",
-			//Type: "switch",
+			Output:  "switch",
 			Handler: "coil",
 		}
-
-		// *** TODO: This looks like it probably works with all device.Handler == "coil"
-		// *** TODO: The read_only_coil looks like it causes trouble.
-		device.Handler = "coil"
-
-		//		if i == 3 {
-		//			device.Handler = "coil"
-		//		} else {
-		//			device.Handler = "read_only_coil"
-		//		}
 
 		devices = append(devices, device)
 	} // end for
@@ -80,28 +71,6 @@ func TestBulkReadCoils_CoilHandlerOnly(t *testing.T) {
 	for i := 0; i < len(devices); i++ {
 		fmt.Printf("device[%d]: %+v\n", i, *(devices[i]))
 	}
-
-	/*
-
-		// Load the devices in the thinggy.
-		fmt.Printf("Loading devices\n")
-		for i := 0; i < len(devices); i++ {
-			err := modbusDevices.LoadModbusDevices.Action(&sdk.Plugin{}, devices[i])
-			assert.NoError(t, err)
-		}
-		fmt.Printf("Loaded devices\n")
-
-		fmt.Printf("Dumping DeviceManagers\n")
-		//fmt.Printf("DeviceManagers: %T, %+v\n", modbusDevices.DeviceManagers, modbusDevices.DeviceManagers)
-		fmt.Printf("DeviceMangers:\n")
-		for k, v := range modbusDevices.DeviceManagers {
-			fmt.Printf("DeviceManager[%v]:\n", k)
-			for i := 0; i < len(v); i++ {
-				fmt.Printf("[%d]: %+v\n", i, *v[i])
-			}
-		}
-
-	*/
 
 	// Permute device order to test sort.
 	permutedDevices := make([]*sdk.Device, len(devices))
@@ -116,8 +85,6 @@ func TestBulkReadCoils_CoilHandlerOnly(t *testing.T) {
 	}
 
 	fmt.Printf("Calling bulk read\n")
-	// TODO: Is this call correct? Two different handlers.
-	//contexts, err := modbusDevices.CoilsHandler.BulkRead(devices)
 	modbusDevices.ResetModbusCallCounter() // Zero out the modbus call counter.
 	contexts, err := modbusDevices.CoilsHandler.BulkRead(permutedDevices)
 	assert.NoError(t, err)
@@ -152,18 +119,12 @@ func TestBulkReadCoils_CoilHandlerOnly(t *testing.T) {
 		// One reading per context.
 		assert.Equal(t, 1, len(contexts[i].Reading))
 		// Reading[0] value is address % 3 == 0
-
-		//expectedValue := (devices[i].Data["address'"]).(int) % 3 == 0
-		//assert.Equal(t, expectedValue, contexts[i].Reading[0].Value)
-		//fmt.Printf("*** address: %T, %+v\n", devices[i].Data["address"], devices[i].Data["address"])
 		expectedValue := (devices[i].Data["address"]).(int)%3 == 0
-		//fmt.Printf("*** expectedValue: %+v\n", expectedValue)
-		//fmt.Printf("*** value: %T, %+v\n", contexts[i].Reading[0].Value, contexts[i].Reading[0].Value)
 		assert.Equal(t, expectedValue, contexts[i].Reading[0].Value)
 	}
 }
+*/
 
-/*
 // TODO: Bug here is 103 round trips. It should be 1.
 // Test a bulk read on holding registers 1-103 with handler holding_register. No read_only_holding_register.
 func TestBulkReadHoldingRegisters_HoldingRegisterHandlerOnly(t *testing.T) {
@@ -177,15 +138,15 @@ func TestBulkReadHoldingRegisters_HoldingRegisterHandlerOnly(t *testing.T) {
 			Data: map[string]interface{}{
 				"host":        "localhost",
 				"port":        1502,
-				"type":        "b",
-				"width":       1,
+				"type":        "s16",
+				"width":       2,
 				"failOnError": false,
 				"address":     i,
 			},
-			Output: "switch",
+			Output:  "number",
+			Handler: "holding_register",
 		}
 
-		device.Handler = "holding_register"
 		devices = append(devices, device)
 	} // end for
 
@@ -194,19 +155,26 @@ func TestBulkReadHoldingRegisters_HoldingRegisterHandlerOnly(t *testing.T) {
 		fmt.Printf("device[%d]: %+v\n", i, *(devices[i]))
 	}
 
-	// Load the devices in the thinggy.
-	fmt.Printf("Loading devices\n")
-	for i := 0; i < len(devices); i++ {
-		err := modbusDevices.LoadModbusDevices.Action(&sdk.Plugin{}, devices[i])
-		assert.NoError(t, err)
+	// Permute device order to test sort.
+	permutedDevices := make([]*sdk.Device, len(devices))
+	perm := rand.Perm(len(devices))
+	for i, v := range perm {
+		permutedDevices[v] = devices[i]
 	}
-	fmt.Printf("Loaded devices\n")
 
-	fmt.Printf("Dumping DeviceManagers\n")
-	fmt.Printf("DeviceManagers: %T, %+v\n", modbusDevices.DeviceManagers, modbusDevices.DeviceManagers)
+	fmt.Printf("dumping permuted devices:\n")
+	for i := 0; i < len(permutedDevices); i++ {
+		fmt.Printf("device[%d]: %+v\n", i, *(permutedDevices[i]))
+	}
 
 	fmt.Printf("Calling bulk read\n")
+	modbusDevices.ResetModbusCallCounter() // Zero out the modbus call counter.
 	contexts, err := modbusDevices.HoldingRegisterHandler.BulkRead(devices)
+
+	assert.NoError(t, err)
+	assert.Equal(t, uint64(1), modbusDevices.GetModbusCallCounter()) // One modbus call on the wire for this bulk read.
+	assert.Equal(t, len(devices), len(contexts))                     // One context per device.
+
 	fmt.Printf("contexts (len %d): %+v\n", len(contexts), contexts)
 	fmt.Printf("err: %v\n", err)
 	fmt.Printf("Called bulk read\n")
@@ -221,8 +189,26 @@ func TestBulkReadHoldingRegisters_HoldingRegisterHandlerOnly(t *testing.T) {
 		for j := 0; j < len(contexts[i].Reading); j++ {
 			fmt.Printf("\tReading[%d], %T, %+v\n", j, contexts[i].Reading[j], contexts[i].Reading[j])
 		}
+
+		// Programmatically verify contexts.
+		// contexts[i].Device
+		// Context device is the same as in the ordered device list.
+		assert.Equal(t, devices[i].Info, contexts[i].Device.Info)
+		// Handler is the same.
+		assert.Equal(t, devices[i].Handler, contexts[i].Device.Handler)
+		// Address is the same.
+		assert.Equal(t, devices[i].Data["address"], contexts[i].Device.Data["address"])
+
+		// contexts[i].Reading
+		// One reading per context.
+		assert.Equal(t, 1, len(contexts[i].Reading))
+		// Reading[0] value is address % 3 == 0
+		expectedValue := (devices[i].Data["address"]).(int)
+		assert.Equal(t, expectedValue, int((contexts[i].Reading[0].Value).(int16)))
 	}
 }
+
+/*
 
 // TODO: Bug here is 103 round trips. It should be 1.
 // Test a bulk read on input registers 1-103 with handler input_register..
