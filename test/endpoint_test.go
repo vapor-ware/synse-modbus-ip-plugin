@@ -119,12 +119,14 @@ func TestBulkReadCoils_CoilHandlerOnly(t *testing.T) {
 	// TODO: Is this call correct? Two different handlers.
 	//contexts, err := modbusDevices.CoilsHandler.BulkRead(devices)
 	contexts, err := modbusDevices.CoilsHandler.BulkRead(permutedDevices)
+	assert.NoError(t, err)
+	assert.Equal(t, len(devices), len(contexts)) // One context per device.
+
 	fmt.Printf("contexts (len %d): %+v\n", len(contexts), contexts)
 	fmt.Printf("err: %v\n", err)
 	fmt.Printf("Called bulk read\n")
 
 	fmt.Printf("Dumping contexts\n")
-	assert.NoError(t, err)
 	for i := 0; i < len(contexts); i++ {
 		fmt.Printf("contexts[%d]: %+v\n", i, contexts[i])
 		fmt.Printf("\tDevice: %T, %+v\n", contexts[i].Device, contexts[i].Device)
@@ -134,6 +136,28 @@ func TestBulkReadCoils_CoilHandlerOnly(t *testing.T) {
 		for j := 0; j < len(contexts[i].Reading); j++ {
 			fmt.Printf("\tReading[%d], %T, %+v\n", j, contexts[i].Reading[j], contexts[i].Reading[j])
 		}
+
+		// Programmatically verify contexts.
+		// contexts[i].Device
+		// Context device is the same as in the ordered device list.
+		assert.Equal(t, devices[i].Info, contexts[i].Device.Info)
+		// Handler is the same.
+		assert.Equal(t, devices[i].Handler, contexts[i].Device.Handler)
+		// Address is the same.
+		assert.Equal(t, devices[i].Data["address"], contexts[i].Device.Data["address"])
+
+		// contexts[i].Reading
+		// One reading per context.
+		assert.Equal(t, 1, len(contexts[i].Reading))
+		// Reading[0] value is address % 3 == 0
+
+		//expectedValue := (devices[i].Data["address'"]).(int) % 3 == 0
+		//assert.Equal(t, expectedValue, contexts[i].Reading[0].Value)
+		//fmt.Printf("*** address: %T, %+v\n", devices[i].Data["address"], devices[i].Data["address"])
+		expectedValue := (devices[i].Data["address"]).(int)%3 == 0
+		//fmt.Printf("*** expectedValue: %+v\n", expectedValue)
+		//fmt.Printf("*** value: %T, %+v\n", contexts[i].Reading[0].Value, contexts[i].Reading[0].Value)
+		assert.Equal(t, expectedValue, contexts[i].Reading[0].Value)
 	}
 }
 
