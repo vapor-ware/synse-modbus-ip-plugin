@@ -56,6 +56,7 @@ func bulkReadCoils(devices []*sdk.Device) (readContexts []*sdk.ReadContext, err 
 			var readResults []byte
 			fmt.Printf("*** MODBUS CALL (coils) ***\n")
 			readResults, err = client.ReadCoils(read.StartRegister, read.RegisterCount)
+			incrementModbusCallCounter()
 			if err != nil {
 				log.Errorf("modbus bulk read coils failure: %v", err.Error())
 				if modbusDeviceData.FailOnError {

@@ -118,9 +118,11 @@ func TestBulkReadCoils_CoilHandlerOnly(t *testing.T) {
 	fmt.Printf("Calling bulk read\n")
 	// TODO: Is this call correct? Two different handlers.
 	//contexts, err := modbusDevices.CoilsHandler.BulkRead(devices)
+	modbusDevices.ResetModbusCallCounter() // Zero out the modbus call counter.
 	contexts, err := modbusDevices.CoilsHandler.BulkRead(permutedDevices)
 	assert.NoError(t, err)
-	assert.Equal(t, len(devices), len(contexts)) // One context per device.
+	assert.Equal(t, uint64(1), modbusDevices.GetModbusCallCounter()) // One modbus call on the wire for this bulk read.
+	assert.Equal(t, len(devices), len(contexts))                     // One context per device.
 
 	fmt.Printf("contexts (len %d): %+v\n", len(contexts), contexts)
 	fmt.Printf("err: %v\n", err)

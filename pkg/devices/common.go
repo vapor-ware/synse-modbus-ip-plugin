@@ -3,7 +3,9 @@ package devices
 // This file contains common modbus device code.
 import (
 	"fmt"
+	"math"
 	"sort"
+	"sync"
 
 	"github.com/goburrow/modbus"
 	"github.com/mitchellh/mapstructure"
@@ -31,7 +33,8 @@ import (
 // MaximumRegisterCount is The technical maximum is 123 for ReadHoldingRegisters over IP.
 const MaximumRegisterCount uint16 = 123
 
-// MaximumCoilCount is MaximumRegisterCount * 16 because 8 coil reading per byte and a register is two bytes,
+// MaximumCoilCount is MaximumRegisterCount * 16 because 8 coil reading per byte and a register is two bytes.
+// TODO: We need to use this.
 const MaximumCoilCount uint16 = MaximumRegisterCount * 16
 
 //// NextSortOrdinal doles out the next sort ordinal for scan sort order.
@@ -592,6 +595,38 @@ func MapBulkReadData(bulkReadMap map[ModbusBulkReadKey][]*ModbusBulkRead, keyOrd
 		} // End for each read.
 	} // End for each key, value.
 	return
+}
+
+// ModbusCallCounter is for testing. Here we increment it once per network round
+// trip with any modbus server.
+var modbusCallCounter uint64
+var mutex sync.Mutex
+
+// GetModbusCallCounter gets the number of modbus calls to any modbus server.
+func GetModbusCallCounter() (counter uint64) {
+	mutex.Lock()
+	counter = modbusCallCounter
+	mutex.Unlock()
+	return
+}
+
+// ResetModbusCallCounter resets the counter to zero for test purposes.
+func ResetModbusCallCounter() {
+	mutex.Lock()
+	modbusCallCounter = 0
+	mutex.Unlock()
+}
+
+// incrementModbusCallCounter is called internally whenever a modbus request is
+// made to any modbus server.
+func incrementModbusCallCounter() {
+	mutex.Lock()
+	if modbusCallCounter == math.MaxUint64 {
+		modbusCallCounter = 0
+	} else {
+		modbusCallCounter++
+	}
+	mutex.Unlock()
 }
 
 /*

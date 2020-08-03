@@ -129,6 +129,7 @@ github.com/stretchr/testify v1.4.0 h1:2E4SXV/wtOkTonXsotYi4li6zVWxYlZuYNCXe9XRJy
 github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81PSLYec5m4=
 github.com/stretchr/testify v1.6.1 h1:hDPOHmpOpP40lSULcqw7IrRb/u7w6RpDC9399XyoNd0=
 github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
+github.com/vapor-ware/synse-sdk v0.1.0-alpha h1:5hYO0P4ZxpDSU5Yrq6zCXOTO6Z14uVQOPfFN4UTeGss=
 github.com/vapor-ware/synse-sdk v0.1.0-alpha.0.20200724155421-64f57718083f h1:FHOTLOyEetgADZ4ynW4JgonANMEjgXy3/LouOgYQoB0=
 github.com/vapor-ware/synse-sdk v0.1.0-alpha.0.20200724155421-64f57718083f/go.mod h1:AnYZ6uMZAvATNuPEAgzQh0e9SLDaVJkXB7wc5wQXUzA=
 github.com/vapor-ware/synse-server-grpc v0.0.2-0.20200327135045-e8fab4d340ea h1:3IenfSpSRcMEmdMMixiKZ2S16X0YvPFNEUvESvHwyAc=
