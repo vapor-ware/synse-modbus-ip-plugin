@@ -330,6 +330,7 @@ func MapBulkRead(devices []*sdk.Device, setSortOrdinal bool, isCoil bool) (
 	log.Debugf("MapBulkRead start. devices: %+v", devices)
 	for z := 0; z < len(devices); z++ {
 		log.Debugf("MapBulkRead devices[%v]: %#v", z, devices[z])
+		fmt.Printf("MapBulkRead devices[%v]: %#v\n", z, devices[z])
 	}
 
 	// Sort the devices.
@@ -342,6 +343,7 @@ func MapBulkRead(devices []*sdk.Device, setSortOrdinal bool, isCoil bool) (
 
 	for z := 0; z < len(sorted); z++ {
 		log.Debugf("MapBulkRead sorted[%v]: %#v", z, sorted[z])
+		fmt.Printf("MapBulkRead sorted[%v]: %#v\n", z, sorted[z])
 	}
 
 	for i := 0; i < len(sorted); i++ {
