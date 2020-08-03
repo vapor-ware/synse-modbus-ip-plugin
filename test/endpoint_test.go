@@ -123,9 +123,7 @@ func TestBulkReadCoils_CoilHandlerOnly(t *testing.T) {
 		assert.Equal(t, expectedValue, contexts[i].Reading[0].Value)
 	}
 }
-*/
 
-// TODO: Bug here is 103 round trips. It should be 1.
 // Test a bulk read on holding registers 1-103 with handler holding_register. No read_only_holding_register.
 func TestBulkReadHoldingRegisters_HoldingRegisterHandlerOnly(t *testing.T) {
 	// Create the device slice.
@@ -169,7 +167,7 @@ func TestBulkReadHoldingRegisters_HoldingRegisterHandlerOnly(t *testing.T) {
 
 	fmt.Printf("Calling bulk read\n")
 	modbusDevices.ResetModbusCallCounter() // Zero out the modbus call counter.
-	contexts, err := modbusDevices.HoldingRegisterHandler.BulkRead(devices)
+	contexts, err := modbusDevices.HoldingRegisterHandler.BulkRead(permutedDevices)
 
 	assert.NoError(t, err)
 	assert.Equal(t, uint64(1), modbusDevices.GetModbusCallCounter()) // One modbus call on the wire for this bulk read.
@@ -202,15 +200,14 @@ func TestBulkReadHoldingRegisters_HoldingRegisterHandlerOnly(t *testing.T) {
 		// contexts[i].Reading
 		// One reading per context.
 		assert.Equal(t, 1, len(contexts[i].Reading))
-		// Reading[0] value is address % 3 == 0
+		// Reading[0] value is address.
 		expectedValue := (devices[i].Data["address"]).(int)
 		assert.Equal(t, expectedValue, int((contexts[i].Reading[0].Value).(int16)))
 	}
 }
 
-/*
+*/
 
-// TODO: Bug here is 103 round trips. It should be 1.
 // Test a bulk read on input registers 1-103 with handler input_register..
 func TestBulkReadInputRegisters_InputRegisterHandlerOnly(t *testing.T) {
 	// Create the device slice.
@@ -223,12 +220,12 @@ func TestBulkReadInputRegisters_InputRegisterHandlerOnly(t *testing.T) {
 			Data: map[string]interface{}{
 				"host":        "localhost",
 				"port":        1502,
-				"type":        "b",
-				"width":       1,
+				"type":        "s16",
+				"width":       2,
 				"failOnError": false,
 				"address":     i,
 			},
-			Output: "switch",
+			Output: "number",
 		}
 
 		device.Handler = "input_register"
@@ -240,19 +237,21 @@ func TestBulkReadInputRegisters_InputRegisterHandlerOnly(t *testing.T) {
 		fmt.Printf("device[%d]: %+v\n", i, *(devices[i]))
 	}
 
-	// Load the devices in the thinggy.
-	fmt.Printf("Loading devices\n")
-	for i := 0; i < len(devices); i++ {
-		err := modbusDevices.LoadModbusDevices.Action(&sdk.Plugin{}, devices[i])
-		assert.NoError(t, err)
+	// Permute device order to test sort.
+	permutedDevices := make([]*sdk.Device, len(devices))
+	perm := rand.Perm(len(devices))
+	for i, v := range perm {
+		permutedDevices[v] = devices[i]
 	}
-	fmt.Printf("Loaded devices\n")
 
-	fmt.Printf("Dumping DeviceManagers\n")
-	fmt.Printf("DeviceManagers: %T, %+v\n", modbusDevices.DeviceManagers, modbusDevices.DeviceManagers)
+	fmt.Printf("dumping permuted devices:\n")
+	for i := 0; i < len(permutedDevices); i++ {
+		fmt.Printf("device[%d]: %+v\n", i, *(permutedDevices[i]))
+	}
 
 	fmt.Printf("Calling bulk read\n")
-	contexts, err := modbusDevices.InputRegisterHandler.BulkRead(devices)
+	modbusDevices.ResetModbusCallCounter() // Zero out the modbus call counter.
+	contexts, err := modbusDevices.InputRegisterHandler.BulkRead(permutedDevices)
 	fmt.Printf("contexts (len %d): %+v\n", len(contexts), contexts)
 	fmt.Printf("err: %v\n", err)
 	fmt.Printf("Called bulk read\n")
@@ -267,6 +266,21 @@ func TestBulkReadInputRegisters_InputRegisterHandlerOnly(t *testing.T) {
 		for j := 0; j < len(contexts[i].Reading); j++ {
 			fmt.Printf("\tReading[%d], %T, %+v\n", j, contexts[i].Reading[j], contexts[i].Reading[j])
 		}
+
+		// Programmatically verify contexts.
+		// contexts[i].Device
+		// Context device is the same as in the ordered device list.
+		assert.Equal(t, devices[i].Info, contexts[i].Device.Info)
+		// Handler is the same.
+		assert.Equal(t, devices[i].Handler, contexts[i].Device.Handler)
+		// Address is the same.
+		assert.Equal(t, devices[i].Data["address"], contexts[i].Device.Data["address"])
+
+		// contexts[i].Reading
+		// One reading per context.
+		assert.Equal(t, 1, len(contexts[i].Reading))
+		// Reading[0] value is address.
+		expectedValue := (devices[i].Data["address"]).(int)
+		assert.Equal(t, expectedValue, int((contexts[i].Reading[0].Value).(int16)))
 	}
 }
-*/
