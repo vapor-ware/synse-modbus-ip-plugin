@@ -182,12 +182,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 	devices = []*sdk.Device{
 		&sdk.Device{
 			//Kind:   "egauge.seconds.timestamp",
-			//Plugin: "synse-modbus-ip-plugin",
-			Info: "EGauge Local Timestamp Seconds", // Considered merging with microseconds, but unclear if we ned this yet.
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
+			Info: "EGauge Local Timestamp Seconds", // Considered merging with microseconds, but unclear if we need this yet.
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -197,31 +192,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "u32",
 			},
-			/*
-				Outputs: []*sdk.Output{
-					&sdk.Output{
-						OutputType: outputs.Seconds,
-						Info:       "EGauge Local Timestamp Seconds",
-						Data: map[string]interface{}{
-							"address": 0,
-							"width":   2, // 2 16 bit words.
-							"type":    "u32",
-						},
-					},
-				},
-			*/
 			Output:  "seconds",
-			Handler: "input_register", // &InputRegisterHandler,
+			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.microseconds.timestamp",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "EGauge Local Timestamp Microseconds",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -231,32 +208,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "u32",
 			},
-			/*
-				Outputs: []*sdk.Output{
-					&sdk.Output{
-						OutputType: outputs.Microseconds,
-						Info:       "EGauge Local Timestamp Microseconds",
-						Data: map[string]interface{}{
-							"address": 2,
-							"width":   2, // 2 16 bit words.
-							"type":    "u32",
-						},
-					},
-				},
-			*/
 			Output: "microseconds",
-			//Handler: &InputRegisterHandler,
-			Handler: "input_register", // &InputRegisterHandler,
+			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.thd.seconds.timestamp",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "EGauge THD Timestamp Seconds",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -266,31 +224,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "u32",
 			},
-			/*
-				Outputs: []*sdk.Output{
-					&sdk.Output{
-						OutputType: outputs.Seconds,
-						Info:       "EGauge THD Timestamp Seconds",
-						Data: map[string]interface{}{
-							"address": 4,
-							"width":   2, // 2 16 bit words.
-							"type":    "u32",
-						},
-					},
-				},*/
 			Output: "seconds",
-			//Handler: &InputRegisterHandler,
-			Handler: "input_register", // &InputRegisterHandler,
+			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.thd.microseconds.timestamp",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "EGauge THD Timestamp Microseconds",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -300,31 +240,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "u32",
 			},
-			/*
-				Outputs: []*sdk.Output{
-					&sdk.Output{
-						OutputType: outputs.Microseconds,
-						Info:       "EGauge THD Timestamp Microseconds",
-						Data: map[string]interface{}{
-							"address": 6,
-							"width":   2, // 2 16 bit words.
-							"type":    "u32",
-						},
-					},
-				},*/
 			Output: "microseconds",
-			//Handler: &InputRegisterHandler,
-			Handler: "input_register", // &InputRegisterHandler,
+			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.register.seconds.timestamp",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "EGauge Register Timestamp Seconds",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -334,32 +256,14 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "u32",
 			},
-			/*
-				Outputs: []*sdk.Output{
-					&sdk.Output{
-						OutputType: outputs.Seconds,
-						Info:       "EGauge Register Timestamp Seconds",
-						Data: map[string]interface{}{
-							"address": 8,
-							"width":   2, // 2 16 bit words.
-							"type":    "u32",
-						},
-					},
-				},*/
 			Output: "seconds",
-			//Handler: &InputRegisterHandler,
-			Handler: "input_register", // &InputRegisterHandler,
+			Handler: "input_register",
 		},
 
 		// Leg 1 to neutral RMS voltage
 		&sdk.Device{
 			//Kind:   "egauge.rms.voltage",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "EGauge L1 RMS Voltage",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -369,32 +273,14 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*
-				Outputs: []*sdk.Output{
-					&sdk.Output{
-						OutputType: outputs.Voltage,
-						Info:       "EGauge L1 RMS Voltage",
-						Data: map[string]interface{}{
-							"address": 500,
-							"width":   2, // 2 16 bit words.
-							"type":    "f32",
-						},
-					},
-				},*/
 			Output: "voltage",
-			//Handler: &InputRegisterHandler,
-			Handler: "input_register", // &InputRegisterHandler,
+			Handler: "input_register",
 		},
 
 		// Leg 2 to neutral RMS voltage
 		&sdk.Device{
 			//Kind:   "egauge.rms.voltage",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "EGauge L2 RMS Voltage",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -404,32 +290,14 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*
-				Outputs: []*sdk.Output{
-					&sdk.Output{
-						OutputType: outputs.Voltage,
-						Info:       "EGauge L2 RMS Voltage",
-						Data: map[string]interface{}{
-							"address": 502,
-							"width":   2, // 2 16 bit words.
-							"type":    "f32",
-						},
-					},
-				},*/
 			Output: "voltage",
-			//Handler: &InputRegisterHandler,
-			Handler: "input_register", // &InputRegisterHandler,
+			Handler: "input_register",
 		},
 
 		// Leg 3 to neutral RMS voltage
 		&sdk.Device{
 			//Kind:   "egauge.rms.voltage",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "EGauge L3 RMS Voltage",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -439,32 +307,14 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*
-				Outputs: []*sdk.Output{
-					&sdk.Output{
-						OutputType: outputs.Voltage,
-						Info:       "EGauge 31 RMS Voltage",
-						Data: map[string]interface{}{
-							"address": 504,
-							"width":   2, // 2 16 bit words.
-							"type":    "f32",
-						},
-					},
-				},*/
 			Output: "voltage",
-			//Handler: &InputRegisterHandler,
-			Handler: "input_register", // &InputRegisterHandler,
+			Handler: "input_register",
 		},
 
 		// Leg 1 to Leg 2 RMS voltage
 		&sdk.Device{
 			//Kind:   "egauge.rms.voltage",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "EGauge L1-L2 RMS Voltage",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -474,32 +324,14 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*
-				Outputs: []*sdk.Output{
-					&sdk.Output{
-						OutputType: outputs.Voltage,
-						Info:       "EGauge L1-L2 RMS Voltage",
-						Data: map[string]interface{}{
-							"address": 506,
-							"width":   2, // 2 16 bit words.
-							"type":    "f32",
-						},
-					},
-				},*/
 			Output: "voltage",
-			//Handler: &InputRegisterHandler,
-			Handler: "input_register", // &InputRegisterHandler,
+			Handler: "input_register",
 		},
 
 		// Leg 2 to Leg3 RMS voltage
 		&sdk.Device{
 			//Kind:   "egauge.rms.voltage",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "EGauge L2-L3 RMS Voltage",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -509,32 +341,14 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*
-				Outputs: []*sdk.Output{
-					&sdk.Output{
-						OutputType: outputs.Voltage,
-						Info:       "EGauge L2-L3 RMS Voltage",
-						Data: map[string]interface{}{
-							"address": 508,
-							"width":   2, // 2 16 bit words.
-							"type":    "f32",
-						},
-					},
-				},*/
 			Output: "voltage",
-			//Handler: &InputRegisterHandler,
-			Handler: "input_register", // &InputRegisterHandler,
+			Handler: "input_register",
 		},
 
 		// Leg 3 to Leg 1 RMS voltage
 		&sdk.Device{
 			//Kind:   "egauge.rms.voltage",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "EGauge L3-L1 RMS Voltage",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -544,31 +358,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*
-				Outputs: []*sdk.Output{
-					&sdk.Output{
-						OutputType: outputs.Voltage,
-						Info:       "EGauge L3-L1 RMS Voltage",
-						Data: map[string]interface{}{
-							"address": 510,
-							"width":   2, // 2 16 bit words.
-							"type":    "f32",
-						},
-					},
-				},*/
 			Output: "voltage",
-			//Handler: &InputRegisterHandler,
-			Handler: "input_register", // &InputRegisterHandler,
+			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.mean.voltage",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "EGauge L1 Mean DC Voltage",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -578,31 +374,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*
-				Outputs: []*sdk.Output{
-					&sdk.Output{
-						OutputType: outputs.Voltage,
-						Info:       "EGauge L1 Mean DC Voltage",
-						Data: map[string]interface{}{
-							"address": 1000,
-							"width":   2, // 2 16 bit words.
-							"type":    "f32",
-						},
-					},
-				},*/
 			Output: "voltage",
-			//Handler: &InputRegisterHandler,
-			Handler: "input_register", // &InputRegisterHandler,
+			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.mean.voltage",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "EGauge L2 Mean DC Voltage",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -612,31 +390,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*
-				Outputs: []*sdk.Output{
-					&sdk.Output{
-						OutputType: outputs.Voltage,
-						Info:       "EGauge L2 Mean DC Voltage",
-						Data: map[string]interface{}{
-							"address": 1002,
-							"width":   2, // 2 16 bit words.
-							"type":    "f32",
-						},
-					},
-				},*/
 			Output: "voltage",
-			//Handler: &InputRegisterHandler,
-			Handler: "input_register", // &InputRegisterHandler,
+			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.mean.voltage",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "EGauge L3 Mean DC Voltage",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -646,31 +406,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*
-				Outputs: []*sdk.Output{
-					&sdk.Output{
-						OutputType: outputs.Voltage,
-						Info:       "EGauge L3 Mean DC Voltage",
-						Data: map[string]interface{}{
-							"address": 1004,
-							"width":   2, // 2 16 bit words.
-							"type":    "f32",
-						},
-					},
-				},*/
 			Output: "voltage",
-			//Handler: &InputRegisterHandler,
-			Handler: "input_register", // &InputRegisterHandler,
+			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.mean.voltage",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "EGauge L1-L2 Mean DC Voltage",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -680,31 +422,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*
-				Outputs: []*sdk.Output{
-					&sdk.Output{
-						OutputType: outputs.Voltage,
-						Info:       "EGauge L1-L2 Mean DC Voltage",
-						Data: map[string]interface{}{
-							"address": 1006,
-							"width":   2, // 2 16 bit words.
-							"type":    "f32",
-						},
-					},
-				},*/
 			Output: "voltage",
-			//Handler: &InputRegisterHandler,
-			Handler: "input_register", // &InputRegisterHandler,
+			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.mean.voltage",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "EGauge L2-L3 Mean DC Voltage",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -714,31 +438,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*
-				Outputs: []*sdk.Output{
-					&sdk.Output{
-						OutputType: outputs.Voltage,
-						Info:       "EGauge L2-L3 Mean DC Voltage",
-						Data: map[string]interface{}{
-							"address": 1008,
-							"width":   2, // 2 16 bit words.
-							"type":    "f32",
-						},
-					},
-				},*/
 			Output: "voltage",
-			//Handler: &InputRegisterHandler,
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.mean.voltage",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "EGauge L3-L1 Mean DC Voltage",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -748,21 +454,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*
-				Outputs: []*sdk.Output{
-					&sdk.Output{
-						OutputType: outputs.Voltage,
-						Info:       "EGauge L3-L1 Mean DC Voltage",
-						Data: map[string]interface{}{
-							"address": 1010,
-							"width":   2, // 2 16 bit words.
-							"type":    "f32",
-						},
-					},
-				},
-			*/
 			Output: "voltage",
-			//Handler: &InputRegisterHandler,
 			Handler: "input_register",
 		},
 
@@ -770,12 +462,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 
 		&sdk.Device{
 			//Kind:   "egauge.frequency",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "L1 Frequency",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -785,32 +472,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*
-				Outputs: []*sdk.Output{
-					&sdk.Output{
-						OutputType: outputs.Frequency,
-						Info:       "L1 Frequency",
-						Data: map[string]interface{}{
-							"address": 1500,
-							"width":   2, // 2 16 bit words.
-							"type":    "f32",
-						},
-					},
-				},
-				Handler: &InputRegisterHandler,
-			*/
 			Output:  "frequency",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.frequency",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "L2 Frequency",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -820,32 +488,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*
-				Outputs: []*sdk.Output{
-					&sdk.Output{
-						OutputType: outputs.Frequency,
-						Info:       "L2 Frequency",
-						Data: map[string]interface{}{
-							"address": 1502,
-							"width":   2, // 2 16 bit words.
-							"type":    "f32",
-						},
-					},
-				},
-				Handler: &InputRegisterHandler,
-			*/
 			Output:  "frequency",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.frequency",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "L3 Frequency",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -855,32 +504,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*
-				Outputs: []*sdk.Output{
-					&sdk.Output{
-						OutputType: outputs.Frequency,
-						Info:       "L3 Frequency",
-						Data: map[string]interface{}{
-							"address": 1504,
-							"width":   2, // 2 16 bit words.
-							"type":    "f32",
-						},
-					},
-				},
-				Handler: &InputRegisterHandler,
-			*/
 			Output:  "frequency",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.frequency",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "L1-L2 Frequency",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -890,32 +520,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*
-				Outputs: []*sdk.Output{
-					&sdk.Output{
-						OutputType: outputs.Frequency,
-						Info:       "L1-L2 Frequency",
-						Data: map[string]interface{}{
-							"address": 1506,
-							"width":   2, // 2 16 bit words.
-							"type":    "f32",
-						},
-					},
-				},
-				Handler: &InputRegisterHandler,
-			*/
 			Output:  "frequency",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.frequency",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "L2-L3 Frequency",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -925,62 +536,26 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*
-				Outputs: []*sdk.Output{
-					&sdk.Output{
-						OutputType: outputs.Frequency,
-						Info:       "L3-L3 Frequency",
-						Data: map[string]interface{}{
-							"address": 1508,
-							"width":   2, // 2 16 bit words.
-							"type":    "f32",
-						},
-					},
-				},
-				Handler: &InputRegisterHandler,*/
 			Output:  "frequency",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.frequency",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "L3-L1 Frequency",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
 				"timeout":     defaultTimeout,
 				"failOnError": false,
 			},
-			/*
-				Outputs: []*sdk.Output{
-					&sdk.Output{
-						OutputType: outputs.Frequency,
-						Info:       "L3-L1 Frequency",
-						Data: map[string]interface{}{
-							"address": 1510,
-							"width":   2, // 2 16 bit words.
-							"type":    "f32",
-						},
-					},
-				},
-				Handler: &InputRegisterHandler, */
 			Output:  "frequency",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.rms.current",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 1 RMS Current 1",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -990,30 +565,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Current,
-					Info:       "Zone 1 RMS Current 1",
-					Data: map[string]interface{}{
-						"address": 2000,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "current",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.rms.current",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 1 RMS Current 2",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -1023,30 +581,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Current,
-					Info:       "Zone 1 RMS Current 2",
-					Data: map[string]interface{}{
-						"address": 2002,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "current",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.rms.current",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 1 RMS Current 3",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -1056,30 +597,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Current,
-					Info:       "Zone 1 RMS Current 3",
-					Data: map[string]interface{}{
-						"address": 2004,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "current",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.rms.current",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 2 RMS Current 1",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -1089,30 +613,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Current,
-					Info:       "Zone 2 RMS Current 1",
-					Data: map[string]interface{}{
-						"address": 2006,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "current",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.rms.current",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 2 RMS Current 2",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -1122,30 +629,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Current,
-					Info:       "Zone 2 RMS Current 2",
-					Data: map[string]interface{}{
-						"address": 2008,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "current",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.rms.current",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 2 RMS Current 3",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -1155,30 +645,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Current,
-					Info:       "Zone 2 RMS Current 3",
-					Data: map[string]interface{}{
-						"address": 2010,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "current",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.rms.current",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 3 RMS Current 1",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -1188,30 +661,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Current,
-					Info:       "Zone 3 RMS Current 1",
-					Data: map[string]interface{}{
-						"address": 2012,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "current",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.rms.current",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 3 RMS Current 2",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -1221,30 +677,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Current,
-					Info:       "Zone 3 RMS Current 2",
-					Data: map[string]interface{}{
-						"address": 2014,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "current",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.rms.current",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 3 RMS Current 3",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -1254,30 +693,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Current,
-					Info:       "Zone 3 RMS Current 3",
-					Data: map[string]interface{}{
-						"address": 2016,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "current",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.rms.current",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 4 RMS Current 1",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -1287,30 +709,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Current,
-					Info:       "Zone 4 RMS Current 1",
-					Data: map[string]interface{}{
-						"address": 2018,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "current",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.rms.current",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 4 RMS Current 2",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -1320,30 +725,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Current,
-					Info:       "Zone 4 RMS Current 2",
-					Data: map[string]interface{}{
-						"address": 2020,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "current",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.rms.current",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 4 RMS Current 3",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -1353,30 +741,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Current,
-					Info:       "Zone 4 RMS Current 3",
-					Data: map[string]interface{}{
-						"address": 2022,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "current",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.dc.current",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 1 Mean DC Current 1",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -1386,30 +757,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Current,
-					Info:       "Zone 1 Mean DC Current 1",
-					Data: map[string]interface{}{
-						"address": 2500,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "current",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.dc.current",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 1 Mean DC Current 2",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -1419,30 +773,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Current,
-					Info:       "Zone 1 Mean DC Current 2",
-					Data: map[string]interface{}{
-						"address": 2502,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "current",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.dc.current",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 1 Mean DC Current 3",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -1452,30 +789,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Current,
-					Info:       "Zone 1 Mean DC Current 3",
-					Data: map[string]interface{}{
-						"address": 2504,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "current",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.dc.current",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 2 Mean DC Current 1",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -1485,30 +805,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Current,
-					Info:       "Zone 2 Mean DC Current 1",
-					Data: map[string]interface{}{
-						"address": 2506,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "current",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.dc.current",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 2 Mean DC Current 2",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -1518,30 +821,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Current,
-					Info:       "Zone 2 Mean DC Current 2",
-					Data: map[string]interface{}{
-						"address": 2508,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "current",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.dc.current",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 2 Mean DC Current 3",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -1551,30 +837,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Current,
-					Info:       "Zone 2 Mean DC Current 3",
-					Data: map[string]interface{}{
-						"address": 2510,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "current",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.dc.current",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 3 Mean DC Current 1",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -1584,30 +853,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Current,
-					Info:       "Zone 3 Mean DC Current 1",
-					Data: map[string]interface{}{
-						"address": 2512,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "current",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.dc.current",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 3 Mean DC Current 2",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -1617,30 +869,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Current,
-					Info:       "Zone 3 Mean DC Current 2",
-					Data: map[string]interface{}{
-						"address": 2514,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "current",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.dc.current",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 3 Mean DC Current 3",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -1650,30 +885,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Current,
-					Info:       "Zone 3 Mean DC Current 3",
-					Data: map[string]interface{}{
-						"address": 2516,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "current",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.dc.current",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 4 Mean DC Current 1",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -1683,30 +901,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Current,
-					Info:       "Zone 4 Mean DC Current 1",
-					Data: map[string]interface{}{
-						"address": 2518,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "current",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.dc.current",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 4 Mean DC Current 2",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -1716,30 +917,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Current,
-					Info:       "Zone 4 Mean DC Current 2",
-					Data: map[string]interface{}{
-						"address": 2520,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "current",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.dc.current",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 4 Mean DC Current 3",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -1749,30 +933,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Current,
-					Info:       "Zone 4 Mean DC Current 3",
-					Data: map[string]interface{}{
-						"address": 2522,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "current",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.frequency",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 1 Frequency 1",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -1782,30 +949,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Frequency,
-					Info:       "Zone 1 Frequency 1",
-					Data: map[string]interface{}{
-						"address": 3000,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "frequency",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.fewquency",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 1 Frequency 2",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -1815,30 +965,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Frequency,
-					Info:       "Zone 1 Frequency 2",
-					Data: map[string]interface{}{
-						"address": 3002,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "frequency",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.frequency",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 1 Frequency 3",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -1848,30 +981,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Frequency,
-					Info:       "Zone 1 Frequency 3",
-					Data: map[string]interface{}{
-						"address": 3004,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "frequency",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.frequency",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone Frequency 1",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -1881,30 +997,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Frequency,
-					Info:       "Zone Frequency 1",
-					Data: map[string]interface{}{
-						"address": 3006,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "frequency",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.frequency",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone Frequency 2",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -1914,30 +1013,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Frequency,
-					Info:       "Zone 2 Frequency 2",
-					Data: map[string]interface{}{
-						"address": 3008,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "frequency",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.frequency",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 2 Frequency 3",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -1947,30 +1029,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Frequency,
-					Info:       "Zone 2 Frequency 3",
-					Data: map[string]interface{}{
-						"address": 3010,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "frequency",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.frequency",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 3 Frequency 1",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -1980,30 +1045,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Frequency,
-					Info:       "Zone 3 Frequency 1",
-					Data: map[string]interface{}{
-						"address": 3012,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "frequency",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.frequency",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone Frequency 2",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -2013,30 +1061,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Frequency,
-					Info:       "Zone 3 Frequency 2",
-					Data: map[string]interface{}{
-						"address": 3014,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "frequency",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.frequency",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 3 Frequency 3",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -2046,30 +1077,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Frequency,
-					Info:       "Zone 3 Frequency 3",
-					Data: map[string]interface{}{
-						"address": 3016,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "frequency",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.frequency",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 4 Frequency 1",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -2079,30 +1093,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Frequency,
-					Info:       "Zone 4 Frequency 1",
-					Data: map[string]interface{}{
-						"address": 3018,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "frequency",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.frequency",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 4 Frequency 2",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -2112,30 +1109,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Frequency,
-					Info:       "Zone 4 Frequency 2",
-					Data: map[string]interface{}{
-						"address": 3020,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "frequency",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.frequency",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 4 Frequency 3",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -2145,30 +1125,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Current,
-					Info:       "Zone 4 Frequency 3",
-					Data: map[string]interface{}{
-						"address": 3022,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "frequency",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.power",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Total Cumulative Power",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -2178,30 +1141,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       4, // 4 16 bit words.
 				"type":        "s64",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.SItoKWhPower,
-					Info:       "Total Cumulative Power",
-					Data: map[string]interface{}{
-						"address": 5000,
-						"width":   4, // 4 16 bit words.
-						"type":    "s64",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "power",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.power",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Generated Cumulative Power", // TODO: Verify with Dave.
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -2211,30 +1157,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       4, // 4 16 bit words.
 				"type":        "s64",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.SItoKWhPower,
-					Info:       "Generated Cumulative Power",
-					Data: map[string]interface{}{
-						"address": 5004,
-						"width":   4, // 4 16 bit words.
-						"type":    "s64",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "power",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.power",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 1 Cumulative Power",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -2244,30 +1173,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       4, // 4 16 bit words.
 				"type":        "s64",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.SItoKWhPower,
-					Info:       "Zone 1 Cumulative Power",
-					Data: map[string]interface{}{
-						"address": 5008,
-						"width":   4, // 4 16 bit words.
-						"type":    "s64",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "power",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.power",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 2 Cumulative Power",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -2277,30 +1189,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       4, // 4 16 bit words.
 				"type":        "s64",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.SItoKWhPower,
-					Info:       "Zone 2 Cumulative Power",
-					Data: map[string]interface{}{
-						"address": 5012,
-						"width":   4, // 4 16 bit words.
-						"type":    "s64",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "power",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.power",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 3 Cumulative Power",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -2310,30 +1205,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       4, // 4 16 bit words.
 				"type":        "s64",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.SItoKWhPower,
-					Info:       "Zone 3 Cumulative Power",
-					Data: map[string]interface{}{
-						"address": 5016,
-						"width":   4, // 4 16 bit words.
-						"type":    "s64",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "power",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.power",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 4 Cumulative Power",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -2343,30 +1221,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       4, // 4 16 bit words.
 				"type":        "s64",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.SItoKWhPower,
-					Info:       "Zone 4 Cumulative Power",
-					Data: map[string]interface{}{
-						"address": 5020,
-						"width":   4, // 4 16 bit words.
-						"type":    "s64",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "power",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.flux",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "L1-L2 Cumulative Flux",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -2376,30 +1237,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       4, // 4 16 bit words.
 				"type":        "s64",
 			},
-			/* Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.VoltSeconds,
-					Info:       "L1-L2 Cumulative Flux",
-					Data: map[string]interface{}{
-						"address": 5024,
-						"width":   4, // 4 16 bit words.
-						"type":    "s64",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "flux",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.flux",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "L2-L3 Cumulative Flux",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -2409,30 +1253,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       4, // 4 16 bit words.
 				"type":        "s64",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.VoltSeconds,
-					Info:       "L2-L3 Cumulative Flux",
-					Data: map[string]interface{}{
-						"address": 5028,
-						"width":   4, // 4 16 bit words.
-						"type":    "s64",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "flux",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.flux",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "L3-L1 Cumulative Flux",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -2442,30 +1269,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       4, // 4 16 bit words.
 				"type":        "s64",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.VoltSeconds,
-					Info:       "L3-L1 Cumulative Flux",
-					Data: map[string]interface{}{
-						"address": 5032,
-						"width":   4, // 4 16 bit words.
-						"type":    "s64",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "flux",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.power",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 1 L1 Cumulative Power",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -2475,30 +1285,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       4, // 4 16 bit words.
 				"type":        "s64",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.SItoKWhPower,
-					Info:       "Zone 1 L1 Cumulative Power",
-					Data: map[string]interface{}{
-						"address": 5036,
-						"width":   4, // 4 16 bit words.
-						"type":    "s64",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "power",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.power",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 1 L2 Cumulative Power",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -2508,30 +1301,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       4, // 4 16 bit words.
 				"type":        "s64",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.SItoKWhPower,
-					Info:       "Zone 1 L2 Cumulative Power",
-					Data: map[string]interface{}{
-						"address": 5040,
-						"width":   4, // 4 16 bit words.
-						"type":    "s64",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "power",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.power",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 1 L3 Cumulative Power",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -2541,30 +1317,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       4, // 4 16 bit words.
 				"type":        "s64",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.SItoKWhPower,
-					Info:       "Zone 1 L3 Cumulative Power",
-					Data: map[string]interface{}{
-						"address": 5044,
-						"width":   4, // 4 16 bit words.
-						"type":    "s64",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "power",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.power",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 2 L1 Cumulative Power",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -2574,30 +1333,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       4, // 4 16 bit words.
 				"type":        "s64",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.SItoKWhPower,
-					Info:       "Zone 2 L1 Cumulative Power",
-					Data: map[string]interface{}{
-						"address": 5048,
-						"width":   4, // 4 16 bit words.
-						"type":    "s64",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "power",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.power",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 2 L2 Cumulative Power",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -2607,30 +1349,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       4, // 4 16 bit words.
 				"type":        "s64",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.SItoKWhPower,
-					Info:       "Zone 2 L2 Cumulative Power",
-					Data: map[string]interface{}{
-						"address": 5052,
-						"width":   4, // 4 16 bit words.
-						"type":    "s64",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "power",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.power",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 2 L3 Cumulative Power",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -2640,30 +1365,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       4, // 4 16 bit words.
 				"type":        "s64",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.SItoKWhPower,
-					Info:       "Zone 2 L3 Cumulative Power",
-					Data: map[string]interface{}{
-						"address": 5056,
-						"width":   4, // 4 16 bit words.
-						"type":    "s64",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "power",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.power",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 3 L1 Cumulative Power",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -2673,30 +1381,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       4, // 4 16 bit words.
 				"type":        "s64",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.SItoKWhPower,
-					Info:       "Zone 3 L1 Cumulative Power",
-					Data: map[string]interface{}{
-						"address": 5060,
-						"width":   4, // 4 16 bit words.
-						"type":    "s64",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "power",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.power",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 3 L2 Cumulative Power",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -2706,30 +1397,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       4, // 4 16 bit words.
 				"type":        "s64",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.SItoKWhPower,
-					Info:       "Zone 3 L2 Cumulative Power",
-					Data: map[string]interface{}{
-						"address": 5064,
-						"width":   4, // 4 16 bit words.
-						"type":    "s64",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "power",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.power",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 3 L3 Cumulative Power",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -2739,30 +1413,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       4, // 4 16 bit words.
 				"type":        "s64",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.SItoKWhPower,
-					Info:       "Zone 3 L3 Cumulative Power",
-					Data: map[string]interface{}{
-						"address": 5068,
-						"width":   4, // 4 16 bit words.
-						"type":    "s64",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "power",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.power",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 4 L1 Cumulative Power",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -2772,30 +1429,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       4, // 4 16 bit words.
 				"type":        "s64",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.SItoKWhPower,
-					Info:       "Zone 4 L1 Cumulative Power",
-					Data: map[string]interface{}{
-						"address": 5072,
-						"width":   4, // 4 16 bit words.
-						"type":    "s64",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "power",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.power",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 4 L2 Cumulative Power",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -2805,30 +1445,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       4, // 4 16 bit words.
 				"type":        "s64",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.SItoKWhPower,
-					Info:       "Zone 4 L2 Cumulative Power",
-					Data: map[string]interface{}{
-						"address": 5076,
-						"width":   4, // 4 16 bit words.
-						"type":    "s64",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "power",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.power",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 4 L3 Cumulative Power",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -2838,30 +1461,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       4, // 4 16 bit words.
 				"type":        "s64",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.SItoKWhPower,
-					Info:       "Zone 4 L3 Cumulative Power",
-					Data: map[string]interface{}{
-						"address": 5080,
-						"width":   4, // 4 16 bit words.
-						"type":    "s64",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "power",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.power",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Total Instantaneous Power",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -2871,30 +1477,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Power,
-					Info:       "Total Instantaneous Power",
-					Data: map[string]interface{}{
-						"address": 6000,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "power",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.power",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Generated Instantaneous Power", // TODO: Verify with Dave.
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -2904,30 +1493,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Power,
-					Info:       "Generated Instantaneous Power",
-					Data: map[string]interface{}{
-						"address": 6002,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "power",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.power",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 1 Instantaneous Power",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -2937,30 +1509,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Power,
-					Info:       "Zone 1 Instantaneous Power",
-					Data: map[string]interface{}{
-						"address": 6004,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "power",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.power",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 2 Instantaneous Power",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -2970,30 +1525,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Power,
-					Info:       "Zone 2 Instantaneous Power",
-					Data: map[string]interface{}{
-						"address": 6006,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "power",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.power",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 3 Instantaneous Power",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -3003,30 +1541,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Power,
-					Info:       "Zone 3 Instantaneous Power",
-					Data: map[string]interface{}{
-						"address": 6008,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "power",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.power",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 4 Instantaneous Power",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -3036,30 +1557,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Power,
-					Info:       "Zone 4 Instantaneous Power",
-					Data: map[string]interface{}{
-						"address": 6010,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "power",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.flux",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "L1-L2 Instantaneous Flux",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -3069,30 +1573,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Voltage,
-					Info:       "L1-L2 Instantaneous Flux",
-					Data: map[string]interface{}{
-						"address": 6012,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "flux",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.flux",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "L2-L3 Instantaneous Flux",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -3102,30 +1589,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Voltage,
-					Info:       "L2-L3 Instantaneous Flux",
-					Data: map[string]interface{}{
-						"address": 6014,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "flux",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.flux",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "L3-L1 Instantaneous Flux",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -3135,30 +1605,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Voltage,
-					Info:       "L3-L1 Instantaneous Flux",
-					Data: map[string]interface{}{
-						"address": 6016,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "flux",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.power",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 1 L1 Instantaneous Power",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -3168,30 +1621,13 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Power,
-					Info:       "Zone 1 L1 Instantaneous Power",
-					Data: map[string]interface{}{
-						"address": 6018,
-						"width":   2, // 2 16 bit words.
-						"type":    "f32",
-					},
-				},
-			},
-			Handler: &InputRegisterHandler,*/
 			Output:  "power",
 			Handler: "input_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "egauge.power",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Zone 1 L2 Instantaneous Power",
-			//Location: &sdk.Location{
-			//	Rack:  "basx-vec1",
-			//	Board: "vec",
-			//},
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
