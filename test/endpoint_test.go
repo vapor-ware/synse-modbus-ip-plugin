@@ -4,6 +4,7 @@ package testendpoints
 
 import (
 	"fmt"
+	"math/rand"
 	"testing"
 
 	"github.com/goburrow/modbus"
@@ -58,6 +59,8 @@ func TestBulkReadCoils_CoilHandlerOnly(t *testing.T) {
 				"address":     i,
 			},
 			Output: "switch",
+			//Type: "switch",
+			Handler: "coil",
 		}
 
 		// *** TODO: This looks like it probably works with all device.Handler == "coil"
@@ -100,9 +103,22 @@ func TestBulkReadCoils_CoilHandlerOnly(t *testing.T) {
 
 	*/
 
+	// Permute device order to test sort.
+	permutedDevices := make([]*sdk.Device, len(devices))
+	perm := rand.Perm(len(devices))
+	for i, v := range perm {
+		permutedDevices[v] = devices[i]
+	}
+
+	fmt.Printf("dumping permuted devices:\n")
+	for i := 0; i < len(permutedDevices); i++ {
+		fmt.Printf("device[%d]: %+v\n", i, *(permutedDevices[i]))
+	}
+
 	fmt.Printf("Calling bulk read\n")
 	// TODO: Is this call correct? Two different handlers.
-	contexts, err := modbusDevices.CoilsHandler.BulkRead(devices)
+	//contexts, err := modbusDevices.CoilsHandler.BulkRead(devices)
+	contexts, err := modbusDevices.CoilsHandler.BulkRead(permutedDevices)
 	fmt.Printf("contexts (len %d): %+v\n", len(contexts), contexts)
 	fmt.Printf("err: %v\n", err)
 	fmt.Printf("Called bulk read\n")
@@ -111,6 +127,7 @@ func TestBulkReadCoils_CoilHandlerOnly(t *testing.T) {
 	assert.NoError(t, err)
 	for i := 0; i < len(contexts); i++ {
 		fmt.Printf("contexts[%d]: %+v\n", i, contexts[i])
+		fmt.Printf("\tDevice: %T, %+v\n", contexts[i].Device, contexts[i].Device)
 		fmt.Printf("\tReading: %T, len(%d),  %+v\n", contexts[i].Reading, len(contexts[i].Reading), contexts[i].Reading)
 
 		// Dump readings.
