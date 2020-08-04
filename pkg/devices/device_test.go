@@ -2148,12 +2148,7 @@ func Test000(t *testing.T) {
 	devices := []*sdk.Device{
 		&sdk.Device{
 			//Kind:   "vem-plc.return.air.temperature.setpoint.temperature",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Return Air Temperature Setpoint",
-			//Location: &sdk.Location{
-			//	Rack:  "vem-location",
-			//	Board: "vem-plc",
-			//},
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
 				"port":        502,
@@ -2163,26 +2158,11 @@ func Test000(t *testing.T) {
 				"width":       1,
 				"type":        "s16",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					Info: "Return Air Temperature Setpoint",
-					Data: map[string]interface{}{
-						"address": 0x24,
-						"width":   1,
-						"type":    "s16",
-					},
-				},
-			},*/
 			Output: "temperature",
 		},
 		&sdk.Device{
 			//Kind:   "vem-plc.return.air.temperature",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Return Air Temperature",
-			//Location: &sdk.Location{
-			//	Rack:  "vem-location",
-			//	Board: "vem-plc",
-			//},
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
 				"port":        502,
@@ -2192,27 +2172,12 @@ func Test000(t *testing.T) {
 				"width":       1,
 				"type":        "s16",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					Info: "Return Air Temperature",
-					Data: map[string]interface{}{
-						"address": 0x0D,
-						"width":   1,
-						"type":    "s16",
-					},
-				},
-			},*/
 			Output: "temperature",
 		},
 
 		&sdk.Device{
 			//Kind:   "vem-plc.cooling.coil.leaving.air.temperature",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Cooling Coil Leaving Air Temperature",
-			//Location: &sdk.Location{
-			//	Rack:  "vem-location",
-			//	Board: "vem-plc",
-			//},
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
 				"port":        502,
@@ -2222,16 +2187,6 @@ func Test000(t *testing.T) {
 				"width":       1,
 				"type":        "s16",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					Info: "Cooling Coil Leaving Air Temperature",
-					Data: map[string]interface{}{
-						"address": 0x11,
-						"width":   1,
-						"type":    "s16",
-					},
-				},
-			},*/
 			Output: "temperature",
 		},
 	}
