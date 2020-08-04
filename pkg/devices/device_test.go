@@ -3,6 +3,7 @@ package devices
 import (
 	"testing"
 
+	modbusOutput "github.com/vapor-ware/synse-modbus-ip-plugin/pkg/outputs"
 	"github.com/vapor-ware/synse-sdk/sdk"
 	"github.com/vapor-ware/synse-sdk/sdk/output"
 )
@@ -26,6 +27,19 @@ var testData = []uint8{
 	0xd0, 0xd1, 0xd2, 0xd3, 0xd4, 0xd5, 0xd6, 0xd7, 0xd8, 0xd9, 0xda, 0xdb, 0xdc, 0xdd, 0xde, 0xdf,
 	0xe0, 0xe1, 0xe2, 0xe3, 0xe4, 0xe5, 0xe6, 0xe7, 0xe8, 0xe9, 0xea, 0xeb, 0xec, 0xed, 0xee, 0xef,
 	0xf0, 0xf1, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6, 0xf7, 0xf8, 0xf9, 0xfa, 0xfb, 0xfc, 0xfd, 0xfe, 0xff,
+}
+
+// checkOutput checks for a non-nil pointer for each device in the slice.
+// Fatal if nil.
+// Make sure Output.Get() gets a non-nil pointer to every output,
+// otherwise there is no way to get a reading.
+// TODO: sdk ticket.
+func checkDeviceOutput(t *testing.T, devices []*sdk.Device) {
+	for i := 0; i < len(devices); i++ {
+		if output.Get(devices[i].Output) == nil {
+			t.Fatalf("Nil output for device: %#v\n", devices[i])
+		}
+	}
 }
 
 // dumpDevices is a helper to dump out the devices.
@@ -568,7 +582,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "current",
+			Output:  "electric-current",
 			Handler: "input_register",
 		},
 
@@ -584,7 +598,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "current",
+			Output:  "electric-current",
 			Handler: "input_register",
 		},
 
@@ -600,7 +614,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "current",
+			Output:  "electric-current",
 			Handler: "input_register",
 		},
 
@@ -616,7 +630,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "current",
+			Output:  "electric-current",
 			Handler: "input_register",
 		},
 
@@ -632,7 +646,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "current",
+			Output:  "electric-current",
 			Handler: "input_register",
 		},
 
@@ -648,7 +662,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "current",
+			Output:  "electric-current",
 			Handler: "input_register",
 		},
 
@@ -664,7 +678,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "current",
+			Output:  "electric-current",
 			Handler: "input_register",
 		},
 
@@ -680,7 +694,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "current",
+			Output:  "electric-current",
 			Handler: "input_register",
 		},
 
@@ -696,7 +710,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "current",
+			Output:  "electric-current",
 			Handler: "input_register",
 		},
 
@@ -712,7 +726,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "current",
+			Output:  "electric-current",
 			Handler: "input_register",
 		},
 
@@ -728,7 +742,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "current",
+			Output:  "electric-current",
 			Handler: "input_register",
 		},
 
@@ -744,7 +758,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "current",
+			Output:  "electric-current",
 			Handler: "input_register",
 		},
 
@@ -760,7 +774,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "current",
+			Output:  "electric-current",
 			Handler: "input_register",
 		},
 
@@ -776,7 +790,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "current",
+			Output:  "electric-current",
 			Handler: "input_register",
 		},
 
@@ -792,7 +806,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "current",
+			Output:  "electric-current",
 			Handler: "input_register",
 		},
 
@@ -808,7 +822,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "current",
+			Output:  "electric-current",
 			Handler: "input_register",
 		},
 
@@ -824,7 +838,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "current",
+			Output:  "electric-current",
 			Handler: "input_register",
 		},
 
@@ -840,7 +854,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "current",
+			Output:  "electric-current",
 			Handler: "input_register",
 		},
 
@@ -856,7 +870,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "current",
+			Output:  "electric-current",
 			Handler: "input_register",
 		},
 
@@ -872,7 +886,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "current",
+			Output:  "electric-current",
 			Handler: "input_register",
 		},
 
@@ -888,7 +902,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "current",
+			Output:  "electric-current",
 			Handler: "input_register",
 		},
 
@@ -904,7 +918,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "current",
+			Output:  "electric-current",
 			Handler: "input_register",
 		},
 
@@ -920,7 +934,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "current",
+			Output:  "electric-current",
 			Handler: "input_register",
 		},
 
@@ -936,7 +950,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "current",
+			Output:  "electric-current",
 			Handler: "input_register",
 		},
 
@@ -1144,7 +1158,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       4, // 4 16 bit words.
 				"type":        "s64",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1160,7 +1174,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       4, // 4 16 bit words.
 				"type":        "s64",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1176,7 +1190,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       4, // 4 16 bit words.
 				"type":        "s64",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1192,7 +1206,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       4, // 4 16 bit words.
 				"type":        "s64",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1208,7 +1222,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       4, // 4 16 bit words.
 				"type":        "s64",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1224,7 +1238,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       4, // 4 16 bit words.
 				"type":        "s64",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1240,7 +1254,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       4, // 4 16 bit words.
 				"type":        "s64",
 			},
-			Output:  "flux",
+			Output:  "volt-second",
 			Handler: "input_register",
 		},
 
@@ -1256,7 +1270,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       4, // 4 16 bit words.
 				"type":        "s64",
 			},
-			Output:  "flux",
+			Output:  "volt-second",
 			Handler: "input_register",
 		},
 
@@ -1272,7 +1286,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       4, // 4 16 bit words.
 				"type":        "s64",
 			},
-			Output:  "flux",
+			Output:  "volt-second",
 			Handler: "input_register",
 		},
 
@@ -1288,7 +1302,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       4, // 4 16 bit words.
 				"type":        "s64",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1304,7 +1318,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       4, // 4 16 bit words.
 				"type":        "s64",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1320,7 +1334,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       4, // 4 16 bit words.
 				"type":        "s64",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1336,7 +1350,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       4, // 4 16 bit words.
 				"type":        "s64",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1352,7 +1366,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       4, // 4 16 bit words.
 				"type":        "s64",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1368,7 +1382,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       4, // 4 16 bit words.
 				"type":        "s64",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1384,7 +1398,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       4, // 4 16 bit words.
 				"type":        "s64",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1400,7 +1414,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       4, // 4 16 bit words.
 				"type":        "s64",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1416,7 +1430,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       4, // 4 16 bit words.
 				"type":        "s64",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1432,7 +1446,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       4, // 4 16 bit words.
 				"type":        "s64",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1448,7 +1462,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       4, // 4 16 bit words.
 				"type":        "s64",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1464,7 +1478,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       4, // 4 16 bit words.
 				"type":        "s64",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1480,7 +1494,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1496,7 +1510,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1512,7 +1526,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1528,7 +1542,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1544,7 +1558,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1560,7 +1574,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1576,7 +1590,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "flux",
+			Output:  "volt-second",
 			Handler: "input_register",
 		},
 
@@ -1592,7 +1606,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "flux",
+			Output:  "volt-second",
 			Handler: "input_register",
 		},
 
@@ -1608,7 +1622,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "flux",
+			Output:  "volt-second",
 			Handler: "input_register",
 		},
 
@@ -1624,7 +1638,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1640,7 +1654,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1656,7 +1670,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1672,7 +1686,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1688,7 +1702,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1704,7 +1718,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1720,7 +1734,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1736,7 +1750,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1752,7 +1766,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1768,7 +1782,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1784,7 +1798,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1800,7 +1814,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1816,7 +1830,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1832,7 +1846,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1848,7 +1862,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1864,7 +1878,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1880,7 +1894,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1896,7 +1910,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1912,7 +1926,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "flux",
+			Output:  "volt-second",
 			Handler: "input_register",
 		},
 
@@ -1928,7 +1942,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "flux",
+			Output:  "volt-second",
 			Handler: "input_register",
 		},
 
@@ -1944,7 +1958,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "flux",
+			Output:  "volt-second",
 			Handler: "input_register",
 		},
 
@@ -1960,7 +1974,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1976,7 +1990,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -1992,7 +2006,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -2008,7 +2022,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -2024,7 +2038,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -2040,7 +2054,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -2056,7 +2070,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -2072,7 +2086,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -2088,7 +2102,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -2104,7 +2118,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -2120,7 +2134,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 
@@ -2136,7 +2150,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"width":       2, // 2 16 bit words.
 				"type":        "f32",
 			},
-			Output:  "power",
+			Output:  "kilowatt-hour",
 			Handler: "input_register",
 		},
 	}
@@ -2423,7 +2437,8 @@ func TestVEM(t *testing.T) {
 			},
 			Handler: &HoldingRegisterHandler,*/
 			//Output:  "gallonsPerMin", // TODO: Why not spell out minute?
-			Output:  "flow",
+			//Output:  "flow",
+			Output:  "percentage",
 			Handler: "holding_register",
 		},
 
@@ -2456,8 +2471,8 @@ func TestVEM(t *testing.T) {
 				},
 			},
 			Handler: &HoldingRegisterHandler,*/
-			//Output:  "gallonsPerMin", // TODO: Why not spell out minute?
-			Output:  "flow",
+			Output: "gallonsPerMin", // TODO: Why not spell out minute?
+			//Output:  "flow",
 			Handler: "holding_register",
 		},
 
@@ -2787,7 +2802,8 @@ func TestVEM(t *testing.T) {
 				},
 			},
 			Handler: &HoldingRegisterHandler,*/
-			Output:  "gallonsPerMinute",
+			//Output:  "gallonsPerMinute",
+			Output:  "gallonsPerMin",
 			Handler: "holding_register",
 		},
 
@@ -3161,9 +3177,35 @@ func TestVEM(t *testing.T) {
 
 	egaugeDevices := getEGaugeDevices()
 
+	// Register outputs for devices without builtin outputs.
+	// outputs are defined in this plugin.
+	plugin := sdk.Plugin{}
+	/*
+		plugin, err := sdk.NewPlugin()
+		if err != nil {
+			t.Fatalf(err.Error())
+		}
+	*/
+
+	// Register output types
+	err := plugin.RegisterOutputs(
+		&modbusOutput.GallonsPerMin,
+		&modbusOutput.InchesWaterColumn,
+	)
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+
 	dumpDevices(t, registerDevices)
 	dumpDevices(t, coilDevices)
 	dumpDevices(t, egaugeDevices)
+
+	// Make sure Output.Get gets a non-nil pointer to every output,
+	// otherwise there is no way to get a reading.
+	// TODO: sdk ticket.
+	checkDeviceOutput(t, registerDevices)
+	checkDeviceOutput(t, coilDevices)
+	checkDeviceOutput(t, egaugeDevices)
 
 	t.Logf("--- Mapping bulk read (holding registers) ---")
 	bulkReadMapRegisters, keyOrderRegisters, err := MapBulkRead(registerDevices, true, false)
@@ -3402,11 +3444,11 @@ func TestVEM(t *testing.T) {
 	dumpBulkReadMap(t, bulkReadMapRegisters, keyOrderRegisters)
 
 	// TODO: Below is panicing. Likely a device is not setup correctly.
-  // TODO: We need to register the outputs in pkg/outputs/outputs.go for this test.
-  // TODO: The synse-sdk is faling silently when looking up an output by string,
-  // TODO: That should be an error at configurtation / initialization time,
-  // TODO: not a panic at runtime under MakeReading because you'll never get a
-  // TODO: reading from a synse device without an output ... Unless the device is write-only.
+	// TODO: We need to register the outputs in pkg/outputs/outputs.go for this test.
+	// TODO: The synse-sdk is faling silently when looking up an output by string,
+	// TODO: That should be an error at configurtation / initialization time,
+	// TODO: not a panic at runtime under MakeReading because you'll never get a
+	// TODO: reading from a synse device without an output ... Unless the device is write-only.
 
 	// Map the read data to the synse read contexts.
 	readContextsRegisters, err := MapBulkReadData(bulkReadMapRegisters, keyOrderRegisters)
