@@ -152,8 +152,8 @@ func UnpackReading(output *output.Output, typeName string, rawReading []byte, fa
 		return nil, nil // No reading.
 	}
 
-	//fmt.Printf("*** output: %T, %#v\n", output, output)
-	//fmt.Printf("*** data: %T, %#v\n", data, data)
+	fmt.Printf("*** output: %T, %#v\n", output, output)
+	fmt.Printf("*** data: %T, %#v\n", data, data)
 	return output.MakeReading(data), nil
 	/*
 		reading, err = output.MakeReading(data)
@@ -573,6 +573,10 @@ func MapBulkReadData(bulkReadMap map[ModbusBulkReadKey][]*ModbusBulkRead, keyOrd
 					log.Debugf("rawReading: len: %v, %x", len(rawReading), rawReading)
 
 					//reading, err = UnpackReading(theOutput, outputData.Type, rawReading, k.FailOnError)
+					// TODO: Remove
+					if theOutput == nil {
+						fmt.Printf("*** nil output, deviceData: %#v\n", deviceData)
+					}
 					reading, err = UnpackReading(theOutput, deviceData.Type, rawReading, k.FailOnError)
 					if err != nil {
 						return nil, err

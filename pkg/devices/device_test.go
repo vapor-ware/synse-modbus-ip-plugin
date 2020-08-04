@@ -175,7 +175,7 @@ const defaultTimeout = "10s"
 //   the field.
 // The current number of bulk reads required per EGauge is 10.
 // FUTURE: Six egauges, one per wedge. Rack will be different for each one.
-// TODO: We probably need the Type field in the Devices below.
+// TODO: We probably need the Type field in the Devices below. (???)
 func getEGaugeDevices() (devices []*sdk.Device) {
 
 	// Create devices for testing.
@@ -548,6 +548,9 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"port":        egaugePort,
 				"timeout":     defaultTimeout,
 				"failOnError": false,
+				"address":     1510,
+				"width":       2, // 2 16 bit words.
+				"type":        "f32",
 			},
 			Output:  "frequency",
 			Handler: "input_register",
@@ -1921,6 +1924,9 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 				"port":        egaugePort,
 				"timeout":     defaultTimeout,
 				"failOnError": false,
+				"address":     7016,
+				"width":       2, // 2 16 bit words.
+				"type":        "f32",
 			},
 			Output:  "flux",
 			Handler: "input_register",
@@ -2416,7 +2422,8 @@ func TestVEM(t *testing.T) {
 				},
 			},
 			Handler: &HoldingRegisterHandler,*/
-			Output:  "gallonsPerMin", // TODO: Why not spell out minute?
+			//Output:  "gallonsPerMin", // TODO: Why not spell out minute?
+			Output:  "flow",
 			Handler: "holding_register",
 		},
 
@@ -2449,7 +2456,8 @@ func TestVEM(t *testing.T) {
 				},
 			},
 			Handler: &HoldingRegisterHandler,*/
-			Output:  "gallonsPerMin", // TODO: Why not spell out minute?
+			//Output:  "gallonsPerMin", // TODO: Why not spell out minute?
+			Output:  "flow",
 			Handler: "holding_register",
 		},
 
@@ -3275,10 +3283,16 @@ func TestVEM(t *testing.T) {
 	if readInput.RegisterCount != 10 {
 		t.Fatalf("expected registerCount d10, got d%d", readInput.RegisterCount)
 	}
-	// TODO: Something to fix here. got 7. Something with the EGauges devives/registers (Are they all there? Could be a gap?).
-	//if len(readInput.Devices) != 5 {
-	//	t.Fatalf("expected 5 devices, got %v", len(readInput.Devices))
-	//}
+
+	t.Logf("*** DUMPING BAD DEVICES ***\n")
+
+	for i := 0; i < len(readInput.Devices); i++ {
+		t.Logf("*** device[%d]: %#v\n", i, readInput.Devices[i])
+	}
+
+	if len(readInput.Devices) != 5 {
+		t.Fatalf("expected 5 devices, got %v", len(readInput.Devices))
+	}
 
 	readInput = readInputs[1]
 	if readInput.StartRegister != 500 {
@@ -3306,14 +3320,12 @@ func TestVEM(t *testing.T) {
 	if readInput.StartRegister != 1500 {
 		t.Fatalf("expected startRegister 1500, got d%d", readInput.StartRegister)
 	}
-	// TODO: Got 10 here.
-	//if readInput.RegisterCount != 12 {
-	//	t.Fatalf("expected registerCount d12, got d%d", readInput.RegisterCount)
-	//}
-	// TODO: Got 5 here.
-	//if len(readInput.Devices) != 6 {
-	//	t.Fatalf("expected 6 devices, got %v", len(readInput.Devices))
-	//}
+	if readInput.RegisterCount != 12 {
+		t.Fatalf("expected registerCount d12, got d%d", readInput.RegisterCount)
+	}
+	if len(readInput.Devices) != 6 {
+		t.Fatalf("expected 6 devices, got %v", len(readInput.Devices))
+	}
 
 	readInput = readInputs[4]
 	if readInput.StartRegister != 2000 {
@@ -3378,273 +3390,277 @@ func TestVEM(t *testing.T) {
 		t.Fatalf("expected registerCount d42, got d%d", readInput.RegisterCount)
 	}
 	// TODO: expected 21 devices, got 20
-	//if len(readInput.Devices) != 21 {
-	//	t.Fatalf("expected 21 devices, got %v", len(readInput.Devices))
-	//}
+	if len(readInput.Devices) != 21 {
+		t.Fatalf("expected 21 devices, got %v", len(readInput.Devices))
+	}
 
 	// Populate the maps to simulate readings and dump.
 
 	// Holding Registers.
 	populateBulkReadMap(t, bulkReadMapRegisters, keyOrderRegisters)
+	t.Logf("*** PANIC BELOW*** \n")
 	dumpBulkReadMap(t, bulkReadMapRegisters, keyOrderRegisters)
 
 	// TODO: Below is panicing. Likely a device is not setup correctly.
+  // TODO: We need to register the outputs in pkg/outputs/outputs.go for this test.
+  // TODO: The synse-sdk is faling silently when looking up an output by string,
+  // TODO: That should be an error at configurtation / initialization time,
+  // TODO: not a panic at runtime under MakeReading because you'll never get a
+  // TODO: reading from a synse device without an output ... Unless the device is write-only.
+
+	// Map the read data to the synse read contexts.
+	readContextsRegisters, err := MapBulkReadData(bulkReadMapRegisters, keyOrderRegisters)
+	if err != nil {
+		t.Fatalf("Failed to map bulk read data, error: %v", err.Error())
+	}
+	dumpReadContexts(t, readContextsRegisters)
+
+	// Verify read contexts and each reading.
+	// 17 for VEM PLC.
+	if len(readContextsRegisters) != 17 {
+		t.Fatalf("expected 17 readContexts, got %v", len(readContextsRegisters))
+	}
+
+	if len(readContextsRegisters[0].Reading) != 1 {
+		t.Fatalf("expected 1 reading in readContextsRegisters[0], got %v", len(readContextsRegisters[0].Reading))
+	}
 
 	/*
 
+		// Expected holding register readings from the VEM PLC.
+		expectedRegisterReadings := []*sdk.Reading{
+
+			&sdk.Reading{
+				Type:  "temperature",
+				Info:  "HRC Mixed Fluid Temperature",
+				Unit:  sdk.Unit{Name: "celsius", Symbol: "C"},
+				Value: -17.72222222222222,
+			},
+
+			&sdk.Reading{
+				Type:  "temperature",
+				Info:  "Loop Entering Fluid Temperature",
+				Unit:  sdk.Unit{Name: "celsius", Symbol: "C"},
+				Value: 10.833333333333334,
+			},
+
+			&sdk.Reading{
+				Type:  "flowGpm",
+				Info:  "Minimum Flow Control Valve2 Feedback",
+				Unit:  sdk.Unit{Name: "gallons per minute", Symbol: "gpm"},
+				Value: int16(2057),
+			},
+
+			&sdk.Reading{
+				Type:  "flowGpm",
+				Info:  "System Fluid Flow",
+				Unit:  sdk.Unit{Name: "gallons per minute", Symbol: "gpm"},
+				Value: int16(2571),
+			},
+
+			&sdk.Reading{
+				Type:  "InWCThousanths",
+				Info:  "Server Rack Differential Pressure",
+				Unit:  sdk.Unit{Name: "inches of water column", Symbol: "InWC"},
+				Value: 3.085,
+			},
+
+			&sdk.Reading{
+				Type:  "temperature",
+				Info:  "System Leaving Fluid Temperature",
+				Unit:  sdk.Unit{Name: "celsius", Symbol: "C"},
+				Value: 239.27777777777777,
+			},
+
+			&sdk.Reading{
+				Type:  "temperature",
+				Info:  "Return Air Temperature",
+				Unit:  sdk.Unit{Name: "celsius", Symbol: "C"},
+				Value: 324.9444444444445,
+			},
+
+			&sdk.Reading{
+				Type:  "temperature",
+				Info:  "Outdoor Air Temperature",
+				Unit:  sdk.Unit{Name: "celsius", Symbol: "C"},
+				Value: 382.05555555555554,
+			},
+
+			&sdk.Reading{
+				Type:  "temperature",
+				Info:  "Cooling Coil Leaving Air Temperature",
+				Unit:  sdk.Unit{Name: "celsius", Symbol: "C"},
+				Value: 439.1666666666667,
+			},
+
+			&sdk.Reading{
+				Type:  "psiTenths",
+				Info:  "DX Discharge Gas Pressure",
+				Unit:  sdk.Unit{Name: "pounds per square inch", Symbol: "psi"},
+				Value: 1182.3,
+			},
+
+			&sdk.Reading{
+				Type:  "temperature",
+				Info:  "Return Air Temperature Setpoint",
+				Unit:  sdk.Unit{Name: "celsius", Symbol: "C"},
+				Value: 981.7222222222222,
+			},
+
+			&sdk.Reading{
+				Type:  "fan_speed_percent",
+				Info:  "HRF Speed Command",
+				Unit:  sdk.Unit{Name: "percent", Symbol: "%"},
+				Value: uint16(0x5455),
+			},
+
+			&sdk.Reading{
+				Type:  "fan_speed_percent",
+				Info:  "VEM Fan Speed Control",
+				Unit:  sdk.Unit{Name: "percent", Symbol: "%"},
+				Value: int16(22103),
+			},
+
+			&sdk.Reading{
+				Type:  "flowGpmTenths",
+				Info:  "Active Flow Setpoint",
+				Unit:  sdk.Unit{Name: "gallons per minute", Symbol: "gpm"},
+				Value: 2261.7000000000003,
+			},
+
+			&sdk.Reading{
+				Type:  "fan_speed_percent",
+				Info:  "VEM Fan Speed Actual",
+				Unit:  sdk.Unit{Name: "percent", Symbol: "%"},
+				Value: int16(25187),
+			},
+
+			&sdk.Reading{
+				Type:  "flowGpmTenths",
+				Info:  "Total System Flow",
+				Unit:  sdk.Unit{Name: "gallons per minute", Symbol: "gpm"},
+				Value: 2570.1000000000004,
+			},
+
+			&sdk.Reading{
+				Type:  "fan_speed_percent_tenths",
+				Info:  "VEM Fan Speed Minimum",
+				Unit:  sdk.Unit{Name: "percent", Symbol: "%"},
+				Value: 3238.3,
+			},
+		}
+		t.Logf("expectedRegisterReadings: %#v", expectedRegisterReadings)
+
+		// Get the actual readings in a slice. Verify readings are as expected.
+		var actualRegisterReadings []*sdk.Reading
+		for i := 0; i < len(readContextsRegisters); i++ {
+			actualRegisterReadings = append(actualRegisterReadings, readContextsRegisters[i].Reading[0])
+		}
+
+		dumpReadings(t, actualRegisterReadings)
+		verifyReadings(t, expectedRegisterReadings, actualRegisterReadings)
+
+		// Coils
+		populateBulkReadMap(t, bulkReadMapCoils, keyOrderCoils)
+		dumpBulkReadMap(t, bulkReadMapCoils, keyOrderCoils)
+
 		// Map the read data to the synse read contexts.
-		readContextsRegisters, err := MapBulkReadData(bulkReadMapRegisters, keyOrderRegisters)
+		readContextsCoils, err := MapBulkReadData(bulkReadMapCoils, keyOrderCoils)
 		if err != nil {
 			t.Fatalf("Failed to map bulk read data, error: %v", err.Error())
 		}
-		dumpReadContexts(t, readContextsRegisters)
+		dumpReadContexts(t, readContextsCoils)
 
 		// Verify read contexts and each reading.
-		// 17 for VEM PLC.
-		if len(readContextsRegisters) != 17 {
-			t.Fatalf("expected 17 readContexts, got %v", len(readContextsRegisters))
+		if len(readContextsCoils) != 8 {
+			t.Fatalf("expected 8 readContexts, got %v", len(readContextsCoils))
 		}
 
-		if len(readContextsRegisters[0].Reading) != 1 {
-			t.Fatalf("expected 1 reading in readContextsRegisters[0], got %v", len(readContextsRegisters[0].Reading))
+		// All coils fit in one modbus read call.
+		if len(readContextsCoils[0].Reading) != 1 {
+			t.Fatalf("expected 1 reading in readContextsCoils[0], got %v", len(readContextsCoils[0].Reading))
 		}
 
-		/*
+		// Expected coil readings for the VEM PLC.
+		expectedCoilReadings := []*sdk.Reading{
 
-			// Expected holding register readings from the VEM PLC.
-			expectedRegisterReadings := []*sdk.Reading{
+			&sdk.Reading{
+				Type:  "switch",
+				Info:  "BMS Start",
+				Unit:  sdk.Unit{Name: "", Symbol: ""},
+				Value: false,
+			},
 
-				&sdk.Reading{
-					Type:  "temperature",
-					Info:  "HRC Mixed Fluid Temperature",
-					Unit:  sdk.Unit{Name: "celsius", Symbol: "C"},
-					Value: -17.72222222222222,
-				},
+			&sdk.Reading{
+				Type:  "switch",
+				Info:  "Compressor Bank A in Safety Shutdown",
+				Unit:  sdk.Unit{Name: "", Symbol: ""},
+				Value: false,
+			},
 
-				&sdk.Reading{
-					Type:  "temperature",
-					Info:  "Loop Entering Fluid Temperature",
-					Unit:  sdk.Unit{Name: "celsius", Symbol: "C"},
-					Value: 10.833333333333334,
-				},
+			&sdk.Reading{
+				Type:  "switch",
+				Info:  "Compressor Bank B in Safety Shutdown",
+				Unit:  sdk.Unit{Name: "", Symbol: ""},
+				Value: false,
+			},
 
-				&sdk.Reading{
-					Type:  "flowGpm",
-					Info:  "Minimum Flow Control Valve2 Feedback",
-					Unit:  sdk.Unit{Name: "gallons per minute", Symbol: "gpm"},
-					Value: int16(2057),
-				},
+			&sdk.Reading{
+				Timestamp: "2019-01-25T02:40:25.062928076Z",
+				Type:      "switch",
+				Info:      "System Mode Stage3",
+				Unit:      sdk.Unit{Name: "", Symbol: ""},
+				Value:     true,
+			},
 
-				&sdk.Reading{
-					Type:  "flowGpm",
-					Info:  "System Fluid Flow",
-					Unit:  sdk.Unit{Name: "gallons per minute", Symbol: "gpm"},
-					Value: int16(2571),
-				},
+			&sdk.Reading{
+				Type:  "switch",
+				Info:  "System Mode Stage2",
+				Unit:  sdk.Unit{Name: "", Symbol: ""},
+				Value: false,
+			},
 
-				&sdk.Reading{
-					Type:  "InWCThousanths",
-					Info:  "Server Rack Differential Pressure",
-					Unit:  sdk.Unit{Name: "inches of water column", Symbol: "InWC"},
-					Value: 3.085,
-				},
+			&sdk.Reading{
+				Type:  "switch",
+				Info:  "BMS Keep Alive",
+				Unit:  sdk.Unit{Name: "", Symbol: ""},
+				Value: false,
+			},
 
-				&sdk.Reading{
-					Type:  "temperature",
-					Info:  "System Leaving Fluid Temperature",
-					Unit:  sdk.Unit{Name: "celsius", Symbol: "C"},
-					Value: 239.27777777777777,
-				},
+			&sdk.Reading{
+				Type:  "switch",
+				Info:  "Compressor Stage2",
+				Unit:  sdk.Unit{Name: "", Symbol: ""},
+				Value: false,
+			},
 
-				&sdk.Reading{
-					Type:  "temperature",
-					Info:  "Return Air Temperature",
-					Unit:  sdk.Unit{Name: "celsius", Symbol: "C"},
-					Value: 324.9444444444445,
-				},
+			&sdk.Reading{
+				Type:  "switch",
+				Info:  "Compressor Stage1",
+				Unit:  sdk.Unit{Name: "", Symbol: ""},
+				Value: true,
+			},
+		}
 
-				&sdk.Reading{
-					Type:  "temperature",
-					Info:  "Outdoor Air Temperature",
-					Unit:  sdk.Unit{Name: "celsius", Symbol: "C"},
-					Value: 382.05555555555554,
-				},
+		// Get the actual readings in a slice. Verify readings are as expected.
+		var actualCoilReadings []*sdk.Reading
+		for i := 0; i < len(readContextsCoils); i++ {
+			actualCoilReadings = append(actualCoilReadings, readContextsCoils[i].Reading[0])
+		}
 
-				&sdk.Reading{
-					Type:  "temperature",
-					Info:  "Cooling Coil Leaving Air Temperature",
-					Unit:  sdk.Unit{Name: "celsius", Symbol: "C"},
-					Value: 439.1666666666667,
-				},
+		dumpReadings(t, actualCoilReadings)
+		verifyReadings(t, expectedCoilReadings, actualCoilReadings)
 
-				&sdk.Reading{
-					Type:  "psiTenths",
-					Info:  "DX Discharge Gas Pressure",
-					Unit:  sdk.Unit{Name: "pounds per square inch", Symbol: "psi"},
-					Value: 1182.3,
-				},
+		// Input Registers.
+		populateBulkReadMap(t, bulkReadMapInput, keyOrderInput)
+		dumpBulkReadMap(t, bulkReadMapInput, keyOrderInput)
 
-				&sdk.Reading{
-					Type:  "temperature",
-					Info:  "Return Air Temperature Setpoint",
-					Unit:  sdk.Unit{Name: "celsius", Symbol: "C"},
-					Value: 981.7222222222222,
-				},
-
-				&sdk.Reading{
-					Type:  "fan_speed_percent",
-					Info:  "HRF Speed Command",
-					Unit:  sdk.Unit{Name: "percent", Symbol: "%"},
-					Value: uint16(0x5455),
-				},
-
-				&sdk.Reading{
-					Type:  "fan_speed_percent",
-					Info:  "VEM Fan Speed Control",
-					Unit:  sdk.Unit{Name: "percent", Symbol: "%"},
-					Value: int16(22103),
-				},
-
-				&sdk.Reading{
-					Type:  "flowGpmTenths",
-					Info:  "Active Flow Setpoint",
-					Unit:  sdk.Unit{Name: "gallons per minute", Symbol: "gpm"},
-					Value: 2261.7000000000003,
-				},
-
-				&sdk.Reading{
-					Type:  "fan_speed_percent",
-					Info:  "VEM Fan Speed Actual",
-					Unit:  sdk.Unit{Name: "percent", Symbol: "%"},
-					Value: int16(25187),
-				},
-
-				&sdk.Reading{
-					Type:  "flowGpmTenths",
-					Info:  "Total System Flow",
-					Unit:  sdk.Unit{Name: "gallons per minute", Symbol: "gpm"},
-					Value: 2570.1000000000004,
-				},
-
-				&sdk.Reading{
-					Type:  "fan_speed_percent_tenths",
-					Info:  "VEM Fan Speed Minimum",
-					Unit:  sdk.Unit{Name: "percent", Symbol: "%"},
-					Value: 3238.3,
-				},
-			}
-			t.Logf("expectedRegisterReadings: %#v", expectedRegisterReadings)
-
-			// Get the actual readings in a slice. Verify readings are as expected.
-			var actualRegisterReadings []*sdk.Reading
-			for i := 0; i < len(readContextsRegisters); i++ {
-				actualRegisterReadings = append(actualRegisterReadings, readContextsRegisters[i].Reading[0])
-			}
-
-			dumpReadings(t, actualRegisterReadings)
-			verifyReadings(t, expectedRegisterReadings, actualRegisterReadings)
-
-			// Coils
-			populateBulkReadMap(t, bulkReadMapCoils, keyOrderCoils)
-			dumpBulkReadMap(t, bulkReadMapCoils, keyOrderCoils)
-
-			// Map the read data to the synse read contexts.
-			readContextsCoils, err := MapBulkReadData(bulkReadMapCoils, keyOrderCoils)
-			if err != nil {
-				t.Fatalf("Failed to map bulk read data, error: %v", err.Error())
-			}
-			dumpReadContexts(t, readContextsCoils)
-
-			// Verify read contexts and each reading.
-			if len(readContextsCoils) != 8 {
-				t.Fatalf("expected 8 readContexts, got %v", len(readContextsCoils))
-			}
-
-			// All coils fit in one modbus read call.
-			if len(readContextsCoils[0].Reading) != 1 {
-				t.Fatalf("expected 1 reading in readContextsCoils[0], got %v", len(readContextsCoils[0].Reading))
-			}
-
-			// Expected coil readings for the VEM PLC.
-			expectedCoilReadings := []*sdk.Reading{
-
-				&sdk.Reading{
-					Type:  "switch",
-					Info:  "BMS Start",
-					Unit:  sdk.Unit{Name: "", Symbol: ""},
-					Value: false,
-				},
-
-				&sdk.Reading{
-					Type:  "switch",
-					Info:  "Compressor Bank A in Safety Shutdown",
-					Unit:  sdk.Unit{Name: "", Symbol: ""},
-					Value: false,
-				},
-
-				&sdk.Reading{
-					Type:  "switch",
-					Info:  "Compressor Bank B in Safety Shutdown",
-					Unit:  sdk.Unit{Name: "", Symbol: ""},
-					Value: false,
-				},
-
-				&sdk.Reading{
-					Timestamp: "2019-01-25T02:40:25.062928076Z",
-					Type:      "switch",
-					Info:      "System Mode Stage3",
-					Unit:      sdk.Unit{Name: "", Symbol: ""},
-					Value:     true,
-				},
-
-				&sdk.Reading{
-					Type:  "switch",
-					Info:  "System Mode Stage2",
-					Unit:  sdk.Unit{Name: "", Symbol: ""},
-					Value: false,
-				},
-
-				&sdk.Reading{
-					Type:  "switch",
-					Info:  "BMS Keep Alive",
-					Unit:  sdk.Unit{Name: "", Symbol: ""},
-					Value: false,
-				},
-
-				&sdk.Reading{
-					Type:  "switch",
-					Info:  "Compressor Stage2",
-					Unit:  sdk.Unit{Name: "", Symbol: ""},
-					Value: false,
-				},
-
-				&sdk.Reading{
-					Type:  "switch",
-					Info:  "Compressor Stage1",
-					Unit:  sdk.Unit{Name: "", Symbol: ""},
-					Value: true,
-				},
-			}
-
-			// Get the actual readings in a slice. Verify readings are as expected.
-			var actualCoilReadings []*sdk.Reading
-			for i := 0; i < len(readContextsCoils); i++ {
-				actualCoilReadings = append(actualCoilReadings, readContextsCoils[i].Reading[0])
-			}
-
-			dumpReadings(t, actualCoilReadings)
-			verifyReadings(t, expectedCoilReadings, actualCoilReadings)
-
-			// Input Registers.
-			populateBulkReadMap(t, bulkReadMapInput, keyOrderInput)
-			dumpBulkReadMap(t, bulkReadMapInput, keyOrderInput)
-
-			// Map the read data to the synse read contexts.
-			readContextsInput, err := MapBulkReadData(bulkReadMapInput, keyOrderInput)
-			if err != nil {
-				t.Fatalf("Failed to map bulk read data, error: %v", err.Error())
-			}
-			dumpReadContexts(t, readContextsInput)
+		// Map the read data to the synse read contexts.
+		readContextsInput, err := MapBulkReadData(bulkReadMapInput, keyOrderInput)
+		if err != nil {
+			t.Fatalf("Failed to map bulk read data, error: %v", err.Error())
+		}
+		dumpReadContexts(t, readContextsInput)
 
 	*/
 
