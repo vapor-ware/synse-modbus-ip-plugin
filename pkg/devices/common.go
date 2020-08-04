@@ -16,6 +16,9 @@ import (
 	"github.com/vapor-ware/synse-sdk/sdk/output"
 )
 
+// TODO: We need to use MaximumCoilCount.
+// TODO: We need read only coil and holding register.
+
 /*
 	"errors"
 	"fmt"
@@ -149,6 +152,8 @@ func UnpackReading(output *output.Output, typeName string, rawReading []byte, fa
 		return nil, nil // No reading.
 	}
 
+	//fmt.Printf("*** output: %T, %#v\n", output, output)
+	//fmt.Printf("*** data: %T, %#v\n", data, data)
 	return output.MakeReading(data), nil
 	/*
 		reading, err = output.MakeReading(data)

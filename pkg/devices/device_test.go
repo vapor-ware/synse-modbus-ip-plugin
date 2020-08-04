@@ -2140,8 +2140,6 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 ///////////////////////////////////////////////////////////////////
 // Tests
 
-/*
-
 // Test000 was the initial test for getting this working.
 func Test000(t *testing.T) {
 	t.Logf("Test000 start")
@@ -2149,20 +2147,23 @@ func Test000(t *testing.T) {
 	// Create devices for testing.
 	devices := []*sdk.Device{
 		&sdk.Device{
-			Kind:   "vem-plc.return.air.temperature.setpoint.temperature",
-			Plugin: "synse-modbus-ip-plugin",
-			Info:   "Return Air Temperature Setpoint",
-			Location: &sdk.Location{
-				Rack:  "vem-location",
-				Board: "vem-plc",
-			},
+			//Kind:   "vem-plc.return.air.temperature.setpoint.temperature",
+			//Plugin: "synse-modbus-ip-plugin",
+			Info: "Return Air Temperature Setpoint",
+			//Location: &sdk.Location{
+			//	Rack:  "vem-location",
+			//	Board: "vem-plc",
+			//},
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
 				"port":        502,
 				"timeout":     "10s",
 				"failOnError": false,
+				"address":     0x24,
+				"width":       1,
+				"type":        "s16",
 			},
-			Outputs: []*sdk.Output{
+			/*Outputs: []*sdk.Output{
 				&sdk.Output{
 					Info: "Return Air Temperature Setpoint",
 					Data: map[string]interface{}{
@@ -2171,23 +2172,27 @@ func Test000(t *testing.T) {
 						"type":    "s16",
 					},
 				},
-			},
+			},*/
+			Output: "temperature",
 		},
 		&sdk.Device{
-			Kind:   "vem-plc.return.air.temperature",
-			Plugin: "synse-modbus-ip-plugin",
-			Info:   "Return Air Temperature",
-			Location: &sdk.Location{
-				Rack:  "vem-location",
-				Board: "vem-plc",
-			},
+			//Kind:   "vem-plc.return.air.temperature",
+			//Plugin: "synse-modbus-ip-plugin",
+			Info: "Return Air Temperature",
+			//Location: &sdk.Location{
+			//	Rack:  "vem-location",
+			//	Board: "vem-plc",
+			//},
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
 				"port":        502,
 				"timeout":     "10s",
 				"failOnError": false,
+				"address":     0x0D,
+				"width":       1,
+				"type":        "s16",
 			},
-			Outputs: []*sdk.Output{
+			/*Outputs: []*sdk.Output{
 				&sdk.Output{
 					Info: "Return Air Temperature",
 					Data: map[string]interface{}{
@@ -2196,24 +2201,28 @@ func Test000(t *testing.T) {
 						"type":    "s16",
 					},
 				},
-			},
+			},*/
+			Output: "temperature",
 		},
 
 		&sdk.Device{
-			Kind:   "vem-plc.cooling.coil.leaving.air.temperature",
-			Plugin: "synse-modbus-ip-plugin",
-			Info:   "Cooling Coil Leaving Air Temperature",
-			Location: &sdk.Location{
-				Rack:  "vem-location",
-				Board: "vem-plc",
-			},
+			//Kind:   "vem-plc.cooling.coil.leaving.air.temperature",
+			//Plugin: "synse-modbus-ip-plugin",
+			Info: "Cooling Coil Leaving Air Temperature",
+			//Location: &sdk.Location{
+			//	Rack:  "vem-location",
+			//	Board: "vem-plc",
+			//},
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
 				"port":        502,
 				"timeout":     "10s",
 				"failOnError": false,
+				"address":     0x11,
+				"width":       1,
+				"type":        "s16",
 			},
-			Outputs: []*sdk.Output{
+			/*Outputs: []*sdk.Output{
 				&sdk.Output{
 					Info: "Cooling Coil Leaving Air Temperature",
 					Data: map[string]interface{}{
@@ -2222,7 +2231,8 @@ func Test000(t *testing.T) {
 						"type":    "s16",
 					},
 				},
-			},
+			},*/
+			Output: "temperature",
 		},
 	}
 
