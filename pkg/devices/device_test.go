@@ -166,8 +166,8 @@ func verifyReadings(t *testing.T, expected []*output.Reading, actual []*output.R
 			}*/
 
 		// This did work for the first device.
-    // TODO: This is failing because the expected unit changed for this device.
-    // device_test.go:170: reading[2].Unit. expected: output.Unit, {gallons per minute gpm}, actual: output.Unit, {percent %}
+		// TODO: This is failing because the expected unit changed for this device.
+		// device_test.go:170: reading[2].Unit. expected: output.Unit, {gallons per minute gpm}, actual: output.Unit, {percent %}
 		if *(*(expected[i])).Unit != *(*reading).Unit {
 			t.Fatalf("reading[%v].Unit. expected: %T, %v, actual: %T, %v", i,
 				*(*(expected[i])).Unit,
@@ -3526,7 +3526,11 @@ func TestVEM(t *testing.T) {
 		&output.Reading{
 			//Type:  "flowGpm",
 			//Info:  "Minimum Flow Control Valve2 Feedback",
-			Unit:  &output.Unit{Name: "gallons per minute", Symbol: "gpm"},
+			// TODO: Pretty sure this changed to percentage: Unit:  &output.Unit{Name: "gallons per minute", Symbol: "gpm"},
+
+			// TODO: Confusing is the output string called output is percentage when the reading's output string is precent.
+			// TODO: Happens elsewhere.
+			Unit:  &output.Unit{Name: "percent", Symbol: "%"},
 			Value: int16(2057),
 		},
 
@@ -3540,7 +3544,8 @@ func TestVEM(t *testing.T) {
 		&output.Reading{
 			//Type:  "InWCThousanths",
 			//Info:  "Server Rack Differential Pressure",
-			Unit:  &output.Unit{Name: "inches of water column", Symbol: "InWC"},
+			// Synse v3 change: Unit:  &output.Unit{Name: "inches of water column", Symbol: "InWC"},
+			Unit:  &output.Unit{Name: "inches of water column", Symbol: "inch wc"},
 			Value: 3.085,
 		},
 
@@ -3635,10 +3640,10 @@ func TestVEM(t *testing.T) {
 		actualRegisterReadings = append(actualRegisterReadings, readContextsRegisters[i].Reading[0])
 	}
 
-	t.Logf("*** Dumping acutalRegisterReadingsi start\n")
+	t.Logf("*** Dumping actualRegisterReadings start\n")
 	dumpReadings(t, actualRegisterReadings)
 	verifyReadings(t, expectedRegisterReadings, actualRegisterReadings)
-	t.Logf("*** Dumping acutalRegisterReadingsi end\n")
+	t.Logf("*** Dumping actualRegisterReadings end\n")
 
 	// Coils
 	populateBulkReadMap(t, bulkReadMapCoils, keyOrderCoils)
@@ -3728,7 +3733,11 @@ func TestVEM(t *testing.T) {
 		actualCoilReadings = append(actualCoilReadings, readContextsCoils[i].Reading[0])
 	}
 
+
 	dumpReadings(t, actualCoilReadings)
+
+  t.Logf("*** DIES HERE ***\n") // expected output is nil
+
 	verifyReadings(t, expectedCoilReadings, actualCoilReadings)
 
 	// Input Registers.
