@@ -5,11 +5,14 @@ import (
 
 	modbusOutput "github.com/vapor-ware/synse-modbus-ip-plugin/pkg/outputs"
 	"github.com/vapor-ware/synse-sdk/sdk"
+	"github.com/vapor-ware/synse-sdk/sdk/funcs"
+	//"github.com/vapor-ware/synse-sdk/sdk/config"
 	"github.com/vapor-ware/synse-sdk/sdk/output"
 )
 
 // testData for raw data from modbus.
 // Each data point is the offset index so that we can see that we have the correct offsets.
+// Holding register 1 gets 0x00, 0x01 because holding register 0 is not read.
 var testData = []uint8{
 	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
 	0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
@@ -125,7 +128,14 @@ func populateBulkReadMap(t *testing.T, bulkReadMap map[ModbusBulkReadKey][]*Modb
 }
 
 // verifyReadings verifies that the expected slice of readings are the same as
-// the actual readings. Order matters.
+// the actual raw nmodbus readings. Order matters.
+// There is a caveat here. For synse v2 scaling and unit conversions were
+// performed by the sdk for this test. For synse v3, these are called
+// Transformers and are performed by the synse v3 scheduler after the reading is
+// retrieved from the plugin. The code that does this is here:
+// https://github.com/vapor-ware/synse-sdk/blob/daad6cb4f63a975772e0584783ca7c7e5e6823f6/sdk/scheduler.go#L620-L626
+// In the end it makes this test simpler because we only need to verify the raw
+// int16/uint16 modbus readings rather than modified floats.
 //func verifyReadings(t *testing.T, expected []*output.Reading, actual []*sdk.Reading) {
 func verifyReadings(t *testing.T, expected []*output.Reading, actual []*output.Reading) {
 
@@ -147,11 +157,13 @@ func verifyReadings(t *testing.T, expected []*output.Reading, actual []*output.R
 	for i := 0; i < expectedLen; i++ {
 		reading := actual[i]
 
-		// TODO: Type should be validated and needs to be setup in the test devices.
+		// TODO: Should type should be validated and needs to be setup in the test devices?
 		// Validate expected versus actual.
 		//if (*(expected[i])).Type != (*reading).Type {
 		//	t.Fatalf("reading[%v].Type. expected: %v, actual: %v", i, (*(expected[i])).Type, (*(reading)).Type)
 		//}
+
+		// TODO: Leave this here. Info was removed from the reading in synse v3, but it should be put back.
 		//if (*(expected[i])).Info != (*reading).Info {
 		//	t.Fatalf("reading[%v].Info. expected: %v, actual: %v", i, (*(expected[i])).Info, (*(reading)).Info)
 		//}
@@ -165,13 +177,14 @@ func verifyReadings(t *testing.T, expected []*output.Reading, actual []*output.R
 					(*(reading)).Unit)
 			}*/
 
-		// This did work for the first device.
-		// TODO: This is failing because the expected unit changed for this device.
+		// This did work for the first device. (holding register)
+		// DONE: This is failing because the expected unit changed for this device.
 		// device_test.go:170: reading[2].Unit. expected: output.Unit, {gallons per minute gpm}, actual: output.Unit, {percent %}
 
+		// Validate reading unit.
 		// Coils have typed nil readings, so check for that before dereferencing.
-		t.Logf("expected[%d].Unit: %T, %#v, actual[%d].Unit: %T, %#v\n",
-			i, expected[i].Unit, expected[i].Unit, i, actual[i].Unit, actual[i].Unit)
+		//t.Logf("expected[%d].Unit: %T, %#v, actual[%d].Unit: %T, %#v\n",
+		//		i, expected[i].Unit, expected[i].Unit, i, actual[i].Unit, actual[i].Unit)
 
 		// If both expected and actual units are nil, do not dereference and pass unit verification.
 		// If one is nil and not the other, dump and fail verification.
@@ -192,18 +205,18 @@ func verifyReadings(t *testing.T, expected []*output.Reading, actual []*output.R
 				i, expected[i].Unit, i, actual[i].Unit)
 		}
 
-		/*
-			    // TODO: Pretty sure we need a transform based on the output to fix this.
-			    // Meaning the device is not setup correctly yet for synse v3.
-					if (*(expected[i])).Value != (*reading).Value {
-						t.Fatalf("reading[%v].Value. expected: %v type %T, actual: %v type %T",
-							i,
-							(*(expected[i])).Value,
-							(*(expected[i])).Value,
-							(*reading).Value,
-							(*reading).Value)
-					}
-		*/
+		// Validate reading value. Here none are nil.
+		// TODO: Pretty sure we need a transform based on the output to fix this.
+		// Meaning the device is not setup correctly yet for synse v3.
+		if (*(expected[i])).Value != (*reading).Value {
+			//t.Fatalf("reading[%v].Value. expected: %v type %T, actual: %v type %T",
+			t.Fatalf("reading[%v].Value. expected: 0x%04x type %T, actual: 0x%04x type %T",
+				i,
+				(*(expected[i])).Value,
+				(*(expected[i])).Value,
+				(*reading).Value,
+				(*reading).Value)
+		}
 	}
 	t.Logf("*** verifyReadings end ------------------------\n")
 }
@@ -2386,6 +2399,9 @@ func Test000(t *testing.T) {
 func TestVEM(t *testing.T) {
 	t.Logf("TestVEM start")
 
+	// Create Transformers for device readings.
+	//scaleTransfomerTenths = sdk.NewScqler
+
 	// Create devices for testing.
 
 	// Holding Registers
@@ -2420,7 +2436,23 @@ func TestVEM(t *testing.T) {
 				},
 			},
 			Handler: &HoldingRegisterHandler,*/
-			Output:  "temperature",
+			Output: "temperature",
+			//Transforms: []*config.TransformConfig{
+			//	{Scale: .1},
+			//	{Apply: "FtoC"},
+			//},
+			// These transforms are not appled by the sdk here,
+			// but if that changes the test will fail.
+			Transforms: []sdk.Transformer{
+				&sdk.ScaleTransformer{Factor: .1},
+				&sdk.ApplyTransformer{
+					Func: funcs.Get("FtoC"),
+					//Func: &funcs.Func{
+					//  Name: "FtoC",
+					//  Fn: funcs.FtoC,
+					//},
+				},
+			},
 			Handler: "holding_register",
 		},
 
@@ -3519,9 +3551,11 @@ func TestVEM(t *testing.T) {
 
 	// TODO: Here and below.
 
-	t.Logf("*** TROUBLE STARTS HERE ***")
+	//t.Logf("*** TROUBLE STARTS HERE ***")
 
 	// Expected holding register readings from the VEM PLC.
+	// We expect the raw modbus int 16 register data here.
+	// See the comment for verifyReadings for details.
 	//expectedRegisterReadings := []*output.Reading{
 	expectedRegisterReadings := []*output.Reading{
 
@@ -3529,14 +3563,14 @@ func TestVEM(t *testing.T) {
 			//Type:  "temperature",
 			//Info:  "HRC Mixed Fluid Temperature",
 			Unit:  &output.Unit{Name: "celsius", Symbol: "C"},
-			Value: -17.72222222222222,
+			Value: int16(0x0001),
 		},
 
 		&output.Reading{
 			//Type:  "temperature",
 			//Info:  "Loop Entering Fluid Temperature",
 			Unit:  &output.Unit{Name: "celsius", Symbol: "C"},
-			Value: 10.833333333333334,
+			Value: int16(0x0203),
 		},
 
 		&output.Reading{
@@ -3544,17 +3578,17 @@ func TestVEM(t *testing.T) {
 			//Info:  "Minimum Flow Control Valve2 Feedback",
 			// TODO: Pretty sure this changed to percentage: Unit:  &output.Unit{Name: "gallons per minute", Symbol: "gpm"},
 
-			// TODO: Confusing is the output string called output is percentage when the reading's output string is precent.
+			// TODO: Confusing is the output string called output is percentage when the reading's output string is percent.
 			// TODO: Happens elsewhere.
 			Unit:  &output.Unit{Name: "percent", Symbol: "%"},
-			Value: int16(2057),
+			Value: int16(0x0809),
 		},
 
 		&output.Reading{
 			//Type:  "flowGpm",
 			//Info:  "System Fluid Flow",
 			Unit:  &output.Unit{Name: "gallons per minute", Symbol: "gpm"},
-			Value: int16(2571),
+			Value: int16(0x0a0b),
 		},
 
 		&output.Reading{
@@ -3562,49 +3596,49 @@ func TestVEM(t *testing.T) {
 			//Info:  "Server Rack Differential Pressure",
 			// Synse v3 change: Unit:  &output.Unit{Name: "inches of water column", Symbol: "InWC"},
 			Unit:  &output.Unit{Name: "inches of water column", Symbol: "inch wc"},
-			Value: 3.085,
+			Value: int16(0x0c0d),
 		},
 
 		&output.Reading{
 			//Type:  "temperature",
 			//Info:  "System Leaving Fluid Temperature",
 			Unit:  &output.Unit{Name: "celsius", Symbol: "C"},
-			Value: 239.27777777777777,
+			Value: int16(0x1213),
 		},
 
 		&output.Reading{
 			//Type:  "temperature",
 			//Info:  "Return Air Temperature",
 			Unit:  &output.Unit{Name: "celsius", Symbol: "C"},
-			Value: 324.9444444444445,
+			Value: int16(0x1819),
 		},
 
 		&output.Reading{
 			//Type:  "temperature",
 			//Info:  "Outdoor Air Temperature",
 			Unit:  &output.Unit{Name: "celsius", Symbol: "C"},
-			Value: 382.05555555555554,
+			Value: int16(0x1c1d),
 		},
 
 		&output.Reading{
 			//Type:  "temperature",
 			//Info:  "Cooling Coil Leaving Air Temperature",
 			Unit:  &output.Unit{Name: "celsius", Symbol: "C"},
-			Value: 439.1666666666667,
+			Value: int16(0x2021),
 		},
 
 		&output.Reading{
 			//Type:  "psiTenths",
 			//nfo:  "DX Discharge Gas Pressure",
 			Unit:  &output.Unit{Name: "pounds per square inch", Symbol: "psi"},
-			Value: 1182.3,
+			Value: int16(0x2e2f),
 		},
 
 		&output.Reading{
 			//Type:  "temperature",
 			//Info:  "Return Air Temperature Setpoint",
 			Unit:  &output.Unit{Name: "celsius", Symbol: "C"},
-			Value: 981.7222222222222,
+			Value: int16(0x4647),
 		},
 
 		&output.Reading{
@@ -3618,35 +3652,35 @@ func TestVEM(t *testing.T) {
 			//Type:  "fan_speed_percent",
 			//Info:  "VEM Fan Speed Control",
 			Unit:  &output.Unit{Name: "percent", Symbol: "%"},
-			Value: int16(22103),
+			Value: int16(0x5657),
 		},
 
 		&output.Reading{
 			//Type:  "flowGpmTenths",
 			//Info:  "Active Flow Setpoint",
 			Unit:  &output.Unit{Name: "gallons per minute", Symbol: "gpm"},
-			Value: 2261.7000000000003,
+			Value: uint16(0x5859),
 		},
 
 		&output.Reading{
 			//Type:  "fan_speed_percent",
 			//Info:  "VEM Fan Speed Actual",
 			Unit:  &output.Unit{Name: "percent", Symbol: "%"},
-			Value: int16(25187),
+			Value: int16(0x6263),
 		},
 
 		&output.Reading{
 			//Type:  "flowGpmTenths",
 			//Info:  "Total System Flow",
 			Unit:  &output.Unit{Name: "gallons per minute", Symbol: "gpm"},
-			Value: 2570.1000000000004,
+			Value: int16(0x6465),
 		},
 
 		&output.Reading{
 			//Type:  "fan_speed_percent_tenths",
 			//Info:  "VEM Fan Speed Minimum",
 			Unit:  &output.Unit{Name: "percent", Symbol: "%"},
-			Value: 3238.3,
+			Value: int16(0x7e7f),
 		},
 	}
 	t.Logf("expectedRegisterReadings: %#v", expectedRegisterReadings)
@@ -3760,7 +3794,7 @@ func TestVEM(t *testing.T) {
 
 	dumpReadings(t, actualCoilReadings)
 
-	t.Logf("*** DIES HERE ***\n") // expected output is nil
+	//t.Logf("*** DIES HERE ***\n") // expected output is nil
 
 	// Something is jacked up in the output
 
