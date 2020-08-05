@@ -168,12 +168,28 @@ func verifyReadings(t *testing.T, expected []*output.Reading, actual []*output.R
 		// This did work for the first device.
 		// TODO: This is failing because the expected unit changed for this device.
 		// device_test.go:170: reading[2].Unit. expected: output.Unit, {gallons per minute gpm}, actual: output.Unit, {percent %}
-		if *(*(expected[i])).Unit != *(*reading).Unit {
-			t.Fatalf("reading[%v].Unit. expected: %T, %v, actual: %T, %v", i,
-				*(*(expected[i])).Unit,
-				*(*(expected[i])).Unit,
-				*(*(reading)).Unit,
-				*(*(reading)).Unit)
+
+		// Coils have typed nil readings, so check for that before dereferencing.
+		t.Logf("expected[%d].Unit: %T, %#v, actual[%d].Unit: %T, %#v\n",
+			i, expected[i].Unit, expected[i].Unit, i, actual[i].Unit, actual[i].Unit)
+
+		// If both expected and actual units are nil, do not dereference and pass unit verification.
+		// If one is nil and not the other, dump and fail verification.
+		// If both are non-nil, deference and verify equality.
+		if expected[i].Unit == nil && actual[i].Unit == nil {
+			// pass
+		} else if expected[i].Unit != nil && actual[i].Unit != nil {
+
+			if *(*(expected[i])).Unit != *(*reading).Unit {
+				t.Fatalf("reading[%v].Unit. expected: %T, %v, actual: %T, %v", i,
+					*(*(expected[i])).Unit,
+					*(*(expected[i])).Unit,
+					*(*(reading)).Unit,
+					*(*(reading)).Unit)
+			}
+		} else {
+			t.Fatalf("Either expected or actual unit is nil: expected[%d]: %#v, actual[%d]: %#v\n",
+				i, expected[i].Unit, i, actual[i].Unit)
 		}
 
 		/*
@@ -3670,59 +3686,68 @@ func TestVEM(t *testing.T) {
 	expectedCoilReadings := []*output.Reading{
 
 		&output.Reading{
-			Type: "switch",
+			//Type: "switch",
 			//Info:  "BMS Start",
-			Unit:  &output.Unit{Name: "switch", Symbol: ""},
+			// *** Typed nil output.Unit is expected for coils. ***.
+			//Unit:  &output.Unit{Name: "switch", Symbol: ""},
+			//Unit:  &output.Unit{},
 			Value: false,
 		},
 
 		&output.Reading{
-			Type: "switch",
+			//Type: "switch",
 			//Info:  "Compressor Bank A in Safety Shutdown",
-			Unit:  &output.Unit{Name: "switch", Symbol: ""},
+			//Unit:  &output.Unit{Name: "switch", Symbol: ""},
+			//Unit:  &output.Unit{},
 			Value: false,
 		},
 
 		&output.Reading{
-			Type: "switch",
+			//Type: "switch",
 			//Info:  "Compressor Bank B in Safety Shutdown",
-			Unit:  &output.Unit{Name: "switch", Symbol: ""},
+			//Unit:  &output.Unit{Name: "switch", Symbol: ""},
+			//Unit:  &output.Unit{},
 			Value: false,
 		},
 
 		&output.Reading{
-			Timestamp: "2019-01-25T02:40:25.062928076Z",
+			//Timestamp: "2019-01-25T02:40:25.062928076Z",
 			//Type:      "switch",
 			//Info:      "System Mode Stage3",
-			Unit:  &output.Unit{Name: "switch", Symbol: ""},
+			//Unit:  &output.Unit{Name: "switch", Symbol: ""},
+			//Unit:  &output.Unit{},
 			Value: true,
 		},
 
 		&output.Reading{
-			Type: "switch",
+			//Type: "switch",
 			//Info:  "System Mode Stage2",
-			Unit:  &output.Unit{Name: "switch", Symbol: ""},
+			//Unit:  &output.Unit{Name: "switch", Symbol: ""},
+			//Unit:  &output.Unit{},
 			Value: false,
 		},
 
 		&output.Reading{
-			Type: "switch",
+			//Type: "switch",
 			//Info:  "BMS Keep Alive",
-			Unit:  &output.Unit{Name: "switch", Symbol: ""},
+			//Unit:  &output.Unit{Name: "switch", Symbol: ""},
+			//Unit:  &output.Unit{},
 			Value: false,
 		},
 
 		&output.Reading{
-			Type: "switch",
+			//Type: "switch",
 			//Info:  "Compressor Stage2",
-			Unit:  &output.Unit{Name: "switch", Symbol: ""},
+			//Unit:  &output.Unit{Name: "switch", Symbol: ""},
+			//Unit:  &output.Unit{},
 			Value: false,
 		},
 
 		&output.Reading{
-			Type: "switch",
+			//Type: "switch",
 			//Info:  "Compressor Stage1",
-			Unit:  &output.Unit{Name: "switch", Symbol: ""},
+			//Unit:  &output.Unit{Name: "switch", Symbol: ""},
+			//Unit:  &output.Unit{},
 			Value: true,
 		},
 	}
@@ -3737,7 +3762,7 @@ func TestVEM(t *testing.T) {
 
 	t.Logf("*** DIES HERE ***\n") // expected output is nil
 
-  // Something is jacked up in the output
+	// Something is jacked up in the output
 
 	verifyReadings(t, expectedCoilReadings, actualCoilReadings)
 
