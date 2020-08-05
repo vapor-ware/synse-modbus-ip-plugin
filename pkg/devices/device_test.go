@@ -4095,67 +4095,41 @@ func TestReadHoldingRegisters_MoreThanOneDevice_IP(t *testing.T) {
 	verifyReadings(t, expectedReadings, actualReadings)
 }
 
-/*
-
 // We will need a read (modbus over IP call) for each device below due to different ports.
 func TestReadHoldingRegisters_MoreThanOneDevice_Port(t *testing.T) {
 
 	devices := []*sdk.Device{
 
 		&sdk.Device{
-			Kind:   "pressure",
-			Plugin: "synse-modbus-ip-plugin",
-			Info:   "Pressure at Port 502",
-			Location: &sdk.Location{
-				Rack:  "location",
-				Board: "plc",
-			},
+			//Kind:   "pressure",
+			Info: "Pressure at Port 502",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
 				"port":        502,
 				"timeout":     "10s",
 				"failOnError": false,
+				"address":     0x18,
+				"width":       1,
+				"type":        "s16",
 			},
-			Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.PsiTenths,
-					Info:       "Pressure at Port 502",
-					Data: map[string]interface{}{
-						"address": 0x18,
-						"width":   1,
-						"type":    "s16",
-					},
-				},
-			},
-			Handler: &HoldingRegisterHandler,
+			Output:  "psi",
+			Handler: "holding_register",
 		},
 
 		&sdk.Device{
-			Kind:   "pressure",
-			Plugin: "synse-modbus-ip-plugin",
-			Info:   "Pressure at Port 503",
-			Location: &sdk.Location{
-				Rack:  "location",
-				Board: "plc",
-			},
+			//Kind:   "pressure",
+			Info: "Pressure at Port 503",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
 				"port":        503,
 				"timeout":     "10s",
 				"failOnError": false,
+				"address":     0x18,
+				"width":       1,
+				"type":        "s16",
 			},
-			Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.PsiTenths,
-					Info:       "Pressure at Port 503",
-					Data: map[string]interface{}{
-						"address": 0x18,
-						"width":   1,
-						"type":    "s16",
-					},
-				},
-			},
-			Handler: &HoldingRegisterHandler,
+			Output:  "psi",
+			Handler: "holding_register",
 		},
 	}
 
@@ -4192,17 +4166,17 @@ func TestReadHoldingRegisters_MoreThanOneDevice_Port(t *testing.T) {
 	expectedReadings := []*output.Reading{
 
 		&output.Reading{
-			Type:  "psiTenths",
-			Info:  "Pressure at Port 502",
-			Unit:  output.Unit{Name: "pounds per square inch", Symbol: "psi"},
-			Value: .1,
+			//Type:  "psiTenths",
+			//Info:  "Pressure at Port 502",
+			Unit:  &output.Unit{Name: "pounds per square inch", Symbol: "psi"},
+			Value: int16(0x0001),
 		},
 
 		&output.Reading{
-			Type:  "psiTenths",
-			Info:  "Pressure at Port 503",
-			Unit:  output.Unit{Name: "pounds per square inch", Symbol: "psi"},
-			Value: .1,
+			//Type:  "psiTenths",
+			//Info:  "Pressure at Port 503",
+			Unit:  &output.Unit{Name: "pounds per square inch", Symbol: "psi"},
+			Value: int16(0x0001),
 		},
 	}
 	t.Logf("expectedReadings: %#v", expectedReadings)
@@ -4216,6 +4190,8 @@ func TestReadHoldingRegisters_MoreThanOneDevice_Port(t *testing.T) {
 	verifyReadings(t, expectedReadings, actualReadings)
 }
 
+// TODO: We need a test for coils too and the gap for coils will be different than the test above.
+
 // We will need a read (modbus over IP call) for each device below because we
 // are spanning more registers than will fit in a single read (modbus over IP
 // call).
@@ -4224,59 +4200,35 @@ func TestReadHoldingRegisters_MultipleReads000(t *testing.T) {
 	devices := []*sdk.Device{
 
 		&sdk.Device{
-			Kind:   "pressure",
-			Plugin: "synse-modbus-ip-plugin",
-			Info:   "Pressure 1",
-			Location: &sdk.Location{
-				Rack:  "location",
-				Board: "plc",
-			},
+			//Kind:   "pressure",
+			Info: "Pressure 1",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
 				"port":        502,
 				"timeout":     "10s",
 				"failOnError": false,
+				"address":     0x0,
+				"width":       1,
+				"type":        "s16",
 			},
-			Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.PsiTenths,
-					Info:       "Pressure 1",
-					Data: map[string]interface{}{
-						"address": 0x0,
-						"width":   1,
-						"type":    "s16",
-					},
-				},
-			},
-			Handler: &HoldingRegisterHandler,
+			Output:  "psi",
+			Handler: "holding_register",
 		},
 
 		&sdk.Device{
-			Kind:   "pressure",
-			Plugin: "synse-modbus-ip-plugin",
-			Info:   "Pressure 2",
-			Location: &sdk.Location{
-				Rack:  "location",
-				Board: "plc",
-			},
+			//Kind:   "pressure",
+			Info: "Pressure 2",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
 				"port":        502,
 				"timeout":     "10s",
 				"failOnError": false,
+				"address":     MaximumRegisterCount,
+				"width":       1,
+				"type":        "s16",
 			},
-			Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.PsiTenths,
-					Info:       "Pressure 2",
-					Data: map[string]interface{}{
-						"address": MaximumRegisterCount,
-						"width":   1,
-						"type":    "s16",
-					},
-				},
-			},
-			Handler: &HoldingRegisterHandler,
+			Output:  "psi",
+			Handler: "holding_register",
 		},
 	}
 
@@ -4327,17 +4279,15 @@ func TestReadHoldingRegisters_MultipleReads000(t *testing.T) {
 	expectedReadings := []*output.Reading{
 
 		&output.Reading{
-			Type:  "psiTenths",
-			Info:  "Pressure 1",
-			Unit:  output.Unit{Name: "pounds per square inch", Symbol: "psi"},
-			Value: .1,
+			//Type:  "psiTenths",
+			Unit:  &output.Unit{Name: "pounds per square inch", Symbol: "psi"},
+			Value: int16(0x0001),
 		},
 
 		&output.Reading{
-			Type:  "psiTenths",
-			Info:  "Pressure 2",
-			Unit:  output.Unit{Name: "pounds per square inch", Symbol: "psi"},
-			Value: .1,
+			//Type:  "psiTenths",
+			Unit:  &output.Unit{Name: "pounds per square inch", Symbol: "psi"},
+			Value: int16(0x0001),
 		},
 	}
 	t.Logf("expectedReadings: %#v", expectedReadings)
@@ -4359,59 +4309,35 @@ func TestReadHoldingRegisters_MultipleReads001(t *testing.T) {
 	devices := []*sdk.Device{
 
 		&sdk.Device{
-			Kind:   "pressure",
-			Plugin: "synse-modbus-ip-plugin",
-			Info:   "Pressure 1",
-			Location: &sdk.Location{
-				Rack:  "location",
-				Board: "plc",
-			},
+			//Kind:   "pressure",
+			Info: "Pressure 1",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
 				"port":        502,
 				"timeout":     "10s",
 				"failOnError": false,
+				"address":     0x0,
+				"width":       1,
+				"type":        "s16",
 			},
-			Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.PsiTenths,
-					Info:       "Pressure",
-					Data: map[string]interface{}{
-						"address": 0x0,
-						"width":   1,
-						"type":    "s16",
-					},
-				},
-			},
-			Handler: &HoldingRegisterHandler,
+			Output:  "psi",
+			Handler: "holding_register",
 		},
 
 		&sdk.Device{
-			Kind:   "temperature",
-			Plugin: "synse-modbus-ip-plugin",
-			Info:   "Temperature",
-			Location: &sdk.Location{
-				Rack:  "location",
-				Board: "plc",
-			},
+			//Kind:   "temperature",
+			Info: "Temperature",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
 				"port":        502,
 				"timeout":     "10s",
 				"failOnError": false,
+				"address":     MaximumRegisterCount - 1,
+				"width":       2,
+				"type":        "s32",
 			},
-			Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Temperature,
-					Info:       "Temperature",
-					Data: map[string]interface{}{
-						"address": MaximumRegisterCount - 1,
-						"width":   2,
-						"type":    "s32",
-					},
-				},
-			},
-			Handler: &HoldingRegisterHandler,
+			Output:  "temperature",
+			Handler: "holding_register",
 		},
 	}
 
@@ -4449,17 +4375,16 @@ func TestReadHoldingRegisters_MultipleReads001(t *testing.T) {
 	expectedReadings := []*output.Reading{
 
 		&output.Reading{
-			Type:  "psiTenths",
-			Info:  "Pressure",
-			Unit:  output.Unit{Name: "pounds per square inch", Symbol: "psi"},
-			Value: .1,
+			//Type:  "psiTenths",
+			Unit:  &output.Unit{Name: "pounds per square inch", Symbol: "psi"},
+			Value: int16(0x0001),
 		},
 
 		&output.Reading{
-			Type:  "temperature",
-			Info:  "Temperature",
-			Unit:  output.Unit{Name: "celsius", Symbol: "C"},
-			Value: 3651.722222222222,
+			//Type:  "temperature",
+			Unit: &output.Unit{Name: "celsius", Symbol: "C"},
+			// Below is correct because we get the first four bytes of 0x00, 0x01, 0x02, 0x03.
+			Value: int32(0x00010203),
 		},
 	}
 
@@ -4486,8 +4411,6 @@ func TestReadHoldingRegisters_MultipleReads001(t *testing.T) {
 	dumpReadings(t, actualReadings)
 	verifyReadings(t, expectedReadings, actualReadings)
 }
-
-*/
 
 // TODO:
 // No read data. (Probably the same as no connection)
