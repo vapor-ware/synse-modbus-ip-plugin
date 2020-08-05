@@ -3670,59 +3670,59 @@ func TestVEM(t *testing.T) {
 	expectedCoilReadings := []*output.Reading{
 
 		&output.Reading{
-			//Type:  "switch",
+			Type: "switch",
 			//Info:  "BMS Start",
-			Unit:  &output.Unit{Name: "", Symbol: ""},
+			Unit:  &output.Unit{Name: "switch", Symbol: ""},
 			Value: false,
 		},
 
 		&output.Reading{
-			//Type:  "switch",
+			Type: "switch",
 			//Info:  "Compressor Bank A in Safety Shutdown",
-			Unit:  &output.Unit{Name: "", Symbol: ""},
+			Unit:  &output.Unit{Name: "switch", Symbol: ""},
 			Value: false,
 		},
 
 		&output.Reading{
-			//Type:  "switch",
+			Type: "switch",
 			//Info:  "Compressor Bank B in Safety Shutdown",
-			Unit:  &output.Unit{Name: "", Symbol: ""},
+			Unit:  &output.Unit{Name: "switch", Symbol: ""},
 			Value: false,
 		},
 
 		&output.Reading{
-			//Timestamp: "2019-01-25T02:40:25.062928076Z",
+			Timestamp: "2019-01-25T02:40:25.062928076Z",
 			//Type:      "switch",
 			//Info:      "System Mode Stage3",
-			Unit:  &output.Unit{Name: "", Symbol: ""},
+			Unit:  &output.Unit{Name: "switch", Symbol: ""},
 			Value: true,
 		},
 
 		&output.Reading{
-			//Type:  "switch",
+			Type: "switch",
 			//Info:  "System Mode Stage2",
-			Unit:  &output.Unit{Name: "", Symbol: ""},
+			Unit:  &output.Unit{Name: "switch", Symbol: ""},
 			Value: false,
 		},
 
 		&output.Reading{
-			//Type:  "switch",
+			Type: "switch",
 			//Info:  "BMS Keep Alive",
-			Unit:  &output.Unit{Name: "", Symbol: ""},
+			Unit:  &output.Unit{Name: "switch", Symbol: ""},
 			Value: false,
 		},
 
 		&output.Reading{
-			//Type:  "switch",
+			Type: "switch",
 			//Info:  "Compressor Stage2",
-			Unit:  &output.Unit{Name: "", Symbol: ""},
+			Unit:  &output.Unit{Name: "switch", Symbol: ""},
 			Value: false,
 		},
 
 		&output.Reading{
-			//Type:  "switch",
+			Type: "switch",
 			//Info:  "Compressor Stage1",
-			Unit:  &output.Unit{Name: "", Symbol: ""},
+			Unit:  &output.Unit{Name: "switch", Symbol: ""},
 			Value: true,
 		},
 	}
@@ -3733,10 +3733,11 @@ func TestVEM(t *testing.T) {
 		actualCoilReadings = append(actualCoilReadings, readContextsCoils[i].Reading[0])
 	}
 
-
 	dumpReadings(t, actualCoilReadings)
 
-  t.Logf("*** DIES HERE ***\n") // expected output is nil
+	t.Logf("*** DIES HERE ***\n") // expected output is nil
+
+  // Something is jacked up in the output
 
 	verifyReadings(t, expectedCoilReadings, actualCoilReadings)
 
