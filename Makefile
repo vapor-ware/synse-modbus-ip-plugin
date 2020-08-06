@@ -84,12 +84,6 @@ test-endpoints:  ## Run endpoint tests against the emulator
 	# Tests run locally. Hold on to the test exit code. Always teardown the emulator.
 	go test -v ./test/... ; rc=$$? ; docker-compose -f emulator/modbus/docker-compose.yaml down ; exit $$rc
 
-#test-endpoints:  ## Run endpoint tests against the emulator
-#	# Start emulator
-#	docker-compose -f emulator/modbus/docker-compose.yaml up -d --build
-#	# Tests run locally. Hold on to the test exit code. Always teardown the emulator.
-#	go test -v ./test/... ; rc=$$? ; exit $$rc
-
 .PHONY: version
 version:  ## Print the version of the plugin
 	@echo "${PLUGIN_VERSION}"

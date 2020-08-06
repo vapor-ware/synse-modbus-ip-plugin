@@ -92,13 +92,6 @@ func writeCoils(device *sdk.Device, data *sdk.WriteData) (err error) {
 
 	// Pull out the data to send on the wire from data.Data.
 	modbusData := data.Data
-
-	//output, err := output.GetOutput(device.Output)
-	//output := output.Get(device.Output)
-	//if err != nil {
-	//	return err
-	//}
-
 	// Translate the data. For whatever reason, the modbus interface wants 0
 	// for false and FF00 for true.
 	dataString := string(modbusData)
@@ -112,20 +105,14 @@ func writeCoils(device *sdk.Device, data *sdk.WriteData) (err error) {
 		return fmt.Errorf("unknown coil data %v", coilData)
 	}
 
-	//register := (*output).Data["address"]
-	//registerInt, ok := register.(int)
-	//if !ok {
-	//	return fmt.Errorf("Unable to convert (*output).Data[address] to uint16: %v", (*output).Data["address"])
-	//}
-
+  // TODO: Was this not above? (check)
 	var deviceData config.ModbusDeviceData
 	err = mapstructure.Decode(device.Data, &deviceData)
 	if err != nil {
 		return
 	}
 
-	//registerUint16 := uint16(registerInt)
-	//registerUint16 := data.Address
+  // TODO: Check this is a unit16. Get the type out.
 	registerUint16 := deviceData.Address
 
 	log.Debugf("Writing coil 0x%x, data 0x%x", registerUint16, coilData)
