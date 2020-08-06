@@ -105,14 +105,14 @@ func writeCoils(device *sdk.Device, data *sdk.WriteData) (err error) {
 		return fmt.Errorf("unknown coil data %v", coilData)
 	}
 
-  // TODO: Was this not above? (check)
+	// TODO: Was this not above? (check)
 	var deviceData config.ModbusDeviceData
 	err = mapstructure.Decode(device.Data, &deviceData)
 	if err != nil {
 		return
 	}
 
-  // TODO: Check this is a unit16. Get the type out.
+	// TODO: Check this is a unit16. Get the type out.
 	registerUint16 := deviceData.Address
 
 	log.Debugf("Writing coil 0x%x, data 0x%x", registerUint16, coilData)

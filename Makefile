@@ -77,7 +77,6 @@ test:  ## Run project tests
 	@ # Note: this requires go1.10+ in order to do multi-package coverage reports
 	go test -race -coverprofile=coverage.out -covermode=atomic ./pkg/... || exit
 
-# TODO: Do not need the modbus-net network
 test-endpoints:  ## Run endpoint tests against the emulator
 	# Start emulator
 	docker-compose -f emulator/modbus/docker-compose.yaml up -d --build

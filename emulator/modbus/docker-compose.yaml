@@ -6,15 +6,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      #networks:
-      #- modbus-net
     tty: true
     ports:
       - "1502:1502"
-
-# Externally created network called vem-access-net.
-# create-network.sh will create this network.
-#networks:
-#  modbus-net:
-#    external:
-#      name: modbus-net
