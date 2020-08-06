@@ -16,15 +16,10 @@ import (
 	"github.com/vapor-ware/synse-sdk/sdk/output"
 )
 
-// TODO: We need to use MaximumCoilCount.
 // TODO: We need read only coil and holding register.
 
 // MaximumRegisterCount is The technical maximum is 123 for ReadHoldingRegisters over IP.
 const MaximumRegisterCount uint16 = 123
-
-// MaximumCoilCount is MaximumRegisterCount * 16 because 8 coil reading per byte and a register is two bytes.
-// TODO: We need to use this.
-const MaximumCoilCount uint16 = MaximumRegisterCount * 16
 
 // GetModbusDeviceDataAndClient is common code to get the modbus configuration
 // and client from the device configuration.
@@ -396,7 +391,6 @@ func MapBulkReadData(bulkReadMap map[ModbusBulkReadKey][]*ModbusBulkRead, keyOrd
 					}
 				}
 
-				// TODO: Variable names / Trace names.
 				deviceDataAddress := deviceData.Address
 				deviceDataWidth := deviceData.Width
 
