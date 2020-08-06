@@ -2396,12 +2396,9 @@ func Test000(t *testing.T) {
 // TODO: Need to add 6 e-gauge devices.
 // TODO: Need to add the carousel controller.
 // TODO: This is the old VEM register set, circa January 2019.
-// - Optionally add all as of July 2020.
+// - Optionally add all as of July 2020. (A. lot of work.)
 func TestVEM(t *testing.T) {
 	t.Logf("TestVEM start")
-
-	// Create Transformers for device readings.
-	//scaleTransfomerTenths = sdk.NewScqler
 
 	// Create devices for testing.
 
@@ -2410,12 +2407,7 @@ func TestVEM(t *testing.T) {
 	registerDevices := []*sdk.Device{
 		&sdk.Device{
 			//Kind:   "vem-plc.hrc.mixed.fluid.temperature",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "HRC Mixed Fluid Temperature",
-			//Location: &sdk.Location{
-			//	Rack:  "vem-location",
-			//	Board: "vem-plc",
-			//},
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
 				"port":        502,
@@ -2425,33 +2417,13 @@ func TestVEM(t *testing.T) {
 				"width":       1,
 				"type":        "s16",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Temperature,
-					Info:       "HRC Mixed Fluid Temperature",
-					Data: map[string]interface{}{
-						"address": 0x01,
-						"width":   1,
-						"type":    "s16",
-					},
-				},
-			},
-			Handler: &HoldingRegisterHandler,*/
 			Output: "temperature",
-			//Transforms: []*config.TransformConfig{
-			//	{Scale: .1},
-			//	{Apply: "FtoC"},
-			//},
-			// These transforms are not appled by the sdk here,
-			// but if that changes the test will fail.
+			// These transforms are no longer applied by the sdk at the plugin level
+			// in synse v3, but if that changes the test will fail.
 			Transforms: []sdk.Transformer{
 				&sdk.ScaleTransformer{Factor: .1},
 				&sdk.ApplyTransformer{
 					Func: funcs.Get("FtoC"),
-					//Func: &funcs.Func{
-					//  Name: "FtoC",
-					//  Fn: funcs.FtoC,
-					//},
 				},
 			},
 			Handler: "holding_register",
@@ -2459,12 +2431,7 @@ func TestVEM(t *testing.T) {
 
 		&sdk.Device{
 			//Kind:   "vem-plc.loop.entering.fluid.temperature",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Loop Entering Fluid Temperature",
-			//Location: &sdk.Location{
-			//	Rack:  "vem-location",
-			//	Board: "vem-plc",
-			//},
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
 				"port":        502,
@@ -2474,30 +2441,13 @@ func TestVEM(t *testing.T) {
 				"width":       1,
 				"type":        "s16",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Temperature,
-					Info:       "Loop Entering Fluid Temperature",
-					Data: map[string]interface{}{
-						"address": 0x02,
-						"width":   1,
-						"type":    "s16",
-					},
-				},
-			},
-			Handler: &HoldingRegisterHandler,*/
 			Output:  "temperature",
 			Handler: "holding_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "vem-plc.valve2.flow",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Minimum Flow Control Valve2 Feedback",
-			//Location: &sdk.Location{
-			//	Rack:  "vem-location",
-			//	Board: "vem-plc",
-			//},
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
 				"port":        502,
@@ -2507,32 +2457,13 @@ func TestVEM(t *testing.T) {
 				"width":       1,
 				"type":        "s16",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.FlowGpm,
-					Info:       "Minimum Flow Control Valve2 Feedback",
-					Data: map[string]interface{}{
-						"address": 0x05,
-						"width":   1,
-						"type":    "s16",
-					},
-				},
-			},
-			Handler: &HoldingRegisterHandler,*/
-			//Output:  "gallonsPerMin", // TODO: Why not spell out minute?
-			//Output:  "flow",
 			Output:  "percentage",
 			Handler: "holding_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "vem-plc.system.fluid.flow",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "System Fluid Flow",
-			//Location: &sdk.Location{
-			//	Rack:  "vem-location",
-			//	Board: "vem-plc",
-			//},
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
 				"port":        502,
@@ -2542,31 +2473,13 @@ func TestVEM(t *testing.T) {
 				"width":       1,
 				"type":        "s16",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.FlowGpm,
-					Info:       "System Fluid Flow",
-					Data: map[string]interface{}{
-						"address": 0x06,
-						"width":   1,
-						"type":    "s16",
-					},
-				},
-			},
-			Handler: &HoldingRegisterHandler,*/
-			Output: "gallonsPerMin", // TODO: Why not spell out minute?
-			//Output:  "flow",
+			Output:  "gallonsPerMin", // TODO: Why not spell out minute?
 			Handler: "holding_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "vem-plc.server.rack.differential.pressure",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Server Rack Differential Pressure",
-			//Location: &sdk.Location{
-			//	Rack:  "vem-location",
-			//	Board: "vem-plc",
-			//},
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
 				"port":        502,
@@ -2576,30 +2489,13 @@ func TestVEM(t *testing.T) {
 				"width":       1,
 				"type":        "s16",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.InWCThousanths,
-					Info:       "Server Rack Differential Pressure",
-					Data: map[string]interface{}{
-						"address": 0x07,
-						"width":   1,
-						"type":    "s16",
-					},
-				},
-			},
-			Handler: &HoldingRegisterHandler,*/
 			Output:  "inchesWaterColumn",
 			Handler: "holding_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "vem-plc.system.leaving.fluid.temperature",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "System Leaving Fluid Temperature",
-			//Location: &sdk.Location{
-			//	Rack:  "vem-location",
-			//	Board: "vem-plc",
-			//},
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
 				"port":        502,
@@ -2609,30 +2505,13 @@ func TestVEM(t *testing.T) {
 				"width":       1,
 				"type":        "s16",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Temperature,
-					Info:       "System Leaving Fluid Temperature",
-					Data: map[string]interface{}{
-						"address": 0x0A,
-						"width":   1,
-						"type":    "s16",
-					},
-				},
-			},
-			Handler: &HoldingRegisterHandler,*/
 			Output:  "temperature",
 			Handler: "holding_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "vem-plc.return.air.temperature",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Return Air Temperature",
-			//Location: &sdk.Location{
-			//	Rack:  "vem-location",
-			//	Board: "vem-plc",
-			//},
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
 				"port":        502,
@@ -2642,30 +2521,13 @@ func TestVEM(t *testing.T) {
 				"width":       1,
 				"type":        "s16",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Temperature,
-					Info:       "Return Air Temperature",
-					Data: map[string]interface{}{
-						"address": 0x0D,
-						"width":   1,
-						"type":    "s16",
-					},
-				},
-			},
-			Handler: &HoldingRegisterHandler,*/
 			Output:  "temperature",
 			Handler: "holding_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "vem-plc.outdoor.air.temperature",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Outdoor Air Temperature",
-			//Location: &sdk.Location{
-			//	Rack:  "vem-location",
-			//	Board: "vem-plc",
-			//},
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
 				"port":        502,
@@ -2675,30 +2537,13 @@ func TestVEM(t *testing.T) {
 				"width":       1,
 				"type":        "s16",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Temperature,
-					Info:       "Outdoor Air Temperature",
-					Data: map[string]interface{}{
-						"address": 0x0F,
-						"width":   1,
-						"type":    "s16",
-					},
-				},
-			},
-			Handler: &HoldingRegisterHandler,*/
 			Output:  "temperature",
 			Handler: "holding_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "vem-plc.cooling.coil.leaving.air.temperature",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Cooling Coil Leaving Air Temperature",
-			//Location: &sdk.Location{
-			//	Rack:  "vem-location",
-			//	Board: "vem-plc",
-			//},
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
 				"port":        502,
@@ -2708,30 +2553,13 @@ func TestVEM(t *testing.T) {
 				"width":       1,
 				"type":        "s16",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Temperature,
-					Info:       "Cooling Coil Leaving Air Temperature",
-					Data: map[string]interface{}{
-						"address": 0x11,
-						"width":   1,
-						"type":    "s16",
-					},
-				},
-			},
-			Handler: &HoldingRegisterHandler,*/
 			Output:  "temperature",
 			Handler: "holding_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "vem-plc.dx.discharge.gas.pressure",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "DX Discharge Gas Pressure",
-			//Location: &sdk.Location{
-			//	Rack:  "vem-location",
-			//	Board: "vem-plc",
-			//},
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
 				"port":        502,
@@ -2741,30 +2569,13 @@ func TestVEM(t *testing.T) {
 				"width":       1,
 				"type":        "s16",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.PsiTenths,
-					Info:       "DX Discharge Gas Pressure",
-					Data: map[string]interface{}{
-						"address": 0x18,
-						"width":   1,
-						"type":    "s16",
-					},
-				},
-			},
-			Handler: &HoldingRegisterHandler,*/
 			Output:  "psi",
 			Handler: "holding_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "vem-plc.return.air.temperature.setpoint.temperature",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Return Air Temperature Setpoint",
-			//Location: &sdk.Location{
-			//	Rack:  "vem-location",
-			//	Board: "vem-plc",
-			//},
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
 				"port":        502,
@@ -2774,30 +2585,13 @@ func TestVEM(t *testing.T) {
 				"width":       1,
 				"type":        "s16",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Temperature,
-					Info:       "Return Air Temperature Setpoint",
-					Data: map[string]interface{}{
-						"address": 0x24,
-						"width":   1,
-						"type":    "s16",
-					},
-				},
-			},
-			Handler: &HoldingRegisterHandler,*/
 			Output:  "temperature",
 			Handler: "holding_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "vem-plc.hrf.speed.command.fan",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "HRF Speed Command",
-			//Location: &sdk.Location{
-			//	Rack:  "vem-location",
-			//	Board: "vem-plc",
-			//},
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
 				"port":        502,
@@ -2807,30 +2601,13 @@ func TestVEM(t *testing.T) {
 				"width":       1,
 				"type":        "u16",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.FanSpeedPercent,
-					Info:       "HRF Speed Command",
-					Data: map[string]interface{}{
-						"address": 0x2B,
-						"width":   1,
-						"type":    "u16",
-					},
-				},
-			},
-			Handler: &HoldingRegisterHandler,*/
 			Output:  "percentage",
 			Handler: "holding_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "vem-plc.fan",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "VEM Fan Speed Control",
-			//Location: &sdk.Location{
-			//	Rack:  "vem-location",
-			//	Board: "vem-plc",
-			//},
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
 				"port":        502,
@@ -2840,30 +2617,13 @@ func TestVEM(t *testing.T) {
 				"width":       1,
 				"type":        "s16",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.FanSpeedPercent,
-					Info:       "VEM Fan Speed Control",
-					Data: map[string]interface{}{
-						"address": 0x2C,
-						"width":   1,
-						"type":    "s16",
-					},
-				},
-			},
-			Handler: &HoldingRegisterHandler,*/
 			Output:  "percentage",
 			Handler: "holding_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "vem-plc.active.flow",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Active Flow Setpoint",
-			//Location: &sdk.Location{
-			//	Rack:  "vem-location",
-			//	Board: "vem-plc",
-			//},
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
 				"port":        502,
@@ -2873,31 +2633,13 @@ func TestVEM(t *testing.T) {
 				"width":       1,
 				"type":        "u16",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.FlowGpmTenths,
-					Info:       "Active Flow Setpoint",
-					Data: map[string]interface{}{
-						"address": 0x2D,
-						"width":   1,
-						"type":    "u16",
-					},
-				},
-			},
-			Handler: &HoldingRegisterHandler,*/
-			//Output:  "gallonsPerMinute",
 			Output:  "gallonsPerMin",
 			Handler: "holding_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "vem-plc.fan-speed-actual",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "VEM Fan Speed Actual",
-			//Location: &sdk.Location{
-			//	Rack:  "vem-location",
-			//	Board: "vem-plc",
-			//},
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
 				"port":        502,
@@ -2907,30 +2649,13 @@ func TestVEM(t *testing.T) {
 				"width":       1,
 				"type":        "s16",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.FanSpeedPercent,
-					Info:       "VEM Fan Speed Actual",
-					Data: map[string]interface{}{
-						"address": 0x32,
-						"width":   1,
-						"type":    "s16",
-					},
-				},
-			},
-			Handler: &HoldingRegisterHandler,*/
 			Output:  "percentage",
 			Handler: "holding_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "vem-plc.system.flow",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Total System Flow",
-			//Location: &sdk.Location{
-			//	Rack:  "vem-location",
-			//	Board: "vem-plc",
-			//},
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
 				"port":        502,
@@ -2940,30 +2665,13 @@ func TestVEM(t *testing.T) {
 				"width":       1,
 				"type":        "s16",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.FlowGpmTenths,
-					Info:       "Total System Flow",
-					Data: map[string]interface{}{
-						"address": 0x33,
-						"width":   1,
-						"type":    "s16",
-					},
-				},
-			},
-			Handler: &HoldingRegisterHandler,*/
 			Output:  "gallonsPerMin",
 			Handler: "holding_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "vem-plc.fan_minimum",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "VEM Fan Speed Minimum",
-			//Location: &sdk.Location{
-			//	Rack:  "vem-location",
-			//	Board: "vem-plc",
-			//},
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
 				"port":        502,
@@ -2973,18 +2681,6 @@ func TestVEM(t *testing.T) {
 				"width":       1,
 				"type":        "s16",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.FanSpeedPercentTenths,
-					Info:       "VEM Fan Speed Minimum",
-					Data: map[string]interface{}{
-						"address": 0x40,
-						"width":   1,
-						"type":    "s16",
-					},
-				},
-			},
-			Handler: &HoldingRegisterHandler,*/
 			Output:  "percentage",
 			Handler: "holding_register",
 		},
@@ -2995,12 +2691,7 @@ func TestVEM(t *testing.T) {
 	coilDevices := []*sdk.Device{
 		&sdk.Device{
 			//Kind:   "vem-plc.bms.start.switch",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "BMS Start",
-			//Location: &sdk.Location{
-			//	Rack:  "vem-location",
-			//	Board: "vem-plc",
-			//},
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
 				"port":        502,
@@ -3010,30 +2701,13 @@ func TestVEM(t *testing.T) {
 				"width":       1,
 				"type":        "b",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Coil,
-					Info:       "BMS Start",
-					Data: map[string]interface{}{
-						"address": 0x03,
-						"width":   1,
-						"type":    "b",
-					},
-				},
-			},
-			Handler: &CoilsHandler,*/
 			Output:  "switch",
 			Handler: "coil",
 		},
 
 		&sdk.Device{
 			//Kind:   "vem-plc.compressorA.safety.shutdown.switch",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Compressor Bank A in Safety Shutdown",
-			//Location: &sdk.Location{
-			//	Rack:  "vem-location",
-			//	Board: "vem-plc",
-			//},
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
 				"port":        502,
@@ -3043,30 +2717,13 @@ func TestVEM(t *testing.T) {
 				"width":       1,
 				"type":        "b",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Coil,
-					Info:       "Compressor Bank A in Safety Shutdown",
-					Data: map[string]interface{}{
-						"address": 0x21,
-						"width":   1,
-						"type":    "b",
-					},
-				},
-			},
-			Handler: &CoilsHandler,*/
 			Output:  "switch",
 			Handler: "coil",
 		},
 
 		&sdk.Device{
 			//Kind:   "vem-plc.compressorB.safety.shutdown.switch",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Compressor Bank B in Safety Shutdown",
-			//Location: &sdk.Location{
-			//	Rack:  "vem-location",
-			//	Board: "vem-plc",
-			//},
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
 				"port":        502,
@@ -3076,30 +2733,13 @@ func TestVEM(t *testing.T) {
 				"width":       1,
 				"type":        "b",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Coil,
-					Info:       "Compressor Bank B in Safety Shutdown",
-					Data: map[string]interface{}{
-						"address": 0x22,
-						"width":   1,
-						"type":    "b",
-					},
-				},
-			},
-			Handler: &CoilsHandler,*/
 			Output:  "switch",
 			Handler: "coil",
 		},
 
 		&sdk.Device{
 			//Kind:   "vem-plc.system.mode.stage3.switch",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "System Mode Stage3",
-			//Location: &sdk.Location{
-			//	Rack:  "vem-location",
-			//	Board: "vem-plc",
-			//},
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
 				"port":        502,
@@ -3109,30 +2749,13 @@ func TestVEM(t *testing.T) {
 				"width":       1,
 				"type":        "b",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Coil,
-					Info:       "System Mode Stage3",
-					Data: map[string]interface{}{
-						"address": 0x25,
-						"width":   1,
-						"type":    "b",
-					},
-				},
-			},
-			Handler: &CoilsHandler,*/
 			Output:  "switch",
 			Handler: "coil",
 		},
 
 		&sdk.Device{
 			//Kind:   "vem-plc.system.mode.stage2.switch",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "System Mode Stage2",
-			//Location: &sdk.Location{
-			//	Rack:  "vem-location",
-			//	Board: "vem-plc",
-			//},
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
 				"port":        502,
@@ -3142,30 +2765,13 @@ func TestVEM(t *testing.T) {
 				"width":       1,
 				"type":        "b",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Coil,
-					Info:       "System Mode Stage2",
-					Data: map[string]interface{}{
-						"address": 0x26,
-						"width":   1,
-						"type":    "b",
-					},
-				},
-			},
-			Handler: &CoilsHandler,*/
 			Output:  "switch",
 			Handler: "coil",
 		},
 
 		&sdk.Device{
 			//Kind:   "vem-plc.keep.alive.switch",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "BMS Keep Alive",
-			//Location: &sdk.Location{
-			//	Rack:  "vem-location",
-			//	Board: "vem-plc",
-			//},
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
 				"port":        502,
@@ -3175,30 +2781,13 @@ func TestVEM(t *testing.T) {
 				"width":       1,
 				"type":        "b",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Coil,
-					Info:       "BMS Keep Alive",
-					Data: map[string]interface{}{
-						"address": 0x27,
-						"width":   1,
-						"type":    "b",
-					},
-				},
-			},
-			Handler: &CoilsHandler,*/
 			Output:  "switch",
 			Handler: "coil",
 		},
 
 		&sdk.Device{
 			//Kind:   "vem-plc.compressor.stage2.switch",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Compressor Stage2",
-			//Location: &sdk.Location{
-			//	Rack:  "vem-location",
-			//	Board: "vem-plc",
-			//},
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
 				"port":        502,
@@ -3208,30 +2797,13 @@ func TestVEM(t *testing.T) {
 				"width":       1,
 				"type":        "b",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Coil,
-					Info:       "Compressor Stage2",
-					Data: map[string]interface{}{
-						"address": 0x2C,
-						"width":   1,
-						"type":    "b",
-					},
-				},
-			},
-			Handler: &CoilsHandler,*/
 			Output:  "switch",
 			Handler: "coil",
 		},
 
 		&sdk.Device{
 			//Kind:   "vem-plc.compressor.stage1.switch",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Compressor Stage2",
-			//Location: &sdk.Location{
-			//	Rack:  "vem-location",
-			//	Board: "vem-plc",
-			//},
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
 				"port":        502,
@@ -3241,18 +2813,6 @@ func TestVEM(t *testing.T) {
 				"width":       1,
 				"type":        "b",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.Coil,
-					Info:       "Compressor Stage1",
-					Data: map[string]interface{}{
-						"address": 0x2D,
-						"width":   1,
-						"type":    "b",
-					},
-				},
-			},
-			Handler: &CoilsHandler,*/
 			Output:  "switch",
 			Handler: "coil",
 		},
@@ -3261,16 +2821,8 @@ func TestVEM(t *testing.T) {
 	egaugeDevices := getEGaugeDevices()
 
 	// Register outputs for devices without builtin outputs.
-	// outputs are defined in this plugin.
+	// These outputs are defined in this plugin.
 	plugin := sdk.Plugin{}
-	/*
-		plugin, err := sdk.NewPlugin()
-		if err != nil {
-			t.Fatalf(err.Error())
-		}
-	*/
-
-	// Register output types
 	err := plugin.RegisterOutputs(
 		&modbusOutput.GallonsPerMin,
 		&modbusOutput.InchesWaterColumn,
@@ -3523,10 +3075,8 @@ func TestVEM(t *testing.T) {
 
 	// Holding Registers.
 	populateBulkReadMap(t, bulkReadMapRegisters, keyOrderRegisters)
-	t.Logf("*** PANIC BELOW*** \n")
 	dumpBulkReadMap(t, bulkReadMapRegisters, keyOrderRegisters)
 
-	// TODO: Below is panicing. Likely a device is not setup correctly.
 	// TODO: We need to register the outputs in pkg/outputs/outputs.go for this test.
 	// TODO: The synse-sdk is faling silently when looking up an output by string,
 	// TODO: That should be an error at configurtation / initialization time,
@@ -3550,14 +3100,9 @@ func TestVEM(t *testing.T) {
 		t.Fatalf("expected 1 reading in readContextsRegisters[0], got %v", len(readContextsRegisters[0].Reading))
 	}
 
-	// TODO: Here and below.
-
-	//t.Logf("*** TROUBLE STARTS HERE ***")
-
 	// Expected holding register readings from the VEM PLC.
 	// We expect the raw modbus int 16 register data here.
 	// See the comment for verifyReadings for details.
-	//expectedRegisterReadings := []*output.Reading{
 	expectedRegisterReadings := []*output.Reading{
 
 		&output.Reading{
@@ -3577,7 +3122,7 @@ func TestVEM(t *testing.T) {
 		&output.Reading{
 			//Type:  "flowGpm",
 			//Info:  "Minimum Flow Control Valve2 Feedback",
-			// TODO: Pretty sure this changed to percentage: Unit:  &output.Unit{Name: "gallons per minute", Symbol: "gpm"},
+			// Synse v3 change:  Pretty sure this changed to percentage: Unit:  &output.Unit{Name: "gallons per minute", Symbol: "gpm"},
 
 			// TODO: Confusing is the output string called output is percentage when the reading's output string is percent.
 			// TODO: Happens elsewhere.
@@ -3595,7 +3140,7 @@ func TestVEM(t *testing.T) {
 		&output.Reading{
 			//Type:  "InWCThousanths",
 			//Info:  "Server Rack Differential Pressure",
-			// Synse v3 change: Unit:  &output.Unit{Name: "inches of water column", Symbol: "InWC"},
+			// Synse v3 change, was: Unit:  &output.Unit{Name: "inches of water column", Symbol: "InWC"},
 			Unit:  &output.Unit{Name: "inches of water column", Symbol: "inch wc"},
 			Value: int16(0x0c0d),
 		},
@@ -3720,69 +3265,52 @@ func TestVEM(t *testing.T) {
 	// Expected coil readings for the VEM PLC.
 	expectedCoilReadings := []*output.Reading{
 
+		// Coils have nil Output.Unit.
 		&output.Reading{
 			//Type: "switch",
 			//Info:  "BMS Start",
-			// *** Typed nil output.Unit is expected for coils. ***.
-			//Unit:  &output.Unit{Name: "switch", Symbol: ""},
-			//Unit:  &output.Unit{},
 			Value: false,
 		},
 
 		&output.Reading{
 			//Type: "switch",
 			//Info:  "Compressor Bank A in Safety Shutdown",
-			//Unit:  &output.Unit{Name: "switch", Symbol: ""},
-			//Unit:  &output.Unit{},
 			Value: false,
 		},
 
 		&output.Reading{
 			//Type: "switch",
 			//Info:  "Compressor Bank B in Safety Shutdown",
-			//Unit:  &output.Unit{Name: "switch", Symbol: ""},
-			//Unit:  &output.Unit{},
 			Value: false,
 		},
 
 		&output.Reading{
-			//Timestamp: "2019-01-25T02:40:25.062928076Z",
 			//Type:      "switch",
 			//Info:      "System Mode Stage3",
-			//Unit:  &output.Unit{Name: "switch", Symbol: ""},
-			//Unit:  &output.Unit{},
 			Value: true,
 		},
 
 		&output.Reading{
 			//Type: "switch",
 			//Info:  "System Mode Stage2",
-			//Unit:  &output.Unit{Name: "switch", Symbol: ""},
-			//Unit:  &output.Unit{},
 			Value: false,
 		},
 
 		&output.Reading{
 			//Type: "switch",
 			//Info:  "BMS Keep Alive",
-			//Unit:  &output.Unit{Name: "switch", Symbol: ""},
-			//Unit:  &output.Unit{},
 			Value: false,
 		},
 
 		&output.Reading{
 			//Type: "switch",
 			//Info:  "Compressor Stage2",
-			//Unit:  &output.Unit{Name: "switch", Symbol: ""},
-			//Unit:  &output.Unit{},
 			Value: false,
 		},
 
 		&output.Reading{
 			//Type: "switch",
 			//Info:  "Compressor Stage1",
-			//Unit:  &output.Unit{Name: "switch", Symbol: ""},
-			//Unit:  &output.Unit{},
 			Value: true,
 		},
 	}
@@ -3973,12 +3501,7 @@ func TestReadHoldingRegisters_MoreThanOneDevice_IP(t *testing.T) {
 
 		&sdk.Device{
 			//Kind: "pressure",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Pressure at IP Address 1",
-			//Location: &sdk.Location{
-			//	Rack:  "location",
-			//	Board: "plc",
-			//},
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
 				"port":        502,
@@ -3988,30 +3511,13 @@ func TestReadHoldingRegisters_MoreThanOneDevice_IP(t *testing.T) {
 				"width":       1,
 				"type":        "s16",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.PsiTenths,
-					Info:       "Pressure at IP Address 1",
-					Data: map[string]interface{}{
-						"address": 0x18,
-						"width":   1,
-						"type":    "s16",
-					},
-				},
-			},
-			Handler: &HoldingRegisterHandler,*/
 			Output:  "psi",
 			Handler: "holding_register",
 		},
 
 		&sdk.Device{
 			//Kind:   "pressure",
-			//Plugin: "synse-modbus-ip-plugin",
 			Info: "Pressure at IP Address 2",
-			//Location: &sdk.Location{
-			//	Rack:  "location",
-			//	Board: "plc",
-			//},
 			Data: map[string]interface{}{
 				"host":        "10.193.4.251",
 				"port":        502,
@@ -4021,18 +3527,6 @@ func TestReadHoldingRegisters_MoreThanOneDevice_IP(t *testing.T) {
 				"width":       1,
 				"type":        "s16",
 			},
-			/*Outputs: []*sdk.Output{
-				&sdk.Output{
-					OutputType: outputs.PsiTenths,
-					Info:       "Pressure at IP Address 2",
-					Data: map[string]interface{}{
-						"address": 0x18,
-						"width":   1,
-						"type":    "s16",
-					},
-				},
-			},
-			Handler: &HoldingRegisterHandler,*/
 			Output:  "psi",
 			Handler: "holding_register",
 		},
