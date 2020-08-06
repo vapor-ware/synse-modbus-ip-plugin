@@ -93,12 +93,6 @@ func writeHoldingRegister(device *sdk.Device, data *sdk.WriteData) (err error) {
 
 	// Pull out the data to send on the wire from data.Data.
 	modbusData := data.Data
-
-	//output, err := GetOutput(device)
-	//if err != nil {
-	//	return err
-	//}
-
 	// Translate the data. This is currently a hex string.
 	dataString := string(modbusData)
 	register64, err := strconv.ParseUint(dataString, 16, 16)
@@ -107,24 +101,16 @@ func writeHoldingRegister(device *sdk.Device, data *sdk.WriteData) (err error) {
 	}
 	registerData := uint16(register64)
 
-	//register := (*output).Data["address"]
-	//registerInt, ok := register.(int)
-	//if !ok {
-	//	return fmt.Errorf("Unable to convert (*output).Data[address] to uint16: %v", (*output).Data["address"])
-	//}
-	//registerUint16 := uint16(registerInt)
-
 	var deviceData config.ModbusDeviceData
 	err = mapstructure.Decode(device.Data, &deviceData)
 	if err != nil {
 		return
 	}
 
-	//registerUint16 := uint16(registerInt)
-	registerUint16 := deviceData.Address
-
-	log.Debugf("Writing holding register 0x%x, data 0x%x", registerUint16, registerData)
-	_, err = (*client).WriteSingleRegister(registerUint16, registerData)
+	// Modbus write.
+	register := deviceData.Address
+	log.Debugf("Writing holding register 0x%x, data 0x%x", register, registerData)
+	_, err = (*client).WriteSingleRegister(register, registerData)
 	incrementModbusCallCounter()
 	return err
 }

@@ -104,8 +104,8 @@ func UnpackReading(output *output.Output, typeName string, rawReading []byte, fa
 		return nil, nil // No reading.
 	}
 
-	fmt.Printf("*** output: %T, %#v\n", output, output)
-	fmt.Printf("*** data: %T, %#v\n", data, data)
+	//fmt.Printf("*** output: %T, %#v\n", output, output)
+	//fmt.Printf("*** data: %T, %#v\n", data, data)
 	return output.MakeReading(data), nil
 }
 
@@ -246,7 +246,7 @@ func MapBulkRead(devices []*sdk.Device, setSortOrdinal bool, isCoil bool) (
 	log.Debugf("MapBulkRead start. devices: %+v", devices)
 	for z := 0; z < len(devices); z++ {
 		log.Debugf("MapBulkRead devices[%v]: %#v", z, devices[z])
-		fmt.Printf("MapBulkRead devices[%v]: %#v\n", z, devices[z])
+		//fmt.Printf("MapBulkRead devices[%v]: %#v\n", z, devices[z])
 	}
 
 	// Sort the devices.
@@ -259,7 +259,7 @@ func MapBulkRead(devices []*sdk.Device, setSortOrdinal bool, isCoil bool) (
 
 	for z := 0; z < len(sorted); z++ {
 		log.Debugf("MapBulkRead sorted[%v]: %#v", z, sorted[z])
-		fmt.Printf("MapBulkRead sorted[%v]: %#v\n", z, sorted[z])
+		//fmt.Printf("MapBulkRead sorted[%v]: %#v\n", z, sorted[z])
 	}
 
 	for i := 0; i < len(sorted); i++ {
@@ -446,11 +446,6 @@ func MapBulkReadData(bulkReadMap map[ModbusBulkReadKey][]*ModbusBulkRead, keyOrd
 					rawReading := readResults[startDataOffset:endDataOffset]
 					log.Debugf("rawReading: len: %v, %x", len(rawReading), rawReading)
 
-					//reading, err = UnpackReading(theOutput, outputData.Type, rawReading, k.FailOnError)
-					// TODO: Remove
-					if theOutput == nil {
-						fmt.Printf("*** nil output, deviceData: %#v\n", deviceData)
-					}
 					reading, err = UnpackReading(theOutput, deviceData.Type, rawReading, k.FailOnError)
 					if err != nil {
 						return nil, err

@@ -43,10 +43,10 @@ func TestEmulatorSanity(t *testing.T) {
 // TODO: The bug here is that this should be one network round trip for all 103 coils. It's currently 103 round trips.
 // Test a bulk read on coils 1-103 with handler coil. No read_only_coil.
 
-/*
 func TestBulkReadCoils_CoilHandlerOnly(t *testing.T) {
+
 	// Create the device slice.
-	fmt.Printf("Creating devices\n")
+	//fmt.Printf("Creating devices\n")
 	var devices []*sdk.Device
 
 	for i := 1; i <= 103; i++ {
@@ -67,10 +67,10 @@ func TestBulkReadCoils_CoilHandlerOnly(t *testing.T) {
 		devices = append(devices, device)
 	} // end for
 
-	fmt.Printf("dumping devices:\n")
-	for i := 0; i < len(devices); i++ {
-		fmt.Printf("device[%d]: %+v\n", i, *(devices[i]))
-	}
+	//fmt.Printf("dumping devices:\n")
+	//for i := 0; i < len(devices); i++ {
+	//	fmt.Printf("device[%d]: %+v\n", i, *(devices[i]))
+	//}
 
 	// Permute device order to test sort.
 	permutedDevices := make([]*sdk.Device, len(devices))
@@ -79,10 +79,10 @@ func TestBulkReadCoils_CoilHandlerOnly(t *testing.T) {
 		permutedDevices[v] = devices[i]
 	}
 
-	fmt.Printf("dumping permuted devices:\n")
-	for i := 0; i < len(permutedDevices); i++ {
-		fmt.Printf("device[%d]: %+v\n", i, *(permutedDevices[i]))
-	}
+	//fmt.Printf("dumping permuted devices:\n")
+	//for i := 0; i < len(permutedDevices); i++ {
+	//	fmt.Printf("device[%d]: %+v\n", i, *(permutedDevices[i]))
+	//}
 
 	fmt.Printf("Calling bulk read\n")
 	modbusDevices.ResetModbusCallCounter() // Zero out the modbus call counter.
@@ -91,20 +91,20 @@ func TestBulkReadCoils_CoilHandlerOnly(t *testing.T) {
 	assert.Equal(t, uint64(1), modbusDevices.GetModbusCallCounter()) // One modbus call on the wire for this bulk read.
 	assert.Equal(t, len(devices), len(contexts))                     // One context per device.
 
-	fmt.Printf("contexts (len %d): %+v\n", len(contexts), contexts)
-	fmt.Printf("err: %v\n", err)
-	fmt.Printf("Called bulk read\n")
+	//fmt.Printf("contexts (len %d): %+v\n", len(contexts), contexts)
+	//fmt.Printf("err: %v\n", err)
+	//fmt.Printf("Called bulk read\n")
 
-	fmt.Printf("Dumping contexts\n")
+	//fmt.Printf("Dumping contexts\n")
 	for i := 0; i < len(contexts); i++ {
-		fmt.Printf("contexts[%d]: %+v\n", i, contexts[i])
-		fmt.Printf("\tDevice: %T, %+v\n", contexts[i].Device, contexts[i].Device)
-		fmt.Printf("\tReading: %T, len(%d),  %+v\n", contexts[i].Reading, len(contexts[i].Reading), contexts[i].Reading)
+		//	fmt.Printf("contexts[%d]: %+v\n", i, contexts[i])
+		//	fmt.Printf("\tDevice: %T, %+v\n", contexts[i].Device, contexts[i].Device)
+		//	fmt.Printf("\tReading: %T, len(%d),  %+v\n", contexts[i].Reading, len(contexts[i].Reading), contexts[i].Reading)
 
 		// Dump readings.
-		for j := 0; j < len(contexts[i].Reading); j++ {
-			fmt.Printf("\tReading[%d], %T, %+v\n", j, contexts[i].Reading[j], contexts[i].Reading[j])
-		}
+		//	for j := 0; j < len(contexts[i].Reading); j++ {
+		//		fmt.Printf("\tReading[%d], %T, %+v\n", j, contexts[i].Reading[j], contexts[i].Reading[j])
+		//	}
 
 		// Programmatically verify contexts.
 		// contexts[i].Device
@@ -127,7 +127,7 @@ func TestBulkReadCoils_CoilHandlerOnly(t *testing.T) {
 // Test a bulk read on holding registers 1-103 with handler holding_register. No read_only_holding_register.
 func TestBulkReadHoldingRegisters_HoldingRegisterHandlerOnly(t *testing.T) {
 	// Create the device slice.
-	fmt.Printf("Creating devices\n")
+	//fmt.Printf("Creating devices\n")
 	var devices []*sdk.Device
 
 	for i := 1; i <= 103; i++ {
@@ -148,10 +148,10 @@ func TestBulkReadHoldingRegisters_HoldingRegisterHandlerOnly(t *testing.T) {
 		devices = append(devices, device)
 	} // end for
 
-	fmt.Printf("dumping devices:\n")
-	for i := 0; i < len(devices); i++ {
-		fmt.Printf("device[%d]: %+v\n", i, *(devices[i]))
-	}
+	//fmt.Printf("dumping devices:\n")
+	//for i := 0; i < len(devices); i++ {
+	//	fmt.Printf("device[%d]: %+v\n", i, *(devices[i]))
+	//}
 
 	// Permute device order to test sort.
 	permutedDevices := make([]*sdk.Device, len(devices))
@@ -160,10 +160,10 @@ func TestBulkReadHoldingRegisters_HoldingRegisterHandlerOnly(t *testing.T) {
 		permutedDevices[v] = devices[i]
 	}
 
-	fmt.Printf("dumping permuted devices:\n")
-	for i := 0; i < len(permutedDevices); i++ {
-		fmt.Printf("device[%d]: %+v\n", i, *(permutedDevices[i]))
-	}
+	//fmt.Printf("dumping permuted devices:\n")
+	//for i := 0; i < len(permutedDevices); i++ {
+	//	fmt.Printf("device[%d]: %+v\n", i, *(permutedDevices[i]))
+	//}
 
 	fmt.Printf("Calling bulk read\n")
 	modbusDevices.ResetModbusCallCounter() // Zero out the modbus call counter.
@@ -173,20 +173,20 @@ func TestBulkReadHoldingRegisters_HoldingRegisterHandlerOnly(t *testing.T) {
 	assert.Equal(t, uint64(1), modbusDevices.GetModbusCallCounter()) // One modbus call on the wire for this bulk read.
 	assert.Equal(t, len(devices), len(contexts))                     // One context per device.
 
-	fmt.Printf("contexts (len %d): %+v\n", len(contexts), contexts)
-	fmt.Printf("err: %v\n", err)
-	fmt.Printf("Called bulk read\n")
+	//fmt.Printf("contexts (len %d): %+v\n", len(contexts), contexts)
+	//fmt.Printf("err: %v\n", err)
+	//fmt.Printf("Called bulk read\n")
 
-	fmt.Printf("Dumping contexts\n")
-	assert.NoError(t, err)
+	//fmt.Printf("Dumping contexts\n")
+	//assert.NoError(t, err)
 	for i := 0; i < len(contexts); i++ {
-		fmt.Printf("contexts[%d]: %+v\n", i, contexts[i])
-		fmt.Printf("\tReading: %T, len(%d),  %+v\n", contexts[i].Reading, len(contexts[i].Reading), contexts[i].Reading)
+		//	fmt.Printf("contexts[%d]: %+v\n", i, contexts[i])
+		//	fmt.Printf("\tReading: %T, len(%d),  %+v\n", contexts[i].Reading, len(contexts[i].Reading), contexts[i].Reading)
 
 		// Dump readings.
-		for j := 0; j < len(contexts[i].Reading); j++ {
-			fmt.Printf("\tReading[%d], %T, %+v\n", j, contexts[i].Reading[j], contexts[i].Reading[j])
-		}
+		//		for j := 0; j < len(contexts[i].Reading); j++ {
+		//			fmt.Printf("\tReading[%d], %T, %+v\n", j, contexts[i].Reading[j], contexts[i].Reading[j])
+		//		}
 
 		// Programmatically verify contexts.
 		// contexts[i].Device
@@ -206,12 +206,10 @@ func TestBulkReadHoldingRegisters_HoldingRegisterHandlerOnly(t *testing.T) {
 	}
 }
 
-*/
-
 // Test a bulk read on input registers 1-103 with handler input_register..
 func TestBulkReadInputRegisters_InputRegisterHandlerOnly(t *testing.T) {
 	// Create the device slice.
-	fmt.Printf("Creating devices\n")
+	///fmt.Printf("Creating devices\n")
 	var devices []*sdk.Device
 
 	for i := 1; i <= 103; i++ {
@@ -232,10 +230,10 @@ func TestBulkReadInputRegisters_InputRegisterHandlerOnly(t *testing.T) {
 		devices = append(devices, device)
 	} // end for
 
-	fmt.Printf("dumping devices:\n")
-	for i := 0; i < len(devices); i++ {
-		fmt.Printf("device[%d]: %+v\n", i, *(devices[i]))
-	}
+	//fmt.Printf("dumping devices:\n")
+	//for i := 0; i < len(devices); i++ {
+	//	fmt.Printf("device[%d]: %+v\n", i, *(devices[i]))
+	//}
 
 	// Permute device order to test sort.
 	permutedDevices := make([]*sdk.Device, len(devices))
@@ -244,28 +242,28 @@ func TestBulkReadInputRegisters_InputRegisterHandlerOnly(t *testing.T) {
 		permutedDevices[v] = devices[i]
 	}
 
-	fmt.Printf("dumping permuted devices:\n")
-	for i := 0; i < len(permutedDevices); i++ {
-		fmt.Printf("device[%d]: %+v\n", i, *(permutedDevices[i]))
-	}
+	//fmt.Printf("dumping permuted devices:\n")
+	//for i := 0; i < len(permutedDevices); i++ {
+	//	fmt.Printf("device[%d]: %+v\n", i, *(permutedDevices[i]))
+	//}
 
-	fmt.Printf("Calling bulk read\n")
+	//fmt.Printf("Calling bulk read\n")
 	modbusDevices.ResetModbusCallCounter() // Zero out the modbus call counter.
 	contexts, err := modbusDevices.InputRegisterHandler.BulkRead(permutedDevices)
-	fmt.Printf("contexts (len %d): %+v\n", len(contexts), contexts)
-	fmt.Printf("err: %v\n", err)
-	fmt.Printf("Called bulk read\n")
+	//fmt.Printf("contexts (len %d): %+v\n", len(contexts), contexts)
+	//fmt.Printf("err: %v\n", err)
+	//fmt.Printf("Called bulk read\n")
 
-	fmt.Printf("Dumping contexts\n")
+	//fmt.Printf("Dumping contexts\n")
 	assert.NoError(t, err)
 	for i := 0; i < len(contexts); i++ {
-		fmt.Printf("contexts[%d]: %+v\n", i, contexts[i])
-		fmt.Printf("\tReading: %T, len(%d),  %+v\n", contexts[i].Reading, len(contexts[i].Reading), contexts[i].Reading)
+		//	fmt.Printf("contexts[%d]: %+v\n", i, contexts[i])
+		//	fmt.Printf("\tReading: %T, len(%d),  %+v\n", contexts[i].Reading, len(contexts[i].Reading), contexts[i].Reading)
 
-		// Dump readings.
-		for j := 0; j < len(contexts[i].Reading); j++ {
-			fmt.Printf("\tReading[%d], %T, %+v\n", j, contexts[i].Reading[j], contexts[i].Reading[j])
-		}
+		//	// Dump readings.
+		//	for j := 0; j < len(contexts[i].Reading); j++ {
+		//		fmt.Printf("\tReading[%d], %T, %+v\n", j, contexts[i].Reading[j], contexts[i].Reading[j])
+		//	/
 
 		// Programmatically verify contexts.
 		// contexts[i].Device
