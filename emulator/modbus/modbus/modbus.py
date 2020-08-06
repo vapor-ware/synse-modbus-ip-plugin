@@ -18,7 +18,9 @@ def main():
         print('modbus main start')
         # Set holding register data to their address.
         # Set coils to address % 3 == 0.
-        for i in range(2000):
+        # This is a high number, but required for spliting a ModbusRead for coils.
+        # TODO: ^^^Test the above. (with test-endpoints)
+        for i in range(0x4000):
             print('Setting word {} to {}'.format(i, i))
             print('Setting bits {} to {}'.format(i, i % 3 == 0))
             DataBank.set_words(i, [i])

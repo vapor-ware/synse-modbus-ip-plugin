@@ -8,8 +8,8 @@ import (
 	"github.com/vapor-ware/synse-sdk/sdk"
 )
 
-// ModbusDeviceData models the scheme for the supported config values
-// of device's Data field for the Modbus TCP/IP plugin.
+// ModbusDeviceData is the decoded yaml of the sdk.Device,
+// which is map[string]{interface}.
 type ModbusDeviceData struct {
 	// Host is the hostname/ip of the device to connect to.
 	Host string `yaml:"host,omitempty"`
