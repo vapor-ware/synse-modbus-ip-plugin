@@ -40,7 +40,8 @@ func bulkReadCoils(devices []*sdk.Device) (readContexts []*sdk.ReadContext, err 
 	for a := 0; a < len(keyOrder); a++ {
 		k := keyOrder[a]
 		v := bulkReadMap[k]
-		log.Debugf("bulkReadMap[%#v]: %#v", k, v)
+		//log.Debugf("bulkReadMap[%#v]: %#v", k, v)
+		//fmt.Printf("Coils: bulkReadMap[%#v]: %#v", k, v)
 
 		// New connection for each key.
 		var client modbus.Client
@@ -56,6 +57,7 @@ func bulkReadCoils(devices []*sdk.Device) (readContexts []*sdk.ReadContext, err 
 			log.Debugf("Reading bulkReadMap[%#v][%#v]", k, read)
 
 			var readResults []byte
+			fmt.Printf("*** Coil read. StartRegister: %v, RegisterCount %v\n", read.StartRegister, read.RegisterCount)
 			readResults, err = client.ReadCoils(read.StartRegister, read.RegisterCount)
 			incrementModbusCallCounter()
 			if err != nil {

@@ -49,7 +49,10 @@ func TestBulkReadCoils_CoilHandlerOnly(t *testing.T) {
 	//fmt.Printf("Creating devices\n")
 	var devices []*sdk.Device
 
-	for i := 1; i <= 103; i++ {
+	// TODO: Sort out the -1 here.
+	for i := 1; i <= int(modbusDevices.MaximumRegisterCount)-1; i++ {
+		//for i := 1; i <= int(modbusDevices.MaximumRegisterCount); i++ {
+		//for i := 1; i <= 103; i++ {
 		// TODO:for i := 1; i <= 10000; i++ {
 		device := &sdk.Device{
 			Info: fmt.Sprintf("Coil %d", i),
@@ -87,6 +90,7 @@ func TestBulkReadCoils_CoilHandlerOnly(t *testing.T) {
 
 	//fmt.Printf("Calling bulk read\n")
 	modbusDevices.ResetModbusCallCounter() // Zero out the modbus call counter.
+	assert.Equal(t, uint64(0), modbusDevices.GetModbusCallCounter())
 	contexts, err := modbusDevices.CoilsHandler.BulkRead(permutedDevices)
 	assert.NoError(t, err)
 	assert.Equal(t, uint64(1), modbusDevices.GetModbusCallCounter()) // One modbus call on the wire for this bulk read.
@@ -131,7 +135,9 @@ func TestBulkReadHoldingRegisters_HoldingRegisterHandlerOnly(t *testing.T) {
 	//fmt.Printf("Creating devices\n")
 	var devices []*sdk.Device
 
-	for i := 1; i <= 103; i++ {
+	//for i := 1; i <= 103; i++ {
+	// TODO: Sort out the -2 here.
+	for i := 1; i <= int(modbusDevices.MaximumRegisterCount)-2; i++ {
 		device := &sdk.Device{
 			Info: fmt.Sprintf("Coil %d", i),
 			Data: map[string]interface{}{
@@ -213,7 +219,8 @@ func TestBulkReadInputRegisters_InputRegisterHandlerOnly(t *testing.T) {
 	///fmt.Printf("Creating devices\n")
 	var devices []*sdk.Device
 
-	for i := 1; i <= 103; i++ {
+	//for i := 1; i <= 103; i++ {
+	for i := 1; i <= int(modbusDevices.MaximumRegisterCount); i++ {
 		device := &sdk.Device{
 			Info: fmt.Sprintf("Coil %d", i),
 			Data: map[string]interface{}{
