@@ -10,9 +10,6 @@ import (
 
 // ModbusDeviceData models the scheme for the supported config values
 // of device's Data field for the Modbus TCP/IP plugin.
-//// ModbusDeviceData is a device's modbus configuration. This is generally set
-//// in the SDK Device's Data field.
-//type ModbusDeviceData struct {
 type ModbusDeviceData struct {
 	// Host is the hostname/ip of the device to connect to.
 	Host string `yaml:"host,omitempty"`
@@ -35,8 +32,6 @@ type ModbusDeviceData struct {
 
 	// Address is the register address which holds the reading value.
 	Address uint16
-
-	// TODO: Not clear if we need below.
 
 	// Width is the number of registers to read, starting from the `Address`.
 	Width uint16

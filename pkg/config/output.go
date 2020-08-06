@@ -1,5 +1,6 @@
 package config
 
+/*
 // TODO: Unclear if we need this anymore. Move to Synse v3 may have changed the need.
 
 // ModbusOutputData models the scheme for the supported config values
@@ -25,3 +26,4 @@ type ModbusOutputData struct {
 	//  "f64", "float64": 64-bit floating point number
 	Type string
 }
+*/

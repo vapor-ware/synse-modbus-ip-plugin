@@ -23,6 +23,7 @@ func MakePlugin() *sdk.Plugin {
 		log.Fatal(err)
 	}
 
+	// TODO: Put this back. Remove the setup actions.
 	/*
 		// Register device handlers
 		err = plugin.RegisterDeviceHandlers(
