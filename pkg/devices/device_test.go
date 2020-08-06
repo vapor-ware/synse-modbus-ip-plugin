@@ -4,6 +4,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	modbusOutput "github.com/vapor-ware/synse-modbus-ip-plugin/pkg/outputs"
 	"github.com/vapor-ware/synse-sdk/sdk"
 	"github.com/vapor-ware/synse-sdk/sdk/funcs"
@@ -3911,3 +3912,17 @@ func TestReadHoldingRegisters_MultipleReads001(t *testing.T) {
 // Insufficient data.
 // Write connection failures.
 // Additional VEM devices. 6 e-gauges. Carousel.
+
+// Make sure that read and write functions are not implemented, just BulkRead.
+func TestReadOnlyCoils(t *testing.T) {
+	assert.Nil(t, ReadOnlyCoilsHandler.Read)
+	assert.NotNil(t, ReadOnlyCoilsHandler.BulkRead)
+	assert.Nil(t, ReadOnlyCoilsHandler.Write)
+}
+
+// Make sure that read and write functions are not implemented, just BulkRead.
+func TestReadOnlyHoldingRegisters(t *testing.T) {
+	assert.Nil(t, ReadOnlyHoldingRegisterHandler.Read)
+	assert.NotNil(t, ReadOnlyHoldingRegisterHandler.BulkRead)
+	assert.Nil(t, ReadOnlyHoldingRegisterHandler.Write)
+}

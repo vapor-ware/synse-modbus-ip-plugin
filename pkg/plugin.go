@@ -2,7 +2,7 @@ package pkg
 
 import (
 	log "github.com/sirupsen/logrus"
-	//"github.com/vapor-ware/synse-modbus-ip-plugin/pkg/devices"
+	"github.com/vapor-ware/synse-modbus-ip-plugin/pkg/devices"
 	"github.com/vapor-ware/synse-modbus-ip-plugin/pkg/outputs"
 	"github.com/vapor-ware/synse-sdk/sdk"
 )
@@ -23,27 +23,17 @@ func MakePlugin() *sdk.Plugin {
 		log.Fatal(err)
 	}
 
-	// TODO: Put this back. Remove the setup actions.
-	/*
-		// Register device handlers
-		err = plugin.RegisterDeviceHandlers(
-			&devices.CoilsHandler,
-			&devices.ReadOnlyCoilsHandler,
-			&devices.HoldingRegisterHandler,
-			&devices.ReadOnlyHoldingRegisterHandler,
-			&devices.InputRegisterHandler,
-		)
-		if err != nil {
-			log.Fatal(err)
-		}
+	// Register device handlers
+	err = plugin.RegisterDeviceHandlers(
+		&devices.CoilsHandler,
+		&devices.ReadOnlyCoilsHandler,
+		&devices.HoldingRegisterHandler,
+		&devices.ReadOnlyHoldingRegisterHandler,
+		&devices.InputRegisterHandler,
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-		// Register setup actions
-		err = plugin.RegisterDeviceSetupActions(
-			&devices.LoadModbusDevices,
-		)
-		if err != nil {
-			log.Fatal(err)
-		}
-	*/
 	return plugin
 }

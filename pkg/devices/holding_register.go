@@ -18,6 +18,13 @@ var HoldingRegisterHandler = sdk.DeviceHandler{
 	Write:    writeHoldingRegister,
 }
 
+// ReadOnlyHoldingRegisterHandler is a handler which should be used for all devices/outputs
+// that read from  holding registers.
+var ReadOnlyHoldingRegisterHandler = sdk.DeviceHandler{
+	Name:     "holding_register",
+	BulkRead: bulkReadHoldingRegisters,
+}
+
 // bulkReadHoldingRegisters performs a bulk read on the devices parameter
 // reducing round trips to the physical device.
 func bulkReadHoldingRegisters(devices []*sdk.Device) (readContexts []*sdk.ReadContext, err error) {

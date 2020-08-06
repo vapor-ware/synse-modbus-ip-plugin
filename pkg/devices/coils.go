@@ -17,6 +17,13 @@ var CoilsHandler = sdk.DeviceHandler{
 	Write:    writeCoils,
 }
 
+// ReadOnlyCoilsHandler is a handler that should be used for all devices/outputs
+// that only read from coils.
+var ReadOnlyCoilsHandler = sdk.DeviceHandler{
+	Name:     "read_only_coil",
+	BulkRead: bulkReadCoils,
+}
+
 // TODO: Read only coils.
 
 // bulkReadCoils performs a bulk read on the devices parameter reducing round trips.
