@@ -425,7 +425,11 @@ func MapBulkReadData(bulkReadMap map[ModbusBulkReadKey][]*ModbusBulkRead, keyOrd
 						log.Errorf("No data. Attempt to read beyond bounds. startDataOffset: %v, endDataOffset: %v, readResultsLength: %v",
 							startDataOffset, endDataOffset, readResultsLength)
 						readings = append(readings, nil)
-						continue // Next output.
+						//fmt.Printf("*** readings after appending nil: %#v\n", readings)
+						// Append a read context here for the nil reading.
+						readContext := sdk.NewReadContext(device, readings)
+						readContexts = append(readContexts, readContext)
+						continue // Next device.
 					} // end bounds check.
 
 					rawReading := readResults[startDataOffset:endDataOffset]
@@ -453,6 +457,7 @@ func MapBulkReadData(bulkReadMap map[ModbusBulkReadKey][]*ModbusBulkRead, keyOrd
 			} // End for each device.
 		} // End for each read.
 	} // End for each key, value.
+	//fmt.Printf("*** MapBulkReadData returning readContexts: %#v, err %v\n", readContexts, err)
 	return
 }
 

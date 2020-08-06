@@ -8,7 +8,6 @@ import (
 	modbusOutput "github.com/vapor-ware/synse-modbus-ip-plugin/pkg/outputs"
 	"github.com/vapor-ware/synse-sdk/sdk"
 	"github.com/vapor-ware/synse-sdk/sdk/funcs"
-	//"github.com/vapor-ware/synse-sdk/sdk/config"
 	"github.com/vapor-ware/synse-sdk/sdk/output"
 )
 
@@ -166,6 +165,7 @@ func verifyReadings(t *testing.T, expected []*output.Reading, actual []*output.R
 		//}
 
 		// TODO: Leave this here. Info was removed from the reading in synse v3, but it should be put back.
+		// TODO: sdk ticket for this and context.
 		//if (*(expected[i])).Info != (*reading).Info {
 		//	t.Fatalf("reading[%v].Info. expected: %v, actual: %v", i, (*(expected[i])).Info, (*(reading)).Info)
 		//}
@@ -179,14 +179,8 @@ func verifyReadings(t *testing.T, expected []*output.Reading, actual []*output.R
 					(*(reading)).Unit)
 			}*/
 
-		// This did work for the first device. (holding register)
-		// DONE: This is failing because the expected unit changed for this device.
-		// device_test.go:170: reading[2].Unit. expected: output.Unit, {gallons per minute gpm}, actual: output.Unit, {percent %}
-
 		// Validate reading unit.
 		// Coils have typed nil readings, so check for that before dereferencing.
-		//t.Logf("expected[%d].Unit: %T, %#v, actual[%d].Unit: %T, %#v\n",
-		//		i, expected[i].Unit, expected[i].Unit, i, actual[i].Unit, actual[i].Unit)
 
 		// If both expected and actual units are nil, do not dereference and pass unit verification.
 		// If one is nil and not the other, dump and fail verification.
@@ -208,10 +202,7 @@ func verifyReadings(t *testing.T, expected []*output.Reading, actual []*output.R
 		}
 
 		// Validate reading value. Here none are nil.
-		// TODO: Pretty sure we need a transform based on the output to fix this.
-		// Meaning the device is not setup correctly yet for synse v3.
 		if (*(expected[i])).Value != (*reading).Value {
-			//t.Fatalf("reading[%v].Value. expected: %v type %T, actual: %v type %T",
 			t.Fatalf("reading[%v].Value. expected: 0x%04x type %T, actual: 0x%04x type %T",
 				i,
 				(*(expected[i])).Value,
@@ -1229,7 +1220,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 
 		&sdk.Device{
 			//Kind:   "egauge.power",
-			Info: "Generated Cumulative Power", // TODO: Verify with Dave.
+			Info: "Generated Cumulative Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -1565,7 +1556,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 
 		&sdk.Device{
 			//Kind:   "egauge.power",
-			Info: "Generated Instantaneous Power", // TODO: Verify with Dave.
+			Info: "Generated Instantaneous Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -1901,7 +1892,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 
 		&sdk.Device{
 			//Kind:   "egauge.power",
-			Info: "Generated Cumulative Power", // TODO: Verify with Dave.
+			Info: "Generated Cumulative Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
 				"port":        egaugePort,
@@ -2390,8 +2381,6 @@ func Test000(t *testing.T) {
 
 	t.Logf("Test000 end")
 }
-
-// TODO: CONVERT BELOW:
 
 // TestVEM tests devices as the modbus over ip configuration on the VEM.
 // TODO: Need to add 6 e-gauge devices.
@@ -3067,7 +3056,6 @@ func TestVEM(t *testing.T) {
 	if readInput.RegisterCount != 42 {
 		t.Fatalf("expected registerCount d42, got d%d", readInput.RegisterCount)
 	}
-	// TODO: expected 21 devices, got 20
 	if len(readInput.Devices) != 21 {
 		t.Fatalf("expected 21 devices, got %v", len(readInput.Devices))
 	}
@@ -3083,6 +3071,7 @@ func TestVEM(t *testing.T) {
 	// TODO: That should be an error at configurtation / initialization time,
 	// TODO: not a panic at runtime under MakeReading because you'll never get a
 	// TODO: reading from a synse device without an output ... Unless the device is write-only.
+	// TODO: Probably true for other string fields in struct sdk.Device.
 
 	// Map the read data to the synse read contexts.
 	readContextsRegisters, err := MapBulkReadData(bulkReadMapRegisters, keyOrderRegisters)
@@ -3123,7 +3112,7 @@ func TestVEM(t *testing.T) {
 		&output.Reading{
 			//Type:  "flowGpm",
 			//Info:  "Minimum Flow Control Valve2 Feedback",
-			// Synse v3 change:  Pretty sure this changed to percentage: Unit:  &output.Unit{Name: "gallons per minute", Symbol: "gpm"},
+			// Synse v3 change:  This changed to percentage: Unit:  &output.Unit{Name: "gallons per minute", Symbol: "gpm"},
 
 			// TODO: Confusing is the output string called output is percentage when the reading's output string is percent.
 			// TODO: Happens elsewhere.
@@ -3345,12 +3334,8 @@ func TestVEM(t *testing.T) {
 	t.Logf("TestVEM end")
 }
 
-// TODO: Fix below.
-
-/*
 // Unable to connect to the device. Fail on error is false, which allows
 // subsequent reads to potentially pass.
-// TODO: There is a bug to fix here. (regression) Could be here or in the sdk???
 func TestReadHoldingRegisters_NoConnection(t *testing.T) {
 
 	devices := []*sdk.Device{
@@ -3380,9 +3365,6 @@ func TestReadHoldingRegisters_NoConnection(t *testing.T) {
 	}
 	verifySingleNilReading(t, readContexts)
 }
-*/
-
-// TODO: Convert below.
 
 // Unable to connect to the device. Fail on error is true, which fails all
 // subsequent reads.
@@ -3421,12 +3403,9 @@ func TestReadHoldingRegisters_NoConnection_FailOnError(t *testing.T) {
 	if !strings.Contains(err.Error(), "dial tcp 10.193.4.250:502") {
 		t.Fatalf("Unexpected err: [%v]", err.Error())
 	}
-	// TODO: Missing verifying single nil reading here.
+	// No need to verify readContexts here since we have an error.
 }
 
-// TODO: Missing nil reading here.
-
-/*
 // Unable to connect to the device. Fail on error is false, which allows
 // subsequent reads to potentially pass.
 func TestReadInputRegisters_NoConnection(t *testing.T) {
@@ -3459,8 +3438,6 @@ func TestReadInputRegisters_NoConnection(t *testing.T) {
 	verifySingleNilReading(t, readContexts)
 }
 
-*/
-
 // Unable to connect to the device. Fail on error is false, which allows
 // subsequent reads to potentially pass.
 func TestReadCoils_NoConnection(t *testing.T) {
@@ -3492,8 +3469,6 @@ func TestReadCoils_NoConnection(t *testing.T) {
 	}
 	verifySingleNilReading(t, readContexts)
 }
-
-// TODO: Looks like the nil reading on coils is still working!!!
 
 // We will need a read (modbus over IP call) for each device below due to different IPs.
 func TestReadHoldingRegisters_MoreThanOneDevice_IP(t *testing.T) {
