@@ -176,9 +176,9 @@ type ModbusDevice struct {
 
 // SortDevices sorts the device list.
 // Used for bulk reads.
-// Returns sorted which is a slice of ModbusDevice in ascending order.
+// Returns sorted which is a slice of ModbusDevice in ascending register order.
 // Returns deviceMap which is a map of register to sdk.Device.
-func SortDevices(devices []*sdk.Device, setSortOrdinal bool) (
+func SortDevices(devices []*sdk.Device) (
 	sorted []ModbusDevice, deviceMap map[ModbusDevice]*sdk.Device, err error) {
 
 	if devices == nil {
@@ -236,7 +236,7 @@ func SortDevices(devices []*sdk.Device, setSortOrdinal bool) (
 // MapBulkRead maps the physical modbus device / connection information for all
 // modbus devices to a map of each modbus bulk read call required to get all
 // register data configured for the device.
-func MapBulkRead(devices []*sdk.Device, setSortOrdinal bool, isCoil bool) (
+func MapBulkRead(devices []*sdk.Device, isCoil bool) (
 	bulkReadMap map[ModbusBulkReadKey][]*ModbusBulkRead, keyOrder []ModbusBulkReadKey, err error) {
 	log.Debugf("MapBulkRead start. devices: %+v", devices)
 	for z := 0; z < len(devices); z++ {
@@ -245,7 +245,7 @@ func MapBulkRead(devices []*sdk.Device, setSortOrdinal bool, isCoil bool) (
 	}
 
 	// Sort the devices.
-	sorted, sortedDevices, err := SortDevices(devices, setSortOrdinal)
+	sorted, sortedDevices, err := SortDevices(devices)
 	if err != nil {
 		log.Errorf("failed to sort devices")
 		return nil, keyOrder, err

@@ -7,8 +7,6 @@ import (
 	"github.com/vapor-ware/synse-sdk/sdk"
 )
 
-var sortOrdinalSetForInput = false
-
 // InputRegisterHandler is a handler that should be used for all devices/outputs
 // that read input registers.
 var InputRegisterHandler = sdk.DeviceHandler{
@@ -23,12 +21,11 @@ func bulkReadInputRegisters(devices []*sdk.Device) (readContexts []*sdk.ReadCont
 
 	// Ideally this would be done in setup, but for now this should work.
 	// Map out the bulk read.
-	bulkReadMap, keyOrder, err := MapBulkRead(devices, !sortOrdinalSetForInput, false)
+	bulkReadMap, keyOrder, err := MapBulkRead(devices, false)
 	if err != nil {
 		return nil, err
 	}
 	log.Debugf("bulkReadMap: %#v", bulkReadMap)
-	sortOrdinalSetForInput = true
 
 	// Perform the bulk reads.
 	for a := 0; a < len(keyOrder); a++ {

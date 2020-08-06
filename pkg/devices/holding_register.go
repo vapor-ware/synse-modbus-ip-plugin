@@ -10,8 +10,6 @@ import (
 	"github.com/vapor-ware/synse-sdk/sdk"
 )
 
-var sortOrdinalSetForHolding = false
-
 // HoldingRegisterHandler is a handler which should be used for all devices/outputs
 // that read from/write to holding registers.
 var HoldingRegisterHandler = sdk.DeviceHandler{
@@ -27,12 +25,11 @@ func bulkReadHoldingRegisters(devices []*sdk.Device) (readContexts []*sdk.ReadCo
 
 	// Ideally this would be done in setup, but for now this should work.
 	// Map out the bulk read.
-	bulkReadMap, keyOrder, err := MapBulkRead(devices, !sortOrdinalSetForHolding, false)
+	bulkReadMap, keyOrder, err := MapBulkRead(devices, false)
 	if err != nil {
 		return nil, err
 	}
 	log.Debugf("bulkReadMap: %#v", bulkReadMap)
-	sortOrdinalSetForHolding = true
 
 	// Perform the bulk reads.
 	for a := 0; a < len(keyOrder); a++ {

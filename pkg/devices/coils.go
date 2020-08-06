@@ -9,9 +9,6 @@ import (
 	"github.com/vapor-ware/synse-sdk/sdk"
 )
 
-// coilsSorted is a flag for telling if the coils have been sorted in address order.
-var coilsSorted = false
-
 // CoilsHandler is a handler that should be used for all devices/outputs
 // that read from/write to coils.
 var CoilsHandler = sdk.DeviceHandler{
@@ -20,7 +17,7 @@ var CoilsHandler = sdk.DeviceHandler{
 	Write:    writeCoils,
 }
 
-// TODO: Read only coils / readOnlyCoilsSorted.
+// TODO: Read only coils.
 
 // bulkReadCoils performs a bulk read on the devices parameter reducing round trips.
 func bulkReadCoils(devices []*sdk.Device) (readContexts []*sdk.ReadContext, err error) {
@@ -29,18 +26,17 @@ func bulkReadCoils(devices []*sdk.Device) (readContexts []*sdk.ReadContext, err 
 
 	// Ideally this would be done in setup, but for now this should work.
 	// Map out the bulk read.
-	bulkReadMap, keyOrder, err := MapBulkRead(devices, !coilsSorted, true)
+	bulkReadMap, keyOrder, err := MapBulkRead(devices, true)
 	if err != nil {
 		return nil, err
 	}
 	log.Debugf("bulkReadMap: %#v", bulkReadMap)
-	coilsSorted = true
 
 	// Perform the bulk reads.
 	for a := 0; a < len(keyOrder); a++ {
 		k := keyOrder[a]
 		v := bulkReadMap[k]
-		//log.Debugf("bulkReadMap[%#v]: %#v", k, v)
+		log.Debugf("bulkReadMap[%#v]: %#v", k, v)
 		//fmt.Printf("Coils: bulkReadMap[%#v]: %#v", k, v)
 
 		// New connection for each key.

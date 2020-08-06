@@ -2278,7 +2278,7 @@ func Test000(t *testing.T) {
 	dumpDevices(t, devices)
 
 	// Sort the devices and test that that works.
-	sorted, deviceMap, err := SortDevices(devices, true)
+	sorted, deviceMap, err := SortDevices(devices)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -2299,7 +2299,7 @@ func Test000(t *testing.T) {
 	}
 
 	t.Logf("--- Mapping bulk read ---")
-	bulkReadMap, keyOrder, err := MapBulkRead(devices, false, false)
+	bulkReadMap, keyOrder, err := MapBulkRead(devices, false)
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
@@ -2843,20 +2843,20 @@ func TestVEM(t *testing.T) {
 	checkDeviceOutput(t, egaugeDevices)
 
 	t.Logf("--- Mapping bulk read (holding registers) ---")
-	bulkReadMapRegisters, keyOrderRegisters, err := MapBulkRead(registerDevices, true, false)
+	bulkReadMapRegisters, keyOrderRegisters, err := MapBulkRead(registerDevices, false)
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
 	t.Logf("bulkReadMapRegisters %#v", bulkReadMapRegisters)
 
-	bulkReadMapCoils, keyOrderCoils, err := MapBulkRead(coilDevices, true, true)
+	bulkReadMapCoils, keyOrderCoils, err := MapBulkRead(coilDevices, true)
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
 	t.Logf("bulkReadMapCoils %#v", bulkReadMapCoils)
 
 	// EGauge is all input registers.
-	bulkReadMapInput, keyOrderInput, err := MapBulkRead(egaugeDevices, true, false)
+	bulkReadMapInput, keyOrderInput, err := MapBulkRead(egaugeDevices, false)
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
@@ -3538,7 +3538,7 @@ func TestReadHoldingRegisters_MoreThanOneDevice_IP(t *testing.T) {
 	}
 
 	t.Logf("--- Mapping bulk read ---")
-	bulkReadMap, keyOrder, err := MapBulkRead(devices, true, false)
+	bulkReadMap, keyOrder, err := MapBulkRead(devices, false)
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
@@ -3633,7 +3633,7 @@ func TestReadHoldingRegisters_MoreThanOneDevice_Port(t *testing.T) {
 	}
 
 	t.Logf("--- Mapping bulk read ---")
-	bulkReadMap, keyOrder, err := MapBulkRead(devices, true, false)
+	bulkReadMap, keyOrder, err := MapBulkRead(devices, false)
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
@@ -3732,7 +3732,7 @@ func TestReadHoldingRegisters_MultipleReads000(t *testing.T) {
 	}
 
 	t.Logf("--- Mapping bulk read ---")
-	bulkReadMap, keyOrder, err := MapBulkRead(devices, true, false)
+	bulkReadMap, keyOrder, err := MapBulkRead(devices, false)
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
@@ -3841,7 +3841,7 @@ func TestReadHoldingRegisters_MultipleReads001(t *testing.T) {
 	}
 
 	t.Logf("--- Mapping bulk read ---")
-	bulkReadMap, keyOrder, err := MapBulkRead(devices, true, false)
+	bulkReadMap, keyOrder, err := MapBulkRead(devices, false)
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
