@@ -1,4 +1,4 @@
- # Stand up the mobus server / emulator  for testing against.
+ # Stand up the mobus server / emulator for testing against.
 version: "3"
 services:
   modbus:

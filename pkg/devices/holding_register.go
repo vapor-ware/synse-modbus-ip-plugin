@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"github.com/goburrow/modbus"
-	"github.com/mitchellh/mapstructure"
 	log "github.com/sirupsen/logrus"
 	"github.com/vapor-ware/synse-modbus-ip-plugin/pkg/config"
 	"github.com/vapor-ware/synse-sdk/sdk"
@@ -67,7 +66,7 @@ func bulkReadHoldingRegisters(devices []*sdk.Device) (readContexts []*sdk.ReadCo
 				continue
 			}
 			log.Debugf("ReadHoldingRegisters: results: 0x%0x, len(results) 0x%0x", readResults, len(readResults))
-			fmt.Printf("ReadHoldingRegisters: results: 0x%0x, len(results) 0x%0x", readResults, len(readResults))
+			//fmt.Printf("ReadHoldingRegisters: results: 0x%0x, len(results) 0x%0x", readResults, len(readResults))
 			read.ReadResults = readResults[0 : 2*(read.RegisterCount)] // Store raw results. Two bytes per register.
 		} // end for each read
 	} // end for each modbus connection
@@ -86,7 +85,7 @@ func writeHoldingRegister(device *sdk.Device, data *sdk.WriteData) (err error) {
 		return fmt.Errorf("data is nil")
 	}
 
-	_, client, err := GetModbusClientAndConfig(device)
+	deviceData, client, err := GetModbusDeviceDataAndClient(device)
 	if err != nil {
 		return err
 	}
@@ -100,12 +99,6 @@ func writeHoldingRegister(device *sdk.Device, data *sdk.WriteData) (err error) {
 		return fmt.Errorf("Unable to parse uint16 %v", dataString)
 	}
 	registerData := uint16(register64)
-
-	var deviceData config.ModbusDeviceData
-	err = mapstructure.Decode(device.Data, &deviceData)
-	if err != nil {
-		return
-	}
 
 	// Modbus write.
 	register := deviceData.Address

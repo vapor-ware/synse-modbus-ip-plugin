@@ -37,6 +37,7 @@ func bulkReadInputRegisters(devices []*sdk.Device) (readContexts []*sdk.ReadCont
 		log.Debugf("bulkReadMap[%#v]: %#v", k, v)
 
 		// New connection for each key.
+		// TODO: use GetModbusClientAndDeviceData
 		var client modbus.Client
 		var modbusDeviceData *config.ModbusDeviceData
 		client, modbusDeviceData, err = GetBulkReadClient(k)

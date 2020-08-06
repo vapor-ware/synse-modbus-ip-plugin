@@ -4,13 +4,13 @@ import (
 	"fmt"
 
 	"github.com/goburrow/modbus"
-	"github.com/mitchellh/mapstructure"
 	log "github.com/sirupsen/logrus"
 	"github.com/vapor-ware/synse-modbus-ip-plugin/pkg/config"
 	"github.com/vapor-ware/synse-sdk/sdk"
 )
 
-var sortOrdinalSetForCoils = false
+// coilsSorted is a flag for telling if the coils have been sorted in address order.
+var coilsSorted = false
 
 // CoilsHandler is a handler that should be used for all devices/outputs
 // that read from/write to coils.
@@ -20,6 +20,8 @@ var CoilsHandler = sdk.DeviceHandler{
 	Write:    writeCoils,
 }
 
+// TODO: Read only coils / readOnlyCoilsSorted.
+
 // bulkReadCoils performs a bulk read on the devices parameter reducing round trips.
 func bulkReadCoils(devices []*sdk.Device) (readContexts []*sdk.ReadContext, err error) {
 
@@ -27,12 +29,12 @@ func bulkReadCoils(devices []*sdk.Device) (readContexts []*sdk.ReadContext, err 
 
 	// Ideally this would be done in setup, but for now this should work.
 	// Map out the bulk read.
-	bulkReadMap, keyOrder, err := MapBulkRead(devices, !sortOrdinalSetForCoils, true)
+	bulkReadMap, keyOrder, err := MapBulkRead(devices, !coilsSorted, true)
 	if err != nil {
 		return nil, err
 	}
 	log.Debugf("bulkReadMap: %#v", bulkReadMap)
-	sortOrdinalSetForCoils = true
+	coilsSorted = true
 
 	// Perform the bulk reads.
 	for a := 0; a < len(keyOrder); a++ {
@@ -48,13 +50,12 @@ func bulkReadCoils(devices []*sdk.Device) (readContexts []*sdk.ReadContext, err 
 			return nil, err
 		}
 
-		// For read in v, perform each read.
-		for i := 0; i < len(v); i++ { // For each required read.
+		// For read in v, perform each read (modbus network call).
+		for i := 0; i < len(v); i++ {
 			read := v[i]
 			log.Debugf("Reading bulkReadMap[%#v][%#v]", k, read)
 
 			var readResults []byte
-			fmt.Printf("*** MODBUS CALL (coils) ***\n")
 			readResults, err = client.ReadCoils(read.StartRegister, read.RegisterCount)
 			incrementModbusCallCounter()
 			if err != nil {
@@ -85,7 +86,7 @@ func writeCoils(device *sdk.Device, data *sdk.WriteData) (err error) {
 		return fmt.Errorf("data is nil")
 	}
 
-	_, client, err := GetModbusClientAndConfig(device)
+	deviceData, client, err := GetModbusDeviceDataAndClient(device)
 	if err != nil {
 		return err
 	}
@@ -105,18 +106,9 @@ func writeCoils(device *sdk.Device, data *sdk.WriteData) (err error) {
 		return fmt.Errorf("unknown coil data %v", coilData)
 	}
 
-	// TODO: Was this not above? (check)
-	var deviceData config.ModbusDeviceData
-	err = mapstructure.Decode(device.Data, &deviceData)
-	if err != nil {
-		return
-	}
-
-	// TODO: Check this is a unit16. Get the type out.
-	registerUint16 := deviceData.Address
-
-	log.Debugf("Writing coil 0x%x, data 0x%x", registerUint16, coilData)
-	_, err = (*client).WriteSingleCoil(registerUint16, coilData)
+	// Write the coil data to the requested address.
+	log.Debugf("Writing coil 0x%x, data 0x%x", deviceData.Address, coilData)
+	_, err = (*client).WriteSingleCoil(deviceData.Address, coilData)
 	incrementModbusCallCounter()
 	return err
 }

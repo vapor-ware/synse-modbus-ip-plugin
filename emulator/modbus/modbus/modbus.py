@@ -8,6 +8,10 @@ import traceback
 from pyModbusTCP.server import DataBank, ModbusServer
 
 
+# This is an unused way to break the server loop if desired.
+STOP_SERVER = False
+
+
 def main():
     """ Main method to run the pyModbusTCP server for the test modbus endpoint.
     """

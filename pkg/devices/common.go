@@ -26,8 +26,10 @@ const MaximumRegisterCount uint16 = 123
 // TODO: We need to use this.
 const MaximumCoilCount uint16 = MaximumRegisterCount * 16
 
-// GetModbusClientAndConfig is common code to get the modbus configuration and client from the device configuration.
-func GetModbusClientAndConfig(device *sdk.Device) (modbusConfig *config.ModbusDeviceData, client *modbus.Client, err error) {
+// GetModbusDeviceDataAndClient is common code to get the modbus configuration
+// and client from the device configuration.
+func GetModbusDeviceDataAndClient(device *sdk.Device) (
+	modbusDeviceData *config.ModbusDeviceData, client *modbus.Client, err error) {
 
 	// Pull the modbus configuration out of the device Data fields.
 	var deviceData config.ModbusDeviceData
@@ -104,8 +106,6 @@ func UnpackReading(output *output.Output, typeName string, rawReading []byte, fa
 		return nil, nil // No reading.
 	}
 
-	//fmt.Printf("*** output: %T, %#v\n", output, output)
-	//fmt.Printf("*** data: %T, %#v\n", data, data)
 	return output.MakeReading(data), nil
 }
 
@@ -205,7 +205,7 @@ func SortDevices(devices []*sdk.Device, setSortOrdinal bool) (
 		key := ModbusDevice{
 			Host:     deviceData.Host,
 			Port:     deviceData.Port,
-			Register: deviceData.Address, // TODO: Can we have uint16 in the config struct.
+			Register: deviceData.Address,
 		}
 
 		// Add to locals.
@@ -259,7 +259,6 @@ func MapBulkRead(devices []*sdk.Device, setSortOrdinal bool, isCoil bool) (
 
 	for z := 0; z < len(sorted); z++ {
 		log.Debugf("MapBulkRead sorted[%v]: %#v", z, sorted[z])
-		//fmt.Printf("MapBulkRead sorted[%v]: %#v\n", z, sorted[z])
 	}
 
 	for i := 0; i < len(sorted); i++ {
@@ -269,6 +268,10 @@ func MapBulkRead(devices []*sdk.Device, setSortOrdinal bool, isCoil bool) (
 		var deviceData config.ModbusDeviceData
 		err = mapstructure.Decode(device.Data, &deviceData)
 		if err != nil {
+			// Hard failure on configuration issue.
+			log.Errorf(
+				"MapBulkRead failed parsing device.Data, device at:[%v], device: %#v",
+				i, device)
 			return nil, keyOrder, err
 		}
 
@@ -291,28 +294,17 @@ func MapBulkRead(devices []*sdk.Device, setSortOrdinal bool, isCoil bool) (
 
 		log.Debugf("len(keyValues): %v", len(keyValues))
 
-		var outputData config.ModbusDeviceData // TODO: Change outputData to deviceData
-		err := mapstructure.Decode(device.Data, &outputData)
-		if err != nil { // Hard failure on configuration issue.
-			log.Errorf(
-				//"MapBulkRead failed parsing output.Data device at:[%v], device: %#v, output at:[%v], output: %#v",
-				"MapBulkRead failed parsing output.Data device at:[%v], device: %#v",
-				//i, device, j, output)
-				i, device)
-			return nil, keyOrder, err
-		}
+		deviceDataAddress := deviceData.Address
+		deviceDataWidth := deviceData.Width
 
-		outputDataAddress := uint16(outputData.Address) // TODO: Can we have uint16 in the config struct?
-		outputDataWidth := uint16(outputData.Width)     // TODO: As above.
-
-		log.Debugf("outputDataAddress: 0x%04x", outputDataAddress)
-		log.Debugf("outputDataWidth: %d", outputDataWidth)
+		log.Debugf("deviceDataAddress: 0x%04x", deviceDataAddress)
+		log.Debugf("deviceDataWidth: %d", deviceDataWidth)
 
 		// Insert.
 		// If the key is not present, this is a simple insert to the map.
 		if !keyPresent {
 			log.Debugf("Key not present.")
-			modbusBulkRead, err := NewModbusBulkRead(device, outputDataAddress, outputDataWidth, isCoil)
+			modbusBulkRead, err := NewModbusBulkRead(device, deviceDataAddress, deviceDataWidth, isCoil)
 			if err != nil {
 				return nil, keyOrder, err
 			}
@@ -328,7 +320,7 @@ func MapBulkRead(devices []*sdk.Device, setSortOrdinal bool, isCoil bool) (
 			lastRead := reads[len(reads)-1]
 			startRegister := lastRead.StartRegister
 			log.Debugf("startRegister: 0x%0x", startRegister)
-			newRegisterCount := outputDataAddress + outputDataWidth - startRegister
+			newRegisterCount := deviceDataAddress + deviceDataWidth - startRegister
 
 			if newRegisterCount < key.MaximumRegisterCount {
 				log.Debugf("read fits in existing. newRegisterCount: %v", newRegisterCount)
@@ -337,7 +329,7 @@ func MapBulkRead(devices []*sdk.Device, setSortOrdinal bool, isCoil bool) (
 			} else {
 				// Add a new read.
 				log.Debugf("read does not fit in existing. newRegisterCount: %v", newRegisterCount)
-				modbusBulkRead, err := NewModbusBulkRead(device, outputDataAddress, outputDataWidth, isCoil)
+				modbusBulkRead, err := NewModbusBulkRead(device, deviceDataAddress, deviceDataWidth, isCoil)
 				if err != nil {
 					return nil, keyOrder, err
 				}
@@ -357,7 +349,7 @@ func MapBulkReadData(bulkReadMap map[ModbusBulkReadKey][]*ModbusBulkRead, keyOrd
 	// This map tells us if we have already created a read context for this
 	// device and output. We can hit the same device and output more than once in
 	// this loop when there are multiple modbus reads for a single device (more
-	// than 123 register addresses)
+	// than the maximum number ofregister addresses)
 	accountedFor := make(map[*sdk.Device]*output.Output)
 
 	for a := 0; a < len(keyOrder); a++ {
@@ -405,26 +397,25 @@ func MapBulkReadData(bulkReadMap map[ModbusBulkReadKey][]*ModbusBulkRead, keyOrd
 				}
 
 				// TODO: Variable names / Trace names.
-				outputDataAddress := uint16(deviceData.Address) // TODO: Can we have uint16 in the config struct?
-				outputDataWidth := uint16(deviceData.Width)     // TODO: As above.
+				deviceDataAddress := deviceData.Address
+				deviceDataWidth := deviceData.Width
 
-				log.Debugf("outputDataAddress: 0x%04x", outputDataAddress)
-				log.Debugf("outputDataWidth: %d", outputDataWidth)
+				log.Debugf("deviceDataAddress: 0x%04x", deviceDataAddress)
+				log.Debugf("deviceDataWidth: %d", deviceDataWidth)
 				log.Debugf("k.FailOnError: %v", k.FailOnError)
 
 				readResults := read.ReadResults // Raw byte results from modbus call.
 
-				//var reading *sdk.Reading
 				var reading *output.Reading
 				if read.IsCoil {
-					reading, err = UnpackCoilReading(theOutput, read.ReadResults, read.StartRegister, outputDataAddress, k.FailOnError)
+					reading, err = UnpackCoilReading(theOutput, read.ReadResults, read.StartRegister, deviceDataAddress, k.FailOnError)
 					if err != nil {
 						return nil, err
 					}
 				} else {
 					// Get start and end data offsets. Bounds check.
-					startDataOffset := (2 * outputDataAddress) - (2 * read.StartRegister) // Results are in bytes. Need 16 bit words.
-					endDataOffset := startDataOffset + (2 * outputDataWidth)              // Two bytes per register.
+					startDataOffset := (2 * deviceDataAddress) - (2 * read.StartRegister) // Results are in bytes. Need 16 bit words.
+					endDataOffset := startDataOffset + (2 * deviceDataWidth)              // Two bytes per register.
 					readResultsLength := len(readResults)
 
 					log.Debugf("startDataOffset: %d", startDataOffset)
@@ -455,16 +446,12 @@ func MapBulkReadData(bulkReadMap map[ModbusBulkReadKey][]*ModbusBulkRead, keyOrd
 				readings = append(readings, reading)
 
 				// Add to accounted for.
-				//accountedFor[device] = append(accountedFor[device], theOutput)
 				accountedFor[device] = theOutput
-
-				//} // End for each output.
 
 				// Only append a read context if we have readings. (Including nil readings)
 				if len(readings) > 0 {
 					readContext := sdk.NewReadContext(device, readings)
 					readContexts = append(readContexts, readContext)
-					//log.Debugf("Appending readContext: %#v, device: %v, outputs: %#v", readContext, device, outputs)
 					log.Debugf("Appending readContext: %#v, device: %v", readContext, device)
 				} else {
 					log.Debugf("No readings to append. Not creating read context")
@@ -475,7 +462,7 @@ func MapBulkReadData(bulkReadMap map[ModbusBulkReadKey][]*ModbusBulkRead, keyOrd
 	return
 }
 
-// ModbusCallCounter is for testing. Here we increment it once per network round
+// ModbusCallCounter is for testing. We increment it once after each network round
 // trip with any modbus server.
 var modbusCallCounter uint64
 var mutex sync.Mutex
@@ -500,7 +487,7 @@ func ResetModbusCallCounter() {
 func incrementModbusCallCounter() {
 	mutex.Lock()
 	if modbusCallCounter == math.MaxUint64 {
-		modbusCallCounter = 0
+		modbusCallCounter = 0 // roll over
 	} else {
 		modbusCallCounter++
 	}

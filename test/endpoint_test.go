@@ -50,6 +50,7 @@ func TestBulkReadCoils_CoilHandlerOnly(t *testing.T) {
 	var devices []*sdk.Device
 
 	for i := 1; i <= 103; i++ {
+		// TODO:for i := 1; i <= 10000; i++ {
 		device := &sdk.Device{
 			Info: fmt.Sprintf("Coil %d", i),
 			Data: map[string]interface{}{
@@ -84,7 +85,7 @@ func TestBulkReadCoils_CoilHandlerOnly(t *testing.T) {
 	//	fmt.Printf("device[%d]: %+v\n", i, *(permutedDevices[i]))
 	//}
 
-	fmt.Printf("Calling bulk read\n")
+	//fmt.Printf("Calling bulk read\n")
 	modbusDevices.ResetModbusCallCounter() // Zero out the modbus call counter.
 	contexts, err := modbusDevices.CoilsHandler.BulkRead(permutedDevices)
 	assert.NoError(t, err)
@@ -165,7 +166,7 @@ func TestBulkReadHoldingRegisters_HoldingRegisterHandlerOnly(t *testing.T) {
 	//	fmt.Printf("device[%d]: %+v\n", i, *(permutedDevices[i]))
 	//}
 
-	fmt.Printf("Calling bulk read\n")
+	//fmt.Printf("Calling bulk read\n")
 	modbusDevices.ResetModbusCallCounter() // Zero out the modbus call counter.
 	contexts, err := modbusDevices.HoldingRegisterHandler.BulkRead(permutedDevices)
 
