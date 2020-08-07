@@ -3665,7 +3665,6 @@ func TestReadHoldingRegisters_MoreThanOneDevice_IP(t *testing.T) {
 	devices := []*sdk.Device{
 
 		&sdk.Device{
-			//Kind: "pressure",
 			Type: "pressure",
 			Info: "Pressure at IP Address 1",
 			Data: map[string]interface{}{
@@ -3682,7 +3681,6 @@ func TestReadHoldingRegisters_MoreThanOneDevice_IP(t *testing.T) {
 		},
 
 		&sdk.Device{
-			//Kind:   "pressure",
 			Type: "pressure",
 			Info: "Pressure at IP Address 2",
 			Data: map[string]interface{}{
@@ -3729,7 +3727,6 @@ func TestReadHoldingRegisters_MoreThanOneDevice_IP(t *testing.T) {
 	}
 
 	// Validate readings.
-	//expectedReadings := []*output.Reading{
 	expectedReadContexts := []*sdk.ReadContext{
 
 		&sdk.ReadContext{
@@ -3739,7 +3736,6 @@ func TestReadHoldingRegisters_MoreThanOneDevice_IP(t *testing.T) {
 			},
 			Reading: []*output.Reading{
 				{
-					//		Unit:  &output.Unit{Name: "percent", Symbol: "%"},
 					Unit:  &output.Unit{Name: "pounds per square inch", Symbol: "psi"},
 					Value: int16(0x0001),
 				},
@@ -3753,42 +3749,19 @@ func TestReadHoldingRegisters_MoreThanOneDevice_IP(t *testing.T) {
 			},
 			Reading: []*output.Reading{
 				{
-					//		Unit:  &output.Unit{Name: "percent", Symbol: "%"},
 					Unit:  &output.Unit{Name: "pounds per square inch", Symbol: "psi"},
 					Value: int16(0x0001),
 				},
 			},
 		},
-
-		/*
-			&output.Reading{
-				//Type:  "psiTenths",
-				//Info:  "Pressure at IP Address 1",
-				Unit:  &output.Unit{Name: "pounds per square inch", Symbol: "psi"},
-				Value: int16(0x0001),
-			},
-
-			&output.Reading{
-				//Type:  "psiTenths",
-				//Info:  "Pressure at IP Address 2",
-				Unit:  &output.Unit{Name: "pounds per square inch", Symbol: "psi"},
-				Value: int16(0x0001),
-			},
-		*/
-
 	}
-	//t.Logf("expectedReadings: %#v", expectedReadings)
 	t.Logf("expectedReadContexts: %#v", expectedReadContexts)
 
-	//var actualReadings []*output.Reading
 	var actualReadContexts []*sdk.ReadContext
 	for i := 0; i < len(readContexts); i++ {
-		//actualReadings = append(actualReadings, readContexts[i].Reading[0])
 		actualReadContexts = append(actualReadContexts, readContexts[i])
 	}
 
-	//dumpReadings(t, actualReadings)
-	//verifyReadings(t, expectedReadings, actualReadings)
 	dumpReadContexts(t, actualReadContexts)
 	verifyReadings(t, expectedReadContexts, actualReadContexts)
 }
@@ -3799,7 +3772,6 @@ func TestReadHoldingRegisters_MoreThanOneDevice_Port(t *testing.T) {
 	devices := []*sdk.Device{
 
 		&sdk.Device{
-			//Kind:   "pressure",
 			Type: "pressure",
 			Info: "Pressure at Port 502",
 			Data: map[string]interface{}{
@@ -3816,7 +3788,6 @@ func TestReadHoldingRegisters_MoreThanOneDevice_Port(t *testing.T) {
 		},
 
 		&sdk.Device{
-			//Kind:   "pressure",
 			Type: "pressure",
 			Info: "Pressure at Port 503",
 			Data: map[string]interface{}{
@@ -3862,27 +3833,6 @@ func TestReadHoldingRegisters_MoreThanOneDevice_Port(t *testing.T) {
 		t.Fatalf("Two map entries should be present, got %v", len(bulkReadMap))
 	}
 
-	/*
-		// Validate readings.
-		expectedReadings := []*output.Reading{
-
-			&output.Reading{
-				//Type:  "psiTenths",
-				//Info:  "Pressure at Port 502",
-				Unit:  &output.Unit{Name: "pounds per square inch", Symbol: "psi"},
-				Value: int16(0x0001),
-			},
-
-			&output.Reading{
-				//Type:  "psiTenths",
-				//Info:  "Pressure at Port 503",
-				Unit:  &output.Unit{Name: "pounds per square inch", Symbol: "psi"},
-				Value: int16(0x0001),
-			},
-		}
-		t.Logf("expectedReadings: %#v", expectedReadings)
-	*/
-
 	// Expected Read Contexts.
 	expectedReadContexts := []*sdk.ReadContext{
 
@@ -3913,20 +3863,14 @@ func TestReadHoldingRegisters_MoreThanOneDevice_Port(t *testing.T) {
 		},
 	}
 
-	//var actualReadings []*output.Reading
 	var actualReadContexts []*sdk.ReadContext
 	for i := 0; i < len(readContexts); i++ {
-		//actualReadings = append(actualReadings, readContexts[i].Reading[0])
 		actualReadContexts = append(actualReadContexts, readContexts[i])
 	}
 
-	//dumpReadings(t, actualReadings)
-	//verifyReadings(t, expectedReadings, actualReadings)
 	dumpReadContexts(t, actualReadContexts)
 	verifyReadings(t, expectedReadContexts, actualReadContexts)
 }
-
-// TODO: We need a test for coils too and the gap for coils will be different than the test above.
 
 // We will need a read (modbus over IP call) for each device below because we
 // are spanning more registers than will fit in a single read (modbus over IP
@@ -3936,7 +3880,7 @@ func TestReadHoldingRegisters_MultipleReads000(t *testing.T) {
 	devices := []*sdk.Device{
 
 		&sdk.Device{
-			//Kind:   "pressure",
+			Type: "pressure",
 			Info: "Pressure 1",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
@@ -3952,7 +3896,7 @@ func TestReadHoldingRegisters_MultipleReads000(t *testing.T) {
 		},
 
 		&sdk.Device{
-			//Kind:   "pressure",
+			Type: "pressure",
 			Info: "Pressure 2",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
@@ -4012,32 +3956,43 @@ func TestReadHoldingRegisters_MultipleReads000(t *testing.T) {
 	}
 
 	// Validate readings.
-	expectedReadings := []*output.Reading{
+	expectedReadContexts := []*sdk.ReadContext{
 
-		&output.Reading{
-			//Type:  "psiTenths",
-			Unit:  &output.Unit{Name: "pounds per square inch", Symbol: "psi"},
-			Value: int16(0x0001),
+		&sdk.ReadContext{
+			Device: &sdk.Device{
+				Type: "pressure",
+				Info: "Pressure 1",
+			},
+			Reading: []*output.Reading{
+				{
+					Unit:  &output.Unit{Name: "pounds per square inch", Symbol: "psi"},
+					Value: int16(0x0001),
+				},
+			},
 		},
 
-		&output.Reading{
-			//Type:  "psiTenths",
-			Unit:  &output.Unit{Name: "pounds per square inch", Symbol: "psi"},
-			Value: int16(0x0001),
+		&sdk.ReadContext{
+			Device: &sdk.Device{
+				Type: "pressure",
+				Info: "Pressure 2",
+			},
+			Reading: []*output.Reading{
+				{
+					Unit:  &output.Unit{Name: "pounds per square inch", Symbol: "psi"},
+					Value: int16(0x0001),
+				},
+			},
 		},
 	}
-	t.Logf("expectedReadings: %#v", expectedReadings)
+	t.Logf("expectedReadContexts: %#v", expectedReadContexts)
 
-	var actualReadings []*output.Reading
+	var actualReadContexts []*sdk.ReadContext
 	for i := 0; i < len(readContexts); i++ {
-		actualReadings = append(actualReadings, readContexts[i].Reading[0])
+		actualReadContexts = append(actualReadContexts, readContexts[i])
 	}
 
-	dumpReadings(t, actualReadings)
-	/*
-	  TODO: Fix
-	  verifyReadings(t, expectedReadings, actualReadings)
-	*/
+	dumpReadContexts(t, actualReadContexts)
+	verifyReadings(t, expectedReadContexts, actualReadContexts)
 }
 
 // We will need a read for each device below because we are spanning more
@@ -4048,7 +4003,7 @@ func TestReadHoldingRegisters_MultipleReads001(t *testing.T) {
 	devices := []*sdk.Device{
 
 		&sdk.Device{
-			//Kind:   "pressure",
+			Type: "pressure",
 			Info: "Pressure 1",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
@@ -4064,14 +4019,14 @@ func TestReadHoldingRegisters_MultipleReads001(t *testing.T) {
 		},
 
 		&sdk.Device{
-			//Kind:   "temperature",
+			Type: "temperature",
 			Info: "Temperature",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
 				"port":        502,
 				"timeout":     "10s",
 				"failOnError": false,
-				"address":     MaximumRegisterCount - 1,
+				"address":     MaximumRegisterCount - 1, // TODO: This is your limit issue with the endpoint tests here. (probably anyway)
 				"width":       2,
 				"type":        "s32",
 			},
@@ -4111,19 +4066,33 @@ func TestReadHoldingRegisters_MultipleReads001(t *testing.T) {
 	}
 
 	// Validate readings.
-	expectedReadings := []*output.Reading{
+	expectedReadContexts := []*sdk.ReadContext{
 
-		&output.Reading{
-			//Type:  "psiTenths",
-			Unit:  &output.Unit{Name: "pounds per square inch", Symbol: "psi"},
-			Value: int16(0x0001),
+		&sdk.ReadContext{
+			Device: &sdk.Device{
+				Type: "pressure",
+				Info: "Pressure 1",
+			},
+			Reading: []*output.Reading{
+				{
+					Unit:  &output.Unit{Name: "pounds per square inch", Symbol: "psi"},
+					Value: int16(0x0001),
+				},
+			},
 		},
 
-		&output.Reading{
-			//Type:  "temperature",
-			Unit: &output.Unit{Name: "celsius", Symbol: "C"},
-			// Below is correct because we get the first four bytes of 0x00, 0x01, 0x02, 0x03.
-			Value: int32(0x00010203),
+		&sdk.ReadContext{
+			Device: &sdk.Device{
+				Type: "temperature",
+				Info: "Temperature",
+			},
+			Reading: []*output.Reading{
+				{
+					Unit: &output.Unit{Name: "celsius", Symbol: "C"},
+					// Below is correct because we get the first four bytes of 0x00, 0x01, 0x02, 0x03.
+					Value: int32(0x00010203),
+				},
+			},
 		},
 	}
 
@@ -4140,18 +4109,15 @@ func TestReadHoldingRegisters_MultipleReads001(t *testing.T) {
 		t.Fatalf("Expected two reads, got %v", len(bulkReadMap[expectedKey]))
 	}
 
-	t.Logf("expectedReadings: %#v", expectedReadings)
+	t.Logf("expectedReadContexts: %#v", expectedReadContexts)
 
-	var actualReadings []*output.Reading
+	var actualReadContexts []*sdk.ReadContext
 	for i := 0; i < len(readContexts); i++ {
-		actualReadings = append(actualReadings, readContexts[i].Reading[0])
+		actualReadContexts = append(actualReadContexts, readContexts[i])
 	}
 
-	dumpReadings(t, actualReadings)
-	/*
-		  TODO: Fix
-			verifyReadings(t, expectedReadings, actualReadings)
-	*/
+	dumpReadContexts(t, actualReadContexts)
+	verifyReadings(t, expectedReadContexts, actualReadContexts)
 }
 
 // TODO:
