@@ -3180,40 +3180,126 @@ func TestVEM(t *testing.T) {
 				},
 			},
 		},
+
+		&sdk.ReadContext{
+			Device: &sdk.Device{
+				Type: "InWCThousanths",
+				Info: "Server Rack Differential Pressure",
+			},
+			Reading: []*output.Reading{
+				{
+					// Synse v3 change, was: Unit:  &output.Unit{Name: "inches of water column", Symbol: "InWC"},
+					Unit:  &output.Unit{Name: "inches of water column", Symbol: "inch wc"},
+					Value: int16(0x0c0d),
+				},
+			},
+		},
+
+		&sdk.ReadContext{
+			Device: &sdk.Device{
+				Type: "temperature",
+				Info: "System Leaving Fluid Temperature",
+			},
+			Reading: []*output.Reading{
+				{
+					Unit:  &output.Unit{Name: "celsius", Symbol: "C"},
+					Value: int16(0x1213),
+				},
+			},
+		},
+
+		&sdk.ReadContext{
+			Device: &sdk.Device{
+				Type: "temperature",
+				Info: "Return Air Temperature",
+			},
+			Reading: []*output.Reading{
+				{
+					Unit:  &output.Unit{Name: "celsius", Symbol: "C"},
+					Value: int16(0x1819),
+				},
+			},
+		},
+
+		&sdk.ReadContext{
+			Device: &sdk.Device{
+				Type: "temperature",
+				Info: "Outdoor Air Temperature",
+			},
+			Reading: []*output.Reading{
+				{
+					Unit:  &output.Unit{Name: "celsius", Symbol: "C"},
+					Value: int16(0x1c1d),
+				},
+			},
+		},
+
+		&sdk.ReadContext{
+			Device: &sdk.Device{
+				Type: "",
+				Info: "",
+			},
+			Reading: []*output.Reading{
+				{
+					Unit:  &output.Unit{Name: "", Symbol: ""},
+					Value: int16(0),
+				},
+			},
+		},
+
+		&sdk.ReadContext{
+			Device: &sdk.Device{
+				Type: "",
+				Info: "",
+			},
+			Reading: []*output.Reading{
+				{
+					Unit:  &output.Unit{Name: "", Symbol: ""},
+					Value: int16(0),
+				},
+			},
+		},
+		&sdk.ReadContext{
+			Device: &sdk.Device{
+				Type: "",
+				Info: "",
+			},
+			Reading: []*output.Reading{
+				{
+					Unit:  &output.Unit{Name: "", Symbol: ""},
+					Value: int16(0),
+				},
+			},
+		},
+		&sdk.ReadContext{
+			Device: &sdk.Device{
+				Type: "",
+				Info: "",
+			},
+			Reading: []*output.Reading{
+				{
+					Unit:  &output.Unit{Name: "", Symbol: ""},
+					Value: int16(0),
+				},
+			},
+		},
+		&sdk.ReadContext{
+			Device: &sdk.Device{
+				Type: "",
+				Info: "",
+			},
+			Reading: []*output.Reading{
+				{
+					Unit:  &output.Unit{Name: "", Symbol: ""},
+					Value: int16(0),
+				},
+			},
+		},
 		// THIS IS WHERE YOU INSERT THE NEXT ONE.
+
 	}
 
 	/*
-
-
-			&output.Reading{
-				//Type:  "InWCThousanths",
-				//Info:  "Server Rack Differential Pressure",
-				// Synse v3 change, was: Unit:  &output.Unit{Name: "inches of water column", Symbol: "InWC"},
-				Unit:  &output.Unit{Name: "inches of water column", Symbol: "inch wc"},
-				Value: int16(0x0c0d),
-			},
-
-			&output.Reading{
-				//Type:  "temperature",
-				//Info:  "System Leaving Fluid Temperature",
-				Unit:  &output.Unit{Name: "celsius", Symbol: "C"},
-				Value: int16(0x1213),
-			},
-
-			&output.Reading{
-				//Type:  "temperature",
-				//Info:  "Return Air Temperature",
-				Unit:  &output.Unit{Name: "celsius", Symbol: "C"},
-				Value: int16(0x1819),
-			},
-
-			&output.Reading{
-				//Type:  "temperature",
-				//Info:  "Outdoor Air Temperature",
-				Unit:  &output.Unit{Name: "celsius", Symbol: "C"},
-				Value: int16(0x1c1d),
-			},
 
 			&output.Reading{
 				//Type:  "temperature",
