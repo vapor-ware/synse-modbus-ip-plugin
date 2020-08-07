@@ -72,19 +72,19 @@ func TestBulkReadCoils_CoilHandlerOnly(t *testing.T) {
 	}
 
 	// Do the bulk read.
-	modbusDevices.ResetModbusCallCounter() // Zero out the modbus call counter.
+	modbusDevices.ResetModbusCallCounter()                           // Zero out the modbus call counter.
 	assert.Equal(t, uint64(0), modbusDevices.GetModbusCallCounter()) // Verify.
 	contexts, err := modbusDevices.CoilsHandler.BulkRead(permutedDevices)
 	assert.NoError(t, err)
 	assert.Equal(t, uint64(1), modbusDevices.GetModbusCallCounter()) // One modbus call on the wire for this bulk read.
 	assert.Equal(t, len(devices), len(contexts))                     // One context per device.
 
-		// Programmatically verify contexts.
+	// Programmatically verify contexts.
 	for i := 0; i < len(contexts); i++ {
 
-    // contexts[i].Device
+		// contexts[i].Device
 		// Context device is the same as in the ordered device list.
-    // TODO: We can do this in the unit tests, can't we?
+		// TODO: We can do this in the unit tests, can't we?
 		assert.Equal(t, devices[i].Info, contexts[i].Device.Info)
 		// Handler is the same.
 		assert.Equal(t, devices[i].Handler, contexts[i].Device.Handler)

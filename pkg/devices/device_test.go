@@ -98,6 +98,7 @@ func dumpReadContexts(t *testing.T, readContexts []*sdk.ReadContext) {
 	t.Logf("readContexts: len %v, %#v", len(readContexts), readContexts)
 	for i := 0; i < len(readContexts); i++ {
 		readContext := readContexts[i]
+		t.Logf("\tdevice[%v]: %#v", i, readContext.Device)
 		t.Logf("readContexts[%v]: %#v", i, readContext)
 		for j := 0; j < len(readContext.Reading); j++ {
 			reading := readContext.Reading[j]
@@ -106,6 +107,7 @@ func dumpReadContexts(t *testing.T, readContexts []*sdk.ReadContext) {
 	}
 
 	t.Logf("--- Dumping read contexts end ---")
+	//t.Fatalf("STOP")
 }
 
 // dumpReadings dumps out the given readings to the test log.
@@ -138,7 +140,10 @@ func populateBulkReadMap(t *testing.T, bulkReadMap map[ModbusBulkReadKey][]*Modb
 // In the end it makes this test simpler because we only need to verify the raw
 // int16/uint16 modbus readings rather than modified floats.
 //func verifyReadings(t *testing.T, expected []*output.Reading, actual []*sdk.Reading) {
+// TODO: For synse v3, We need to pass in the contexts here rather than the reading because Info is in context.Device.Info.
+// TODO: ^MAYBE? => YES WE NEED TO.
 func verifyReadings(t *testing.T, expected []*output.Reading, actual []*output.Reading) {
+	//	func verifyReadings(t *testing.T, expected []*sdk.ReadContext, actual []*sdk.ReadContext) {
 
 	t.Logf("*** verifyReadings start ------------------------\n")
 	// debugging
@@ -157,6 +162,8 @@ func verifyReadings(t *testing.T, expected []*output.Reading, actual []*output.R
 
 	for i := 0; i < expectedLen; i++ {
 		reading := actual[i]
+		//readContext := actual[i]
+		//reading = readContext.Reading
 
 		// TODO: Should type should be validated and needs to be setup in the test devices?
 		// Validate expected versus actual.
@@ -166,6 +173,10 @@ func verifyReadings(t *testing.T, expected []*output.Reading, actual []*output.R
 
 		// TODO: Leave this here. Info was removed from the reading in synse v3, but it should be put back.
 		// TODO: sdk ticket for this and context.
+		//if (*(expected[i])).Info != (*reading).Info {
+		//	t.Fatalf("reading[%v].Info. expected: %v, actual: %v", i, (*(expected[i])).Info, (*(reading)).Info)
+		//}
+
 		//if (*(expected[i])).Info != (*reading).Info {
 		//	t.Fatalf("reading[%v].Info. expected: %v, actual: %v", i, (*(expected[i])).Info, (*(reading)).Info)
 		//}
