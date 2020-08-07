@@ -16,8 +16,6 @@ import (
 	"github.com/vapor-ware/synse-sdk/sdk/output"
 )
 
-// TODO: We need read only coil and holding register.
-
 // MaximumRegisterCount is The technical maximum is 123 for ReadHoldingRegisters over IP.
 const MaximumRegisterCount uint16 = 123
 
@@ -333,7 +331,7 @@ func MapBulkRead(devices []*sdk.Device, isCoil bool) (
 				keyOrder = append(keyOrder, key)
 			}
 		}
-		//} // For each output
+		//} // For each output // TODO: YOU MAY WANT/NEED TO PUT THIS LOOP BACK DESPITE 1 READING FOR ALL MODBUS DEVICES.
 	} // For each device.
 	return bulkReadMap, keyOrder, nil
 }
@@ -427,6 +425,7 @@ func MapBulkReadData(bulkReadMap map[ModbusBulkReadKey][]*ModbusBulkRead, keyOrd
 						readings = append(readings, nil)
 						//fmt.Printf("*** readings after appending nil: %#v\n", readings)
 						// Append a read context here for the nil reading.
+						// TODO: Have a second look at these two lines of code when you put the output loop back in.
 						readContext := sdk.NewReadContext(device, readings)
 						readContexts = append(readContexts, readContext)
 						continue // Next device.

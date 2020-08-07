@@ -13,7 +13,15 @@ import (
 
 // testData for raw data from modbus.
 // Each data point is the offset index so that we can see that we have the correct offsets.
-// Holding register 1 gets 0x00, 0x01 because holding register 0 is not read.
+// The first register in a bulk read will get 0x00, 0x01 and the rest of the registers in a
+// bulk read will be offset from there.
+// Example:
+// Bulk read holding registers 4, 6, 9i, 12.
+// Every read gets two bytes for a reading.
+// register 4 gets 0x00, 0x01 (The first two bytes).
+// register 6 gets 0x04, 0x05 because 6 is two more than 4.
+// register 9 gets 0x0a, 0x0b because 9 is three more than 6.
+// register 12 gets 0x10, 0x11 because 12 is three more than 9.
 var testData = []uint8{
 	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
 	0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
@@ -107,7 +115,6 @@ func dumpReadContexts(t *testing.T, readContexts []*sdk.ReadContext) {
 	}
 
 	t.Logf("--- Dumping read contexts end ---")
-	//t.Fatalf("STOP")
 }
 
 // dumpReadings dumps out the given readings to the test log.
@@ -118,18 +125,6 @@ func dumpReadings(t *testing.T, readings []*output.Reading) {
 		t.Logf("reading.Value: 0x%04x, type %T", readings[i].Value, readings[i].Value)
 	}
 }
-
-/*
-// TODO: Decide to keep this or the original function.
-// dumpReadContexts dumps out the given readings to the test log.
-func dumpReadContexts(t *testing.T, readContexts []*sdk.ReadContext) {
-	for i := 0; i < len(readContexts); i++ {
-		t.Logf("device[%d]: %#v", i, readContexts[i].Device)
-		t.Logf("reading[%d]: %#v", i, readingContexts[i].Reading)
-		t.Logf("reading.Value: 0x%04x, type %T", readingContexts[i].Reading.Value, readingContextss[i].Reading.Value)
-	}
-}
-*/
 
 // populateBulkReadMap populates a bulk read map with raw modbus data.
 func populateBulkReadMap(t *testing.T, bulkReadMap map[ModbusBulkReadKey][]*ModbusBulkRead, keyOrder []ModbusBulkReadKey) {
@@ -142,7 +137,7 @@ func populateBulkReadMap(t *testing.T, bulkReadMap map[ModbusBulkReadKey][]*Modb
 	}
 }
 
-// verifyReadings verifies that the expected slice of readings are the same as
+// verifyReadContexts verifies that the expected slice of readings are the same as
 // the actual raw nmodbus readings. Order matters.
 // There is a caveat here. For synse v2 scaling and unit conversions were
 // performed by the sdk for this test. For synse v3, these are called
@@ -151,17 +146,13 @@ func populateBulkReadMap(t *testing.T, bulkReadMap map[ModbusBulkReadKey][]*Modb
 // https://github.com/vapor-ware/synse-sdk/blob/daad6cb4f63a975772e0584783ca7c7e5e6823f6/sdk/scheduler.go#L620-L626
 // In the end it makes this test simpler because we only need to verify the raw
 // int16/uint16 modbus readings rather than modified floats.
-//func verifyReadings(t *testing.T, expected []*output.Reading, actual []*sdk.Reading) {
-// TODO: For synse v3, We need to pass in the contexts here rather than the reading because Info is in context.Device.Info.
-// TODO: ^MAYBE? => YES WE NEED TO.
-//func verifyReadings(t *testing.T, expected []*output.Reading, actual []*output.Reading) {
 // The Info and Type fields on the reading was moved to the device context, so we need to
 // pass in []*sdk.DeviceContext in synse v3 rather than the []*sdk.Reading we
 // passed in for synse v2 (which has changed to output.Reading in synse v3).
-func verifyReadings(t *testing.T, expected []*sdk.ReadContext, actual []*sdk.ReadContext) {
+func verifyReadContexts(t *testing.T, expected []*sdk.ReadContext, actual []*sdk.ReadContext) {
 
-	t.Logf("*** verifyReadings start ------------------------\n")
-	// debugging
+	t.Logf("*** verifyReadContexts start ------------------------\n")
+	// This debugging code is only output on failure and makes things simpler.
 	t.Logf("*** expected readings:\n")
 	dumpReadContexts(t, expected)
 	t.Logf("*** actual readings:\n")
@@ -229,7 +220,7 @@ func verifyReadings(t *testing.T, expected []*sdk.ReadContext, actual []*sdk.Rea
 				(*actualReading).Value)
 		}
 	}
-	t.Logf("*** verifyReadings end ------------------------\n")
+	t.Logf("*** verifyReadContexts end ------------------------\n")
 }
 
 // verifySingleNilReading verifies that there is one read context with one
@@ -269,7 +260,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 	// Create devices for testing.
 	devices = []*sdk.Device{
 		&sdk.Device{
-			//Kind:   "egauge.seconds.timestamp",
+			Type: "duration",
 			Info: "EGauge Local Timestamp Seconds", // Considered merging with microseconds, but unclear if we need this yet.
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -285,7 +276,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.microseconds.timestamp",
+			Type: "duration",
 			Info: "EGauge Local Timestamp Microseconds",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -301,7 +292,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.thd.seconds.timestamp",
+			Type: "duration",
 			Info: "EGauge THD Timestamp Seconds",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -317,7 +308,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.thd.microseconds.timestamp",
+			Type: "duration",
 			Info: "EGauge THD Timestamp Microseconds",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -333,7 +324,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.register.seconds.timestamp",
+			Type: "duration",
 			Info: "EGauge Register Timestamp Seconds",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -350,7 +341,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 
 		// Leg 1 to neutral RMS voltage
 		&sdk.Device{
-			//Kind:   "egauge.rms.voltage",
+			Type: "voltage",
 			Info: "EGauge L1 RMS Voltage",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -367,7 +358,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 
 		// Leg 2 to neutral RMS voltage
 		&sdk.Device{
-			//Kind:   "egauge.rms.voltage",
+			Type: "voltage",
 			Info: "EGauge L2 RMS Voltage",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -384,7 +375,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 
 		// Leg 3 to neutral RMS voltage
 		&sdk.Device{
-			//Kind:   "egauge.rms.voltage",
+			Type: "voltage",
 			Info: "EGauge L3 RMS Voltage",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -401,7 +392,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 
 		// Leg 1 to Leg 2 RMS voltage
 		&sdk.Device{
-			//Kind:   "egauge.rms.voltage",
+			Type: "voltage",
 			Info: "EGauge L1-L2 RMS Voltage",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -418,7 +409,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 
 		// Leg 2 to Leg3 RMS voltage
 		&sdk.Device{
-			//Kind:   "egauge.rms.voltage",
+			Type: "voltage",
 			Info: "EGauge L2-L3 RMS Voltage",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -435,7 +426,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 
 		// Leg 3 to Leg 1 RMS voltage
 		&sdk.Device{
-			//Kind:   "egauge.rms.voltage",
+			Type: "voltage",
 			Info: "EGauge L3-L1 RMS Voltage",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -451,7 +442,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.mean.voltage",
+			Type: "voltage",
 			Info: "EGauge L1 Mean DC Voltage",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -467,7 +458,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.mean.voltage",
+			Type: "voltage",
 			Info: "EGauge L2 Mean DC Voltage",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -483,7 +474,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.mean.voltage",
+			Type: "voltage",
 			Info: "EGauge L3 Mean DC Voltage",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -499,7 +490,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.mean.voltage",
+			Type: "voltage",
 			Info: "EGauge L1-L2 Mean DC Voltage",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -515,7 +506,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.mean.voltage",
+			Type: "voltage",
 			Info: "EGauge L2-L3 Mean DC Voltage",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -531,7 +522,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.mean.voltage",
+			Type: "voltage",
 			Info: "EGauge L3-L1 Mean DC Voltage",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -549,7 +540,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		// Line frequency for the RMS voltages (these should all read 60 Hz)
 
 		&sdk.Device{
-			//Kind:   "egauge.frequency",
+			Type: "frequency",
 			Info: "L1 Frequency",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -565,7 +556,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.frequency",
+			Type: "frequency",
 			Info: "L2 Frequency",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -581,7 +572,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.frequency",
+			Type: "frequency",
 			Info: "L3 Frequency",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -597,7 +588,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.frequency",
+			Type: "frequency",
 			Info: "L1-L2 Frequency",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -613,7 +604,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.frequency",
+			Type: "frequency",
 			Info: "L2-L3 Frequency",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -629,7 +620,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.frequency",
+			Type: "frequency",
 			Info: "L3-L1 Frequency",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -645,7 +636,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.rms.current",
+			Type: "current",
 			Info: "Zone 1 RMS Current 1",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -661,7 +652,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.rms.current",
+			Type: "current",
 			Info: "Zone 1 RMS Current 2",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -677,7 +668,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.rms.current",
+			Type: "current",
 			Info: "Zone 1 RMS Current 3",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -693,7 +684,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.rms.current",
+			Type: "current",
 			Info: "Zone 2 RMS Current 1",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -709,7 +700,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.rms.current",
+			Type: "current",
 			Info: "Zone 2 RMS Current 2",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -725,7 +716,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.rms.current",
+			Type: "current",
 			Info: "Zone 2 RMS Current 3",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -741,7 +732,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.rms.current",
+			Type: "current",
 			Info: "Zone 3 RMS Current 1",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -757,7 +748,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.rms.current",
+			Type: "current",
 			Info: "Zone 3 RMS Current 2",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -773,7 +764,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.rms.current",
+			Type: "current",
 			Info: "Zone 3 RMS Current 3",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -789,7 +780,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.rms.current",
+			Type: "current",
 			Info: "Zone 4 RMS Current 1",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -805,7 +796,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.rms.current",
+			Type: "current",
 			Info: "Zone 4 RMS Current 2",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -821,7 +812,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.rms.current",
+			Type: "current",
 			Info: "Zone 4 RMS Current 3",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -837,7 +828,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.dc.current",
+			Type: "current",
 			Info: "Zone 1 Mean DC Current 1",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -853,7 +844,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.dc.current",
+			Type: "current",
 			Info: "Zone 1 Mean DC Current 2",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -869,7 +860,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.dc.current",
+			Type: "current",
 			Info: "Zone 1 Mean DC Current 3",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -885,7 +876,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.dc.current",
+			Type: "current",
 			Info: "Zone 2 Mean DC Current 1",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -901,7 +892,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.dc.current",
+			Type: "current",
 			Info: "Zone 2 Mean DC Current 2",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -917,7 +908,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.dc.current",
+			Type: "current",
 			Info: "Zone 2 Mean DC Current 3",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -933,7 +924,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.dc.current",
+			Type: "current",
 			Info: "Zone 3 Mean DC Current 1",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -949,7 +940,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.dc.current",
+			Type: "current",
 			Info: "Zone 3 Mean DC Current 2",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -965,7 +956,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.dc.current",
+			Type: "current",
 			Info: "Zone 3 Mean DC Current 3",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -981,7 +972,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.dc.current",
+			Type: "current",
 			Info: "Zone 4 Mean DC Current 1",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -997,7 +988,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.dc.current",
+			Type: "current",
 			Info: "Zone 4 Mean DC Current 2",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1013,7 +1004,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.dc.current",
+			Type: "current",
 			Info: "Zone 4 Mean DC Current 3",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1029,7 +1020,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.frequency",
+			Type: "frequency",
 			Info: "Zone 1 Frequency 1",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1045,7 +1036,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.fewquency",
+			Type: "frequency",
 			Info: "Zone 1 Frequency 2",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1061,7 +1052,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.frequency",
+			Type: "frequency",
 			Info: "Zone 1 Frequency 3",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1077,7 +1068,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.frequency",
+			Type: "frequency",
 			Info: "Zone Frequency 1",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1093,7 +1084,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.frequency",
+			Type: "frequency",
 			Info: "Zone Frequency 2",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1109,7 +1100,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.frequency",
+			Type: "frequency",
 			Info: "Zone 2 Frequency 3",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1125,7 +1116,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.frequency",
+			Type: "frequency",
 			Info: "Zone 3 Frequency 1",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1141,7 +1132,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.frequency",
+			Type: "frequency",
 			Info: "Zone Frequency 2",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1157,7 +1148,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.frequency",
+			Type: "frequency",
 			Info: "Zone 3 Frequency 3",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1173,7 +1164,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.frequency",
+			Type: "frequency",
 			Info: "Zone 4 Frequency 1",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1189,7 +1180,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.frequency",
+			Type: "frequency",
 			Info: "Zone 4 Frequency 2",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1205,7 +1196,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.frequency",
+			Type: "frequency",
 			Info: "Zone 4 Frequency 3",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1221,7 +1212,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Total Cumulative Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1237,7 +1228,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Generated Cumulative Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1253,7 +1244,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 1 Cumulative Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1269,7 +1260,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 2 Cumulative Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1285,7 +1276,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 3 Cumulative Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1301,7 +1292,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 4 Cumulative Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1317,7 +1308,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.flux",
+			Type: "volt-second",
 			Info: "L1-L2 Cumulative Flux",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1333,7 +1324,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.flux",
+			Type: "volt-second",
 			Info: "L2-L3 Cumulative Flux",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1349,7 +1340,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.flux",
+			Type: "volt-second",
 			Info: "L3-L1 Cumulative Flux",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1365,7 +1356,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 1 L1 Cumulative Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1381,7 +1372,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 1 L2 Cumulative Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1397,7 +1388,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 1 L3 Cumulative Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1413,7 +1404,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 2 L1 Cumulative Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1429,7 +1420,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 2 L2 Cumulative Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1445,7 +1436,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 2 L3 Cumulative Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1461,7 +1452,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 3 L1 Cumulative Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1477,7 +1468,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 3 L2 Cumulative Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1493,7 +1484,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 3 L3 Cumulative Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1509,7 +1500,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 4 L1 Cumulative Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1525,7 +1516,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 4 L2 Cumulative Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1541,7 +1532,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 4 L3 Cumulative Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1557,7 +1548,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Total Instantaneous Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1573,7 +1564,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Generated Instantaneous Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1589,7 +1580,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 1 Instantaneous Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1605,7 +1596,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 2 Instantaneous Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1621,7 +1612,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 3 Instantaneous Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1637,7 +1628,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 4 Instantaneous Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1653,7 +1644,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.flux",
+			Type: "volt-second",
 			Info: "L1-L2 Instantaneous Flux",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1669,7 +1660,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.flux",
+			Type: "volt-second",
 			Info: "L2-L3 Instantaneous Flux",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1685,7 +1676,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.flux",
+			Type: "volt-second",
 			Info: "L3-L1 Instantaneous Flux",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1701,7 +1692,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 1 L1 Instantaneous Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1717,7 +1708,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 1 L2 Instantaneous Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1733,7 +1724,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 1 L3 Instantaneous Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1749,7 +1740,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 2 L1 Instantaneous Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1765,7 +1756,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 2 L2 Instantaneous Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1781,7 +1772,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 2 L3 Instantaneous Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1797,7 +1788,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 3 L1 Instantaneous Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1813,7 +1804,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 3 L2 Instantaneous Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1829,7 +1820,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 3 L3 Instantaneous Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1845,7 +1836,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 4 L1 Instantaneous Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1861,7 +1852,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 4 L2 Instantaneous Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1877,7 +1868,6 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
 			Info: "Zone 4 L3 Instantaneous Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1893,7 +1883,6 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
 			Info: "Total Cumulative Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1909,7 +1898,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Generated Cumulative Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1925,7 +1914,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 1 Cumulative Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1941,7 +1930,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 2 Cumulative Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1957,7 +1946,6 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
 			Info: "Zone 3 Cumulative Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1973,7 +1961,6 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
 			Info: "Zone 4 Cumulative Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -1989,7 +1976,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.flux",
+			Type: "volt-second",
 			Info: "L1-L2 Cumulative Flux",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -2005,7 +1992,6 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.flux",
 			Info: "L2-L3 Cumulative Flux",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -2021,7 +2007,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.flux",
+			Type: "volt-second",
 			Info: "L3-L1 Cumulative Flux",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -2037,7 +2023,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 1 L1 Cumulative Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -2053,7 +2039,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 1 L2 Cumulative Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -2069,7 +2055,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 1 L3 Cumulative Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -2085,7 +2071,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 2 L1 Cumulative Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -2101,7 +2087,6 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
 			Info: "Zone 2 L2 Cumulative Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -2117,7 +2102,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 2 L3 Cumulative Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -2133,7 +2118,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 3 L1 Cumulative Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -2149,7 +2134,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 3 L2 Cumulative Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -2165,7 +2150,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 3 L3 Cumulative Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -2181,7 +2166,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 4 L1 Cumulative Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -2197,7 +2182,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 4 L2 Cumulative Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -2213,7 +2198,7 @@ func getEGaugeDevices() (devices []*sdk.Device) {
 		},
 
 		&sdk.Device{
-			//Kind:   "egauge.power",
+			Type: "power",
 			Info: "Zone 4 L3 Cumulative Power",
 			Data: map[string]interface{}{
 				"host":        egaugeIP1,
@@ -2241,7 +2226,7 @@ func Test000(t *testing.T) {
 	// Create devices for testing.
 	devices := []*sdk.Device{
 		&sdk.Device{
-			//Kind:   "vem-plc.return.air.temperature.setpoint.temperature",
+			Type: "temperature",
 			Info: "Return Air Temperature Setpoint",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
@@ -2255,7 +2240,7 @@ func Test000(t *testing.T) {
 			Output: "temperature",
 		},
 		&sdk.Device{
-			//Kind:   "vem-plc.return.air.temperature",
+			Type: "temperature",
 			Info: "Return Air Temperature",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
@@ -2270,7 +2255,7 @@ func Test000(t *testing.T) {
 		},
 
 		&sdk.Device{
-			//Kind:   "vem-plc.cooling.coil.leaving.air.temperature",
+			Type: "temperature",
 			Info: "Cooling Coil Leaving Air Temperature",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
@@ -3095,7 +3080,8 @@ func TestVEM(t *testing.T) {
 
 	// TODO: We need to register the outputs in pkg/outputs/outputs.go for this test.
 	// TODO: The synse-sdk is faling silently when looking up an output by string,
-	// TODO: That should be an error at configurtation / initialization time,
+	// TODO: That should be an error at configuration / initialization time,
+	// TODO: and a run time check in MakeReading with an error containing device information,
 	// TODO: not a panic at runtime under MakeReading because you'll never get a
 	// TODO: reading from a synse device without an output ... Unless the device is write-only.
 	// TODO: Probably true for other string fields in struct sdk.Device.
@@ -3117,14 +3103,12 @@ func TestVEM(t *testing.T) {
 		t.Fatalf("expected 1 reading in readContextsRegisters[0], got %v", len(readContextsRegisters[0].Reading))
 	}
 
-	// Expected holding register readings from the VEM PLC.
+	// Expected holding register read contexts from the VEM PLC.
 	// We expect the raw modbus int 16 register data here.
-	// See the comment for verifyReadings for details.
+	// See the comment for verifyReadContexts for details.
 	// For synse v3, this has changed to sdk.ReadContext because we would like to
 	// validate readContext.Device.Info which is no longer part of the reading.
-	//expectedRegisterReadings := []*output.Reading{
-	//expectedRegisterReadings := []*sdk.ReadContext{ // expected holding register readings
-	expectedRegisterReadContexts := []*sdk.ReadContext{ // expected holding register readings
+	expectedRegisterReadContexts := []*sdk.ReadContext{
 
 		&sdk.ReadContext{
 			Device: &sdk.Device{
@@ -3187,7 +3171,8 @@ func TestVEM(t *testing.T) {
 			},
 			Reading: []*output.Reading{
 				{
-					// Synse v3 change, was: Unit:  &output.Unit{Name: "inches of water column", Symbol: "InWC"},
+					// Unit has changed on the lastest BasX doc, approximately July 2020.
+					// was: Unit:  &output.Unit{Name: "inches of water column", Symbol: "InWC"},
 					Unit:  &output.Unit{Name: "inches of water column", Symbol: "inch wc"},
 					Value: int16(0x0c0d),
 				},
@@ -3337,7 +3322,6 @@ func TestVEM(t *testing.T) {
 			},
 		},
 
-		// THIS IS WHERE YOU INSERT THE NEXT ONE.
 		&sdk.ReadContext{
 			Device: &sdk.Device{
 				Type: "fan",
@@ -3352,28 +3336,17 @@ func TestVEM(t *testing.T) {
 		},
 	}
 
-	//t.Logf("expectedRegisterReadings: %#v", expectedRegisterReadings)
 	t.Logf("expectedRegisterReadContexts: %#v", expectedRegisterReadContexts)
 
-	//var actualRegisterReadings []*output.Reading
 	var actualRegisterReadContexts []*sdk.ReadContext
 	for i := 0; i < len(readContextsRegisters); i++ {
-		//actualRegisterReadings = append(actualRegisterReadings, readContextsRegisters[i].Reading[0])
-		//actualRegisterReadContexts = append(actualRegisterReadContexts, readContextsRegisters[i].Reading[0])
 		actualRegisterReadContexts = append(actualRegisterReadContexts, readContextsRegisters[i])
 	}
 
-	//t.Logf("*** Dumping actualRegisterReadings start\n")
-	//dumpReadings(t, actualRegisterReadings)
 	t.Logf("*** Dumping actualRegisterReadContexts start\n")
-	//dumpReadings(t, actualRegisterReadContexts)
 	dumpReadContexts(t, actualRegisterReadContexts)
-	//verifyReadings(t, expectedRegisterReadings, actualRegisterReadings)
-	//verifyReadings(t, expectedRegisterReadContexts, actualRegisterReadings)
-	verifyReadings(t, expectedRegisterReadContexts, actualRegisterReadContexts)
+	verifyReadContexts(t, expectedRegisterReadContexts, actualRegisterReadContexts)
 	t.Logf("*** Dumping actualRegisterReadContexts end\n")
-
-	// TODO: Put this back once done with the Holding Register shitshow.
 
 	// Coils
 	populateBulkReadMap(t, bulkReadMapCoils, keyOrderCoils)
@@ -3397,7 +3370,6 @@ func TestVEM(t *testing.T) {
 	}
 
 	// Expected coil readings for the VEM PLC.
-	//expectedCoilReadings := []*output.Reading{
 	expectedCoilReadContexts := []*sdk.ReadContext{
 
 		// Coils have nil Output.Unit.
@@ -3507,7 +3479,7 @@ func TestVEM(t *testing.T) {
 	t.Logf("*** Dumping actualCoilReadContexts start\n")
 	dumpReadContexts(t, actualCoilReadContexts)
 
-	verifyReadings(t, expectedCoilReadContexts, actualCoilReadContexts)
+	verifyReadContexts(t, expectedCoilReadContexts, actualCoilReadContexts)
 
 	// Input Registers.
 	populateBulkReadMap(t, bulkReadMapInput, keyOrderInput)
@@ -3561,7 +3533,7 @@ func TestReadHoldingRegisters_NoConnection_FailOnError(t *testing.T) {
 
 	devices := []*sdk.Device{
 		&sdk.Device{
-			//Kind:   "temperature",
+			Type: "temperature",
 			Info: "Test Temperature",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
@@ -3601,7 +3573,7 @@ func TestReadInputRegisters_NoConnection(t *testing.T) {
 
 	devices := []*sdk.Device{
 		&sdk.Device{
-			//Kind:   "temperature",
+			Type: "temperature",
 			Info: "Test Temperature",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
@@ -3633,7 +3605,7 @@ func TestReadCoils_NoConnection(t *testing.T) {
 
 	devices := []*sdk.Device{
 		&sdk.Device{
-			//Kind:   "switch",
+			Type: "state",
 			Info: "Test Switch",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
@@ -3763,7 +3735,7 @@ func TestReadHoldingRegisters_MoreThanOneDevice_IP(t *testing.T) {
 	}
 
 	dumpReadContexts(t, actualReadContexts)
-	verifyReadings(t, expectedReadContexts, actualReadContexts)
+	verifyReadContexts(t, expectedReadContexts, actualReadContexts)
 }
 
 // We will need a read (modbus over IP call) for each device below due to different ports.
@@ -3869,7 +3841,7 @@ func TestReadHoldingRegisters_MoreThanOneDevice_Port(t *testing.T) {
 	}
 
 	dumpReadContexts(t, actualReadContexts)
-	verifyReadings(t, expectedReadContexts, actualReadContexts)
+	verifyReadContexts(t, expectedReadContexts, actualReadContexts)
 }
 
 // We will need a read (modbus over IP call) for each device below because we
@@ -3992,7 +3964,7 @@ func TestReadHoldingRegisters_MultipleReads000(t *testing.T) {
 	}
 
 	dumpReadContexts(t, actualReadContexts)
-	verifyReadings(t, expectedReadContexts, actualReadContexts)
+	verifyReadContexts(t, expectedReadContexts, actualReadContexts)
 }
 
 // We will need a read for each device below because we are spanning more
@@ -4117,7 +4089,7 @@ func TestReadHoldingRegisters_MultipleReads001(t *testing.T) {
 	}
 
 	dumpReadContexts(t, actualReadContexts)
-	verifyReadings(t, expectedReadContexts, actualReadContexts)
+	verifyReadContexts(t, expectedReadContexts, actualReadContexts)
 }
 
 // TODO:
