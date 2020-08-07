@@ -183,22 +183,15 @@ func verifyReadings(t *testing.T, expected []*sdk.ReadContext, actual []*sdk.Rea
 		//readContext := actual[i]
 		//reading = readContext.Reading
 
-		// TODO: TOMORROW: expectedDevice := expected[i].Device
+		expectedDevice := expected[i].Device
 		expectedReading := expected[i].Reading[0]
-		// TODO: TOMORROW: actualDevice := actual[i].Device
+		actualDevice := actual[i].Device
 		actualReading := actual[i].Reading[0]
 
-		// TODO: Should type should be validated and needs to be setup in the test devices?
-		// Validate expected versus actual.
-		//if (*(expected[i])).Type != (*reading).Type {
-		//	t.Fatalf("reading[%v].Type. expected: %v, actual: %v", i, (*(expected[i])).Type, (*(reading)).Type)
-		//}
-
 		// Validate Type.
-		// TODO: FIX FIRSTTHING TOMORROW (better error) ***
-		//if expectedDevice.Type != actualDevice.Type {
-		//	t.Fatalf("expected Type: %#v, actual %#v", expectedDevice.Type, actualDevice.Type)
-		//}
+		if expectedDevice.Type != actualDevice.Type {
+			t.Fatalf("expected[%d] Type: %#v, actual %#v", i, expectedDevice.Type, actualDevice.Type)
+		}
 
 		// TODO: Leave this here. Info was removed from the reading in synse v3, but it should be put back.
 		// TODO: sdk ticket for this and context.
@@ -2424,7 +2417,7 @@ func TestVEM(t *testing.T) {
 
 	registerDevices := []*sdk.Device{
 		&sdk.Device{
-			//Kind:   "vem-plc.hrc.mixed.fluid.temperature",
+			Type: "temperature",
 			Info: "HRC Mixed Fluid Temperature",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
@@ -2448,7 +2441,7 @@ func TestVEM(t *testing.T) {
 		},
 
 		&sdk.Device{
-			//Kind:   "vem-plc.loop.entering.fluid.temperature",
+			Type: "temperature",
 			Info: "Loop Entering Fluid Temperature",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
@@ -2464,7 +2457,7 @@ func TestVEM(t *testing.T) {
 		},
 
 		&sdk.Device{
-			//Kind:   "vem-plc.valve2.flow",
+			Type: "flow",
 			Info: "Minimum Flow Control Valve2 Feedback",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
@@ -2480,7 +2473,7 @@ func TestVEM(t *testing.T) {
 		},
 
 		&sdk.Device{
-			//Kind:   "vem-plc.system.fluid.flow",
+			Type: "flow",
 			Info: "System Fluid Flow",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
@@ -2496,7 +2489,7 @@ func TestVEM(t *testing.T) {
 		},
 
 		&sdk.Device{
-			//Kind:   "vem-plc.server.rack.differential.pressure",
+			Type: "pressure",
 			Info: "Server Rack Differential Pressure",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
@@ -2512,7 +2505,7 @@ func TestVEM(t *testing.T) {
 		},
 
 		&sdk.Device{
-			//Kind:   "vem-plc.system.leaving.fluid.temperature",
+			Type: "temperature",
 			Info: "System Leaving Fluid Temperature",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
@@ -2528,7 +2521,7 @@ func TestVEM(t *testing.T) {
 		},
 
 		&sdk.Device{
-			//Kind:   "vem-plc.return.air.temperature",
+			Type: "temperature",
 			Info: "Return Air Temperature",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
@@ -2544,7 +2537,7 @@ func TestVEM(t *testing.T) {
 		},
 
 		&sdk.Device{
-			//Kind:   "vem-plc.outdoor.air.temperature",
+			Type: "temperature",
 			Info: "Outdoor Air Temperature",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
@@ -2560,7 +2553,7 @@ func TestVEM(t *testing.T) {
 		},
 
 		&sdk.Device{
-			//Kind:   "vem-plc.cooling.coil.leaving.air.temperature",
+			Type: "temperature",
 			Info: "Cooling Coil Leaving Air Temperature",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
@@ -2576,7 +2569,7 @@ func TestVEM(t *testing.T) {
 		},
 
 		&sdk.Device{
-			//Kind:   "vem-plc.dx.discharge.gas.pressure",
+			Type: "pressure",
 			Info: "DX Discharge Gas Pressure",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
@@ -2592,7 +2585,7 @@ func TestVEM(t *testing.T) {
 		},
 
 		&sdk.Device{
-			//Kind:   "vem-plc.return.air.temperature.setpoint.temperature",
+			Type: "temperature",
 			Info: "Return Air Temperature Setpoint",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
@@ -2608,7 +2601,7 @@ func TestVEM(t *testing.T) {
 		},
 
 		&sdk.Device{
-			//Kind:   "vem-plc.hrf.speed.command.fan",
+			Type: "fan",
 			Info: "HRF Speed Command",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
@@ -2624,7 +2617,7 @@ func TestVEM(t *testing.T) {
 		},
 
 		&sdk.Device{
-			//Kind:   "vem-plc.fan",
+			Type: "fan",
 			Info: "VEM Fan Speed Control",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
@@ -2640,7 +2633,7 @@ func TestVEM(t *testing.T) {
 		},
 
 		&sdk.Device{
-			//Kind:   "vem-plc.active.flow",
+			Type: "flow",
 			Info: "Active Flow Setpoint",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
@@ -2656,7 +2649,7 @@ func TestVEM(t *testing.T) {
 		},
 
 		&sdk.Device{
-			//Kind:   "vem-plc.fan-speed-actual",
+			Type: "fan",
 			Info: "VEM Fan Speed Actual",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
@@ -2672,7 +2665,7 @@ func TestVEM(t *testing.T) {
 		},
 
 		&sdk.Device{
-			//Kind:   "vem-plc.system.flow",
+			Type: "flow",
 			Info: "Total System Flow",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
@@ -2688,7 +2681,7 @@ func TestVEM(t *testing.T) {
 		},
 
 		&sdk.Device{
-			//Kind:   "vem-plc.fan_minimum",
+			Type: "fan",
 			Info: "VEM Fan Speed Minimum",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
@@ -3155,7 +3148,7 @@ func TestVEM(t *testing.T) {
 
 		&sdk.ReadContext{
 			Device: &sdk.Device{
-				Type: "flowGpm",
+				Type: "flow",
 				Info: "Minimum Flow Control Valve2 Feedback",
 			},
 			Reading: []*output.Reading{
@@ -3170,7 +3163,7 @@ func TestVEM(t *testing.T) {
 
 		&sdk.ReadContext{
 			Device: &sdk.Device{
-				Type: "flowGpm",
+				Type: "flow",
 				Info: "System Fluid Flow",
 			},
 			Reading: []*output.Reading{
@@ -3183,7 +3176,7 @@ func TestVEM(t *testing.T) {
 
 		&sdk.ReadContext{
 			Device: &sdk.Device{
-				Type: "InWCThousanths",
+				Type: "pressure",
 				Info: "Server Rack Differential Pressure",
 			},
 			Reading: []*output.Reading{
@@ -3249,7 +3242,7 @@ func TestVEM(t *testing.T) {
 
 		&sdk.ReadContext{
 			Device: &sdk.Device{
-				Type: "psiTenths",
+				Type: "pressure",
 				Info: "DX Discharge Gas Pressure",
 			},
 			Reading: []*output.Reading{
@@ -3275,7 +3268,7 @@ func TestVEM(t *testing.T) {
 
 		&sdk.ReadContext{
 			Device: &sdk.Device{
-				Type: "fan_speed_percent",
+				Type: "fan",
 				Info: "HRF Speed Command",
 			},
 			Reading: []*output.Reading{
@@ -3288,7 +3281,7 @@ func TestVEM(t *testing.T) {
 
 		&sdk.ReadContext{
 			Device: &sdk.Device{
-				Type: "fan_speed_percent",
+				Type: "fan",
 				Info: "VEM Fan Speed Control",
 			},
 			Reading: []*output.Reading{
@@ -3301,7 +3294,7 @@ func TestVEM(t *testing.T) {
 
 		&sdk.ReadContext{
 			Device: &sdk.Device{
-				Type: "flowGpmTenths",
+				Type: "flow",
 				Info: "Active Flow Setpoint",
 			},
 			Reading: []*output.Reading{
@@ -3314,7 +3307,7 @@ func TestVEM(t *testing.T) {
 
 		&sdk.ReadContext{
 			Device: &sdk.Device{
-				Type: "fan_speed_percent",
+				Type: "fan",
 				Info: "VEM Fan Speed Actual",
 			},
 			Reading: []*output.Reading{
@@ -3327,7 +3320,7 @@ func TestVEM(t *testing.T) {
 
 		&sdk.ReadContext{
 			Device: &sdk.Device{
-				Type: "flowGpmTenths",
+				Type: "flow",
 				Info: "Total System Flow",
 			},
 			Reading: []*output.Reading{
@@ -3341,7 +3334,7 @@ func TestVEM(t *testing.T) {
 		// THIS IS WHERE YOU INSERT THE NEXT ONE.
 		&sdk.ReadContext{
 			Device: &sdk.Device{
-				Type: "fan_speed_percent_tenths",
+				Type: "fan",
 				Info: "VEM Fan Speed Minimum",
 			},
 			Reading: []*output.Reading{
