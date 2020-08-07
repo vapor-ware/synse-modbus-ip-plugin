@@ -176,10 +176,8 @@ func verifyReadings(t *testing.T, expected []*sdk.ReadContext, actual []*sdk.Rea
 	}
 
 	for i := 0; i < expectedLen; i++ {
-		//reading := actual[i]
-		//readContext := actual[i]
-		//reading = readContext.Reading
 
+		// Pull out expected / actual Device / Reading.
 		expectedDevice := expected[i].Device
 		expectedReading := expected[i].Reading[0]
 		actualDevice := actual[i].Device
@@ -193,7 +191,7 @@ func verifyReadings(t *testing.T, expected []*sdk.ReadContext, actual []*sdk.Rea
 		// TODO: Info was removed from the reading in synse v3, but it should be put back.
 		// TODO: sdk ticket for this and context.
 
-    // Validate Info.
+		// Validate Info.
 		if expectedDevice.Info != actualDevice.Info {
 			t.Fatalf("expected[%d] Info: %#v, actual %#v", i, expectedDevice.Info, actualDevice.Info)
 		}
@@ -2701,6 +2699,7 @@ func TestVEM(t *testing.T) {
 	coilDevices := []*sdk.Device{
 		&sdk.Device{
 			//Kind:   "vem-plc.bms.start.switch",
+			Type: "switch",
 			Info: "BMS Start",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
@@ -2717,6 +2716,7 @@ func TestVEM(t *testing.T) {
 
 		&sdk.Device{
 			//Kind:   "vem-plc.compressorA.safety.shutdown.switch",
+			Type: "switch",
 			Info: "Compressor Bank A in Safety Shutdown",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
@@ -2733,6 +2733,7 @@ func TestVEM(t *testing.T) {
 
 		&sdk.Device{
 			//Kind:   "vem-plc.compressorB.safety.shutdown.switch",
+			Type: "switch",
 			Info: "Compressor Bank B in Safety Shutdown",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
@@ -2749,6 +2750,7 @@ func TestVEM(t *testing.T) {
 
 		&sdk.Device{
 			//Kind:   "vem-plc.system.mode.stage3.switch",
+			Type: "switch",
 			Info: "System Mode Stage3",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
@@ -2765,6 +2767,7 @@ func TestVEM(t *testing.T) {
 
 		&sdk.Device{
 			//Kind:   "vem-plc.system.mode.stage2.switch",
+			Type: "switch",
 			Info: "System Mode Stage2",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
@@ -2781,6 +2784,7 @@ func TestVEM(t *testing.T) {
 
 		&sdk.Device{
 			//Kind:   "vem-plc.keep.alive.switch",
+			Type: "switch",
 			Info: "BMS Keep Alive",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
@@ -2797,6 +2801,7 @@ func TestVEM(t *testing.T) {
 
 		&sdk.Device{
 			//Kind:   "vem-plc.compressor.stage2.switch",
+			Type: "switch",
 			Info: "Compressor Stage2",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
@@ -2813,7 +2818,8 @@ func TestVEM(t *testing.T) {
 
 		&sdk.Device{
 			//Kind:   "vem-plc.compressor.stage1.switch",
-			Info: "Compressor Stage2",
+			Type: "switch",
+			Info: "Compressor Stage1",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
 				"port":        502,
@@ -2971,6 +2977,7 @@ func TestVEM(t *testing.T) {
 		t.Fatalf("expected registerCount d10, got d%d", readInput.RegisterCount)
 	}
 
+	// TODO: Pretty sure this was a debugging trace that can be removed now.
 	t.Logf("*** DUMPING BAD DEVICES ***\n")
 
 	for i := 0; i < len(readInput.Devices); i++ {
@@ -3345,24 +3352,6 @@ func TestVEM(t *testing.T) {
 		},
 	}
 
-	/*
-
-			&output.Reading{
-				//Type:  "flowGpmTenths",
-				//Info:  "Total System Flow",
-				Unit:  &output.Unit{Name: "gallons per minute", Symbol: "gpm"},
-				Value: int16(0x6465),
-			},
-
-			&output.Reading{
-				//Type:  "fan_speed_percent_tenths",
-				//Info:  "VEM Fan Speed Minimum",
-				Unit:  &output.Unit{Name: "percent", Symbol: "%"},
-				Value: int16(0x7e7f),
-			},
-		}
-	*/
-
 	//t.Logf("expectedRegisterReadings: %#v", expectedRegisterReadings)
 	t.Logf("expectedRegisterReadContexts: %#v", expectedRegisterReadContexts)
 
@@ -3386,38 +3375,172 @@ func TestVEM(t *testing.T) {
 
 	// TODO: Put this back once done with the Holding Register shitshow.
 
+	// Coils
+	populateBulkReadMap(t, bulkReadMapCoils, keyOrderCoils)
+	dumpBulkReadMap(t, bulkReadMapCoils, keyOrderCoils)
+
+	// Map the read data to the synse read contexts.
+	readContextsCoils, err := MapBulkReadData(bulkReadMapCoils, keyOrderCoils)
+	if err != nil {
+		t.Fatalf("Failed to map bulk read data, error: %v", err.Error())
+	}
+	dumpReadContexts(t, readContextsCoils)
+
+	// Verify read contexts and each reading.
+	if len(readContextsCoils) != 8 {
+		t.Fatalf("expected 8 readContexts, got %v", len(readContextsCoils))
+	}
+
+	// All coils fit in one modbus read call.
+	if len(readContextsCoils[0].Reading) != 1 {
+		t.Fatalf("expected 1 reading in readContextsCoils[0], got %v", len(readContextsCoils[0].Reading))
+	}
+
+	// Expected coil readings for the VEM PLC.
+	//expectedCoilReadings := []*output.Reading{
+	expectedCoilReadContexts := []*sdk.ReadContext{
+
+		// Coils have nil Output.Unit.
+		&sdk.ReadContext{
+			Device: &sdk.Device{
+				Type: "switch",
+				Info: "BMS Start",
+			},
+			Reading: []*output.Reading{
+				{
+					Value: false,
+				},
+			},
+		},
+
+		&sdk.ReadContext{
+			Device: &sdk.Device{
+				Type: "switch",
+				Info: "Compressor Bank A in Safety Shutdown",
+			},
+			Reading: []*output.Reading{
+				{
+					Value: false,
+				},
+			},
+		},
+
+		&sdk.ReadContext{
+			Device: &sdk.Device{
+				Type: "switch",
+				Info: "Compressor Bank B in Safety Shutdown",
+			},
+			Reading: []*output.Reading{
+				{
+					Value: false,
+				},
+			},
+		},
+
+		&sdk.ReadContext{
+			Device: &sdk.Device{
+				Type: "switch",
+				Info: "System Mode Stage3",
+			},
+			Reading: []*output.Reading{
+				{
+					Value: true,
+				},
+			},
+		},
+
+		&sdk.ReadContext{
+			Device: &sdk.Device{
+				Type: "switch",
+				Info: "System Mode Stage2",
+			},
+			Reading: []*output.Reading{
+				{
+					Value: false,
+				},
+			},
+		},
+
+		&sdk.ReadContext{
+			Device: &sdk.Device{
+				Type: "switch",
+				Info: "BMS Keep Alive",
+			},
+			Reading: []*output.Reading{
+				{
+					Value: false,
+				},
+			},
+		},
+
+		&sdk.ReadContext{
+			Device: &sdk.Device{
+				Type: "switch",
+				Info: "Compressor Stage2",
+			},
+			Reading: []*output.Reading{
+				{
+					Value: false,
+				},
+			},
+		},
+
+		&sdk.ReadContext{
+			Device: &sdk.Device{
+				Type: "switch",
+				Info: "Compressor Stage1",
+			},
+			Reading: []*output.Reading{
+				{
+					Value: true,
+				},
+			},
+		},
+	}
 	/*
-		// Coils
-		populateBulkReadMap(t, bulkReadMapCoils, keyOrderCoils)
-		dumpBulkReadMap(t, bulkReadMapCoils, keyOrderCoils)
+	       &sdk.ReadContext{
+	   			Device: &sdk.Device{
+	   				Type: "switch",
+	   				Info: "",
+	   			},
+	   			Reading: []*output.Reading{
+	   				{
+	   					Value: false,
+	   				},
+	   			},
+	   		},
 
-		// Map the read data to the synse read contexts.
-		readContextsCoils, err := MapBulkReadData(bulkReadMapCoils, keyOrderCoils)
-		if err != nil {
-			t.Fatalf("Failed to map bulk read data, error: %v", err.Error())
-		}
-		dumpReadContexts(t, readContextsCoils)
+	       &sdk.ReadContext{
+	   			Device: &sdk.Device{
+	   				Type: "switch",
+	   				Info: "",
+	   			},
+	   			Reading: []*output.Reading{
+	   				{
+	   					Value: false,
+	   				},
+	   			},
+	   		},
 
-		// Verify read contexts and each reading.
-		if len(readContextsCoils) != 8 {
-			t.Fatalf("expected 8 readContexts, got %v", len(readContextsCoils))
-		}
-
-		// All coils fit in one modbus read call.
-		if len(readContextsCoils[0].Reading) != 1 {
-			t.Fatalf("expected 1 reading in readContextsCoils[0], got %v", len(readContextsCoils[0].Reading))
-		}
-
-		// Expected coil readings for the VEM PLC.
-		expectedCoilReadings := []*output.Reading{
-
+	       &sdk.ReadContext{
+	   			Device: &sdk.Device{
+	   				Type: "switch",
+	   				Info: "",
+	   			},
+	   			Reading: []*output.Reading{
+	   				{
+	   					Value: false,
+	   				},
+	   			},
+	   		},
+	*/
+	/*
 			// Coils have nil Output.Unit.
 			&output.Reading{
 				//Type: "switch",
 				//Info:  "BMS Start",
 				Value: false,
 			},
-
 			&output.Reading{
 				//Type: "switch",
 				//Info:  "Compressor Bank A in Safety Shutdown",
@@ -3460,33 +3583,42 @@ func TestVEM(t *testing.T) {
 				Value: true,
 			},
 		}
+	*/
 
-			// Get the actual readings in a slice. Verify readings are as expected.
-			var actualCoilReadings []*output.Reading
-			for i := 0; i < len(readContextsCoils); i++ {
-				actualCoilReadings = append(actualCoilReadings, readContextsCoils[i].Reading[0])
-			}
+	//// Get the actual readings in a slice. Verify readings are as expected.
+	// Get the actual read contexts in a slice. Verify as expected.
+	//var actualCoilReadings []*output.Reading
+	var actualCoilReadContexts []*sdk.ReadContext
+	for i := 0; i < len(readContextsCoils); i++ {
+		//actualCoilReadings = append(actualCoilReadings, readContextsCoils[i].Reading[0])
+		actualCoilReadContexts = append(actualCoilReadContexts, readContextsCoils[i])
+	}
 
-			dumpReadings(t, actualCoilReadings)
+	t.Logf("*** Dumping actualCoilReadContexts start\n")
+	//dumpReadings(t, actualCoilReadings)
+	dumpReadContexts(t, actualCoilReadContexts)
 
-			//t.Logf("*** DIES HERE ***\n") // expected output is nil
+	//t.Logf("*** DIES HERE ***\n") // expected output is nil
 
-			// Something is jacked up in the output
+	// Something is jacked up in the output
 
-			verifyReadings(t, expectedCoilReadings, actualCoilReadings)
+	//verifyReadings(t, expectedCoilReadings, actualCoilReadings)
+	verifyReadings(t, expectedCoilReadContexts, actualCoilReadContexts)
 
-			// Input Registers.
-			populateBulkReadMap(t, bulkReadMapInput, keyOrderInput)
-			dumpBulkReadMap(t, bulkReadMapInput, keyOrderInput)
+	/*
 
-			// Map the read data to the synse read contexts.
-			readContextsInput, err := MapBulkReadData(bulkReadMapInput, keyOrderInput)
-			if err != nil {
-				t.Fatalf("Failed to map bulk read data, error: %v", err.Error())
-			}
-			dumpReadContexts(t, readContextsInput)
+		// Input Registers.
+		populateBulkReadMap(t, bulkReadMapInput, keyOrderInput)
+		dumpBulkReadMap(t, bulkReadMapInput, keyOrderInput)
 
-			// TODO: Validate EGauge readings when time permits.
+		// Map the read data to the synse read contexts.
+		readContextsInput, err := MapBulkReadData(bulkReadMapInput, keyOrderInput)
+		if err != nil {
+			t.Fatalf("Failed to map bulk read data, error: %v", err.Error())
+		}
+		dumpReadContexts(t, readContextsInput)
+
+		// TODO: Validate EGauge readings when time permits.
 
 	*/
 
