@@ -3139,40 +3139,52 @@ func TestVEM(t *testing.T) {
 				},
 			},
 		},
-	}
 
-	/*
 		&sdk.ReadContext{
-			&sdk.Device{
+			Device: &sdk.Device{
 				Type: "temperature",
 				Info: "Loop Entering Fluid Temperature",
 			},
-			[]*output.Reading{
-				//Type:  "temperature",
-				//Info:  "Loop Entering Fluid Temperature",
-				Unit:  &output.Unit{Name: "celsius", Symbol: "C"},
-				Value: int16(0x0203),
+			Reading: []*output.Reading{
+				{
+					Unit:  &output.Unit{Name: "celsius", Symbol: "C"},
+					Value: int16(0x0203),
+				},
 			},
 		},
-	*/
+
+		&sdk.ReadContext{
+			Device: &sdk.Device{
+				Type: "flowGpm",
+				Info: "Minimum Flow Control Valve2 Feedback",
+			},
+			Reading: []*output.Reading{
+				{
+					// TODO: Confusing is the output string called output is percentage when the reading's output string is percent.
+					// TODO: Happens elsewhere.
+					Unit:  &output.Unit{Name: "percent", Symbol: "%"},
+					Value: int16(0x0809),
+				},
+			},
+		},
+
+		&sdk.ReadContext{
+			Device: &sdk.Device{
+				Type: "flowGpm",
+				Info: "System Fluid Flow",
+			},
+			Reading: []*output.Reading{
+				{
+					Unit:  &output.Unit{Name: "gallons per minute", Symbol: "gpm"},
+					Value: int16(0x0a0b),
+				},
+			},
+		},
+		// THIS IS WHERE YOU INSERT THE NEXT ONE.
+	}
+
 	/*
-			&output.Reading{
-				//Type:  "flowGpm",
-				//Info:  "Minimum Flow Control Valve2 Feedback",
-				// Synse v3 change:  This changed to percentage: Unit:  &output.Unit{Name: "gallons per minute", Symbol: "gpm"},
 
-				// TODO: Confusing is the output string called output is percentage when the reading's output string is percent.
-				// TODO: Happens elsewhere.
-				Unit:  &output.Unit{Name: "percent", Symbol: "%"},
-				Value: int16(0x0809),
-			},
-
-			&output.Reading{
-				//Type:  "flowGpm",
-				//Info:  "System Fluid Flow",
-				Unit:  &output.Unit{Name: "gallons per minute", Symbol: "gpm"},
-				Value: int16(0x0a0b),
-			},
 
 			&output.Reading{
 				//Type:  "InWCThousanths",
