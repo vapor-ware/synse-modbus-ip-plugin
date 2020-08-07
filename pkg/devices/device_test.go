@@ -3666,6 +3666,7 @@ func TestReadHoldingRegisters_MoreThanOneDevice_IP(t *testing.T) {
 
 		&sdk.Device{
 			//Kind: "pressure",
+			Type: "pressure",
 			Info: "Pressure at IP Address 1",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
@@ -3682,6 +3683,7 @@ func TestReadHoldingRegisters_MoreThanOneDevice_IP(t *testing.T) {
 
 		&sdk.Device{
 			//Kind:   "pressure",
+			Type: "pressure",
 			Info: "Pressure at IP Address 2",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.251",
@@ -3727,34 +3729,68 @@ func TestReadHoldingRegisters_MoreThanOneDevice_IP(t *testing.T) {
 	}
 
 	// Validate readings.
-	expectedReadings := []*output.Reading{
+	//expectedReadings := []*output.Reading{
+	expectedReadContexts := []*sdk.ReadContext{
 
-		&output.Reading{
-			//Type:  "psiTenths",
-			//Info:  "Pressure at IP Address 1",
-			Unit:  &output.Unit{Name: "pounds per square inch", Symbol: "psi"},
-			Value: int16(0x0001),
+		&sdk.ReadContext{
+			Device: &sdk.Device{
+				Type: "pressure",
+				Info: "Pressure at IP Address 1",
+			},
+			Reading: []*output.Reading{
+				{
+					//		Unit:  &output.Unit{Name: "percent", Symbol: "%"},
+					Unit:  &output.Unit{Name: "pounds per square inch", Symbol: "psi"},
+					Value: int16(0x0001),
+				},
+			},
 		},
 
-		&output.Reading{
-			//Type:  "psiTenths",
-			//Info:  "Pressure at IP Address 2",
-			Unit:  &output.Unit{Name: "pounds per square inch", Symbol: "psi"},
-			Value: int16(0x0001),
+		&sdk.ReadContext{
+			Device: &sdk.Device{
+				Type: "pressure",
+				Info: "Pressure at IP Address 2",
+			},
+			Reading: []*output.Reading{
+				{
+					//		Unit:  &output.Unit{Name: "percent", Symbol: "%"},
+					Unit:  &output.Unit{Name: "pounds per square inch", Symbol: "psi"},
+					Value: int16(0x0001),
+				},
+			},
 		},
+
+		/*
+			&output.Reading{
+				//Type:  "psiTenths",
+				//Info:  "Pressure at IP Address 1",
+				Unit:  &output.Unit{Name: "pounds per square inch", Symbol: "psi"},
+				Value: int16(0x0001),
+			},
+
+			&output.Reading{
+				//Type:  "psiTenths",
+				//Info:  "Pressure at IP Address 2",
+				Unit:  &output.Unit{Name: "pounds per square inch", Symbol: "psi"},
+				Value: int16(0x0001),
+			},
+		*/
+
 	}
-	t.Logf("expectedReadings: %#v", expectedReadings)
+	//t.Logf("expectedReadings: %#v", expectedReadings)
+	t.Logf("expectedReadContexts: %#v", expectedReadContexts)
 
-	var actualReadings []*output.Reading
+	//var actualReadings []*output.Reading
+	var actualReadContexts []*sdk.ReadContext
 	for i := 0; i < len(readContexts); i++ {
-		actualReadings = append(actualReadings, readContexts[i].Reading[0])
+		//actualReadings = append(actualReadings, readContexts[i].Reading[0])
+		actualReadContexts = append(actualReadContexts, readContexts[i])
 	}
 
-	dumpReadings(t, actualReadings)
-	/*
-		  TODO: Fix
-			verifyReadings(t, expectedReadings, actualReadings)
-	*/
+	//dumpReadings(t, actualReadings)
+	//verifyReadings(t, expectedReadings, actualReadings)
+	dumpReadContexts(t, actualReadContexts)
+	verifyReadings(t, expectedReadContexts, actualReadContexts)
 }
 
 // We will need a read (modbus over IP call) for each device below due to different ports.
@@ -3764,6 +3800,7 @@ func TestReadHoldingRegisters_MoreThanOneDevice_Port(t *testing.T) {
 
 		&sdk.Device{
 			//Kind:   "pressure",
+			Type: "pressure",
 			Info: "Pressure at Port 502",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
@@ -3780,6 +3817,7 @@ func TestReadHoldingRegisters_MoreThanOneDevice_Port(t *testing.T) {
 
 		&sdk.Device{
 			//Kind:   "pressure",
+			Type: "pressure",
 			Info: "Pressure at Port 503",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
@@ -3824,36 +3862,68 @@ func TestReadHoldingRegisters_MoreThanOneDevice_Port(t *testing.T) {
 		t.Fatalf("Two map entries should be present, got %v", len(bulkReadMap))
 	}
 
-	// Validate readings.
-	expectedReadings := []*output.Reading{
-
-		&output.Reading{
-			//Type:  "psiTenths",
-			//Info:  "Pressure at Port 502",
-			Unit:  &output.Unit{Name: "pounds per square inch", Symbol: "psi"},
-			Value: int16(0x0001),
-		},
-
-		&output.Reading{
-			//Type:  "psiTenths",
-			//Info:  "Pressure at Port 503",
-			Unit:  &output.Unit{Name: "pounds per square inch", Symbol: "psi"},
-			Value: int16(0x0001),
-		},
-	}
-	t.Logf("expectedReadings: %#v", expectedReadings)
-
-	var actualReadings []*output.Reading
-	for i := 0; i < len(readContexts); i++ {
-		actualReadings = append(actualReadings, readContexts[i].Reading[0])
-	}
-
-	dumpReadings(t, actualReadings)
 	/*
-		  TODO: Fix
+		// Validate readings.
+		expectedReadings := []*output.Reading{
 
-			verifyReadings(t, expectedReadings, actualReadings)
+			&output.Reading{
+				//Type:  "psiTenths",
+				//Info:  "Pressure at Port 502",
+				Unit:  &output.Unit{Name: "pounds per square inch", Symbol: "psi"},
+				Value: int16(0x0001),
+			},
+
+			&output.Reading{
+				//Type:  "psiTenths",
+				//Info:  "Pressure at Port 503",
+				Unit:  &output.Unit{Name: "pounds per square inch", Symbol: "psi"},
+				Value: int16(0x0001),
+			},
+		}
+		t.Logf("expectedReadings: %#v", expectedReadings)
 	*/
+
+	// Expected Read Contexts.
+	expectedReadContexts := []*sdk.ReadContext{
+
+		&sdk.ReadContext{
+			Device: &sdk.Device{
+				Type: "pressure",
+				Info: "Pressure at Port 502",
+			},
+			Reading: []*output.Reading{
+				{
+					Unit:  &output.Unit{Name: "pounds per square inch", Symbol: "psi"},
+					Value: int16(0x0001),
+				},
+			},
+		},
+
+		&sdk.ReadContext{
+			Device: &sdk.Device{
+				Type: "pressure",
+				Info: "Pressure at Port 503",
+			},
+			Reading: []*output.Reading{
+				{
+					Unit:  &output.Unit{Name: "pounds per square inch", Symbol: "psi"},
+					Value: int16(0x0001),
+				},
+			},
+		},
+	}
+
+	//var actualReadings []*output.Reading
+	var actualReadContexts []*sdk.ReadContext
+	for i := 0; i < len(readContexts); i++ {
+		//actualReadings = append(actualReadings, readContexts[i].Reading[0])
+		actualReadContexts = append(actualReadContexts, readContexts[i])
+	}
+
+	//dumpReadings(t, actualReadings)
+	//verifyReadings(t, expectedReadings, actualReadings)
+	dumpReadContexts(t, actualReadContexts)
+	verifyReadings(t, expectedReadContexts, actualReadContexts)
 }
 
 // TODO: We need a test for coils too and the gap for coils will be different than the test above.
