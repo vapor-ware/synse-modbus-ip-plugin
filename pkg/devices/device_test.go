@@ -3497,130 +3497,28 @@ func TestVEM(t *testing.T) {
 			},
 		},
 	}
-	/*
-	       &sdk.ReadContext{
-	   			Device: &sdk.Device{
-	   				Type: "switch",
-	   				Info: "",
-	   			},
-	   			Reading: []*output.Reading{
-	   				{
-	   					Value: false,
-	   				},
-	   			},
-	   		},
 
-	       &sdk.ReadContext{
-	   			Device: &sdk.Device{
-	   				Type: "switch",
-	   				Info: "",
-	   			},
-	   			Reading: []*output.Reading{
-	   				{
-	   					Value: false,
-	   				},
-	   			},
-	   		},
-
-	       &sdk.ReadContext{
-	   			Device: &sdk.Device{
-	   				Type: "switch",
-	   				Info: "",
-	   			},
-	   			Reading: []*output.Reading{
-	   				{
-	   					Value: false,
-	   				},
-	   			},
-	   		},
-	*/
-	/*
-			// Coils have nil Output.Unit.
-			&output.Reading{
-				//Type: "switch",
-				//Info:  "BMS Start",
-				Value: false,
-			},
-			&output.Reading{
-				//Type: "switch",
-				//Info:  "Compressor Bank A in Safety Shutdown",
-				Value: false,
-			},
-
-			&output.Reading{
-				//Type: "switch",
-				//Info:  "Compressor Bank B in Safety Shutdown",
-				Value: false,
-			},
-
-			&output.Reading{
-				//Type:      "switch",
-				//Info:      "System Mode Stage3",
-				Value: true,
-			},
-
-			&output.Reading{
-				//Type: "switch",
-				//Info:  "System Mode Stage2",
-				Value: false,
-			},
-
-			&output.Reading{
-				//Type: "switch",
-				//Info:  "BMS Keep Alive",
-				Value: false,
-			},
-
-			&output.Reading{
-				//Type: "switch",
-				//Info:  "Compressor Stage2",
-				Value: false,
-			},
-
-			&output.Reading{
-				//Type: "switch",
-				//Info:  "Compressor Stage1",
-				Value: true,
-			},
-		}
-	*/
-
-	//// Get the actual readings in a slice. Verify readings are as expected.
 	// Get the actual read contexts in a slice. Verify as expected.
-	//var actualCoilReadings []*output.Reading
 	var actualCoilReadContexts []*sdk.ReadContext
 	for i := 0; i < len(readContextsCoils); i++ {
-		//actualCoilReadings = append(actualCoilReadings, readContextsCoils[i].Reading[0])
 		actualCoilReadContexts = append(actualCoilReadContexts, readContextsCoils[i])
 	}
 
 	t.Logf("*** Dumping actualCoilReadContexts start\n")
-	//dumpReadings(t, actualCoilReadings)
 	dumpReadContexts(t, actualCoilReadContexts)
 
-	//t.Logf("*** DIES HERE ***\n") // expected output is nil
-
-	// Something is jacked up in the output
-
-	//verifyReadings(t, expectedCoilReadings, actualCoilReadings)
 	verifyReadings(t, expectedCoilReadContexts, actualCoilReadContexts)
 
-	/*
+	// Input Registers.
+	populateBulkReadMap(t, bulkReadMapInput, keyOrderInput)
+	dumpBulkReadMap(t, bulkReadMapInput, keyOrderInput)
 
-		// Input Registers.
-		populateBulkReadMap(t, bulkReadMapInput, keyOrderInput)
-		dumpBulkReadMap(t, bulkReadMapInput, keyOrderInput)
-
-		// Map the read data to the synse read contexts.
-		readContextsInput, err := MapBulkReadData(bulkReadMapInput, keyOrderInput)
-		if err != nil {
-			t.Fatalf("Failed to map bulk read data, error: %v", err.Error())
-		}
-		dumpReadContexts(t, readContextsInput)
-
-		// TODO: Validate EGauge readings when time permits.
-
-	*/
+	// Map the read data to the synse read contexts.
+	readContextsInput, err := MapBulkReadData(bulkReadMapInput, keyOrderInput)
+	if err != nil {
+		t.Fatalf("Failed to map bulk read data, error: %v", err.Error())
+	}
+	dumpReadContexts(t, readContextsInput)
 
 	t.Logf("TestVEM end")
 }
