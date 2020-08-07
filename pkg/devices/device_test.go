@@ -3236,13 +3236,52 @@ func TestVEM(t *testing.T) {
 
 		&sdk.ReadContext{
 			Device: &sdk.Device{
-				Type: "",
-				Info: "",
+				Type: "temperature",
+				Info: "Cooling Coil Leaving Air Temperature",
 			},
 			Reading: []*output.Reading{
 				{
-					Unit:  &output.Unit{Name: "", Symbol: ""},
-					Value: int16(0),
+					Unit:  &output.Unit{Name: "celsius", Symbol: "C"},
+					Value: int16(0x2021),
+				},
+			},
+		},
+
+		&sdk.ReadContext{
+			Device: &sdk.Device{
+				Type: "psiTenths",
+				Info: "DX Discharge Gas Pressure",
+			},
+			Reading: []*output.Reading{
+				{
+					Unit:  &output.Unit{Name: "pounds per square inch", Symbol: "psi"},
+					Value: int16(0x2e2f),
+				},
+			},
+		},
+
+		&sdk.ReadContext{
+			Device: &sdk.Device{
+				Type: "temperature",
+				Info: "Return Air Temperature Setpoint",
+			},
+			Reading: []*output.Reading{
+				{
+					Unit:  &output.Unit{Name: "celsius", Symbol: "C"},
+					Value: int16(0x4647),
+				},
+			},
+		},
+
+		&sdk.ReadContext{
+			Device: &sdk.Device{
+				Type: "fan_speed_percent",
+				Info: "HRF Speed Command",
+			},
+			Reading: []*output.Reading{
+				{
+					Unit:  &output.Unit{Name: "percent", Symbol: "%"},
+					Value: uint16(0x5455),
 				},
 			},
 		},
@@ -3296,38 +3335,21 @@ func TestVEM(t *testing.T) {
 			},
 		},
 		// THIS IS WHERE YOU INSERT THE NEXT ONE.
-
+		&sdk.ReadContext{
+			Device: &sdk.Device{
+				Type: "",
+				Info: "",
+			},
+			Reading: []*output.Reading{
+				{
+					Unit:  &output.Unit{Name: "", Symbol: ""},
+					Value: int16(0),
+				},
+			},
+		},
 	}
 
 	/*
-
-			&output.Reading{
-				//Type:  "temperature",
-				//Info:  "Cooling Coil Leaving Air Temperature",
-				Unit:  &output.Unit{Name: "celsius", Symbol: "C"},
-				Value: int16(0x2021),
-			},
-
-			&output.Reading{
-				//Type:  "psiTenths",
-				//nfo:  "DX Discharge Gas Pressure",
-				Unit:  &output.Unit{Name: "pounds per square inch", Symbol: "psi"},
-				Value: int16(0x2e2f),
-			},
-
-			&output.Reading{
-				//Type:  "temperature",
-				//Info:  "Return Air Temperature Setpoint",
-				Unit:  &output.Unit{Name: "celsius", Symbol: "C"},
-				Value: int16(0x4647),
-			},
-
-			&output.Reading{
-				//Type:  "fan_speed_percent",
-				//Info:  "HRF Speed Command",
-				Unit:  &output.Unit{Name: "percent", Symbol: "%"},
-				Value: uint16(0x5455),
-			},
 
 			&output.Reading{
 				//Type:  "fan_speed_percent",
