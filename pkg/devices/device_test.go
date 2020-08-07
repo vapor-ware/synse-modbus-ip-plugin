@@ -183,21 +183,21 @@ func verifyReadings(t *testing.T, expected []*sdk.ReadContext, actual []*sdk.Rea
 		//readContext := actual[i]
 		//reading = readContext.Reading
 
-		/*
-			    TODO: Re-add (verify type and info)
-					expectedDevice := expected[i].Device
-		*/
+		// TODO: TOMORROW: expectedDevice := expected[i].Device
 		expectedReading := expected[i].Reading[0]
-		/*
-			    TODO: Re-add (verify type and info)
-					actualDevice := actual[i].Device
-		*/
+		// TODO: TOMORROW: actualDevice := actual[i].Device
 		actualReading := actual[i].Reading[0]
 
 		// TODO: Should type should be validated and needs to be setup in the test devices?
 		// Validate expected versus actual.
 		//if (*(expected[i])).Type != (*reading).Type {
 		//	t.Fatalf("reading[%v].Type. expected: %v, actual: %v", i, (*(expected[i])).Type, (*(reading)).Type)
+		//}
+
+		// Validate Type.
+		// TODO: FIX FIRSTTHING TOMORROW (better error) ***
+		//if expectedDevice.Type != actualDevice.Type {
+		//	t.Fatalf("expected Type: %#v, actual %#v", expectedDevice.Type, actualDevice.Type)
 		//}
 
 		// TODO: Leave this here. Info was removed from the reading in synse v3, but it should be put back.
