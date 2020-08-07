@@ -3288,89 +3288,72 @@ func TestVEM(t *testing.T) {
 
 		&sdk.ReadContext{
 			Device: &sdk.Device{
-				Type: "",
-				Info: "",
+				Type: "fan_speed_percent",
+				Info: "VEM Fan Speed Control",
 			},
 			Reading: []*output.Reading{
 				{
-					Unit:  &output.Unit{Name: "", Symbol: ""},
-					Value: int16(0),
+					Unit:  &output.Unit{Name: "percent", Symbol: "%"},
+					Value: int16(0x5657),
 				},
 			},
 		},
+
 		&sdk.ReadContext{
 			Device: &sdk.Device{
-				Type: "",
-				Info: "",
+				Type: "flowGpmTenths",
+				Info: "Active Flow Setpoint",
 			},
 			Reading: []*output.Reading{
 				{
-					Unit:  &output.Unit{Name: "", Symbol: ""},
-					Value: int16(0),
+					Unit:  &output.Unit{Name: "gallons per minute", Symbol: "gpm"},
+					Value: uint16(0x5859),
 				},
 			},
 		},
+
 		&sdk.ReadContext{
 			Device: &sdk.Device{
-				Type: "",
-				Info: "",
+				Type: "fan_speed_percent",
+				Info: "VEM Fan Speed Actual",
 			},
 			Reading: []*output.Reading{
 				{
-					Unit:  &output.Unit{Name: "", Symbol: ""},
-					Value: int16(0),
+					Unit:  &output.Unit{Name: "percent", Symbol: "%"},
+					Value: int16(0x6263),
 				},
 			},
 		},
+
 		&sdk.ReadContext{
 			Device: &sdk.Device{
-				Type: "",
-				Info: "",
+				Type: "flowGpmTenths",
+				Info: "Total System Flow",
 			},
 			Reading: []*output.Reading{
 				{
-					Unit:  &output.Unit{Name: "", Symbol: ""},
-					Value: int16(0),
+					Unit:  &output.Unit{Name: "gallons per minute", Symbol: "gpm"},
+					Value: int16(0x6465),
 				},
 			},
 		},
+
 		// THIS IS WHERE YOU INSERT THE NEXT ONE.
 		&sdk.ReadContext{
 			Device: &sdk.Device{
-				Type: "",
-				Info: "",
+				Type: "fan_speed_percent_tenths",
+				Info: "VEM Fan Speed Minimum",
 			},
 			Reading: []*output.Reading{
 				{
-					Unit:  &output.Unit{Name: "", Symbol: ""},
-					Value: int16(0),
+					Unit:  &output.Unit{Name: "percent", Symbol: "%"},
+					Value: int16(0x7e7f),
 				},
 			},
 		},
 	}
 
 	/*
-
-			&output.Reading{
-				//Type:  "fan_speed_percent",
-				//Info:  "VEM Fan Speed Control",
-				Unit:  &output.Unit{Name: "percent", Symbol: "%"},
-				Value: int16(0x5657),
-			},
-
-			&output.Reading{
-				//Type:  "flowGpmTenths",
-				//Info:  "Active Flow Setpoint",
-				Unit:  &output.Unit{Name: "gallons per minute", Symbol: "gpm"},
-				Value: uint16(0x5859),
-			},
-
-			&output.Reading{
-				//Type:  "fan_speed_percent",
-				//Info:  "VEM Fan Speed Actual",
-				Unit:  &output.Unit{Name: "percent", Symbol: "%"},
-				Value: int16(0x6263),
-			},
 
 			&output.Reading{
 				//Type:  "flowGpmTenths",
