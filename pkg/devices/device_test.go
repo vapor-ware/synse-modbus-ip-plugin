@@ -163,10 +163,8 @@ func verifyReadings(t *testing.T, expected []*sdk.ReadContext, actual []*sdk.Rea
 	t.Logf("*** verifyReadings start ------------------------\n")
 	// debugging
 	t.Logf("*** expected readings:\n")
-	//dumpReadings(t, expected)
 	dumpReadContexts(t, expected)
 	t.Logf("*** actual readings:\n")
-	//dumpReadings(t, actual)
 	dumpReadContexts(t, actual)
 	t.Logf("***\n")
 
@@ -174,7 +172,6 @@ func verifyReadings(t *testing.T, expected []*sdk.ReadContext, actual []*sdk.Rea
 	actualLen := len(actual)
 
 	if expectedLen != actualLen {
-		//t.Fatalf("expected %v readings, actual %v readings", expectedLen, actualLen)
 		t.Fatalf("expected %v readContexts, actual %v readContexts", expectedLen, actualLen)
 	}
 
@@ -193,11 +190,13 @@ func verifyReadings(t *testing.T, expected []*sdk.ReadContext, actual []*sdk.Rea
 			t.Fatalf("expected[%d] Type: %#v, actual %#v", i, expectedDevice.Type, actualDevice.Type)
 		}
 
-		// TODO: Leave this here. Info was removed from the reading in synse v3, but it should be put back.
+		// TODO: Info was removed from the reading in synse v3, but it should be put back.
 		// TODO: sdk ticket for this and context.
-		//if (*(expected[i])).Info != (*reading).Info {
-		//	t.Fatalf("reading[%v].Info. expected: %v, actual: %v", i, (*(expected[i])).Info, (*(reading)).Info)
-		//}
+
+    // Validate Info.
+		if expectedDevice.Info != actualDevice.Info {
+			t.Fatalf("expected[%d] Info: %#v, actual %#v", i, expectedDevice.Info, actualDevice.Info)
+		}
 
 		// Validate reading unit.
 		// Coils have typed nil readings, so check for that before dereferencing.
