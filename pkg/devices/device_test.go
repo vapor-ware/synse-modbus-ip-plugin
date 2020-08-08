@@ -1,6 +1,7 @@
 package devices
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -72,7 +73,7 @@ func dumpDevices(t *testing.T, devices []*sdk.Device) {
 // dumpBulkReadMap is a helper to dump a bulk read mapping so we can see it.
 func dumpBulkReadMap(t *testing.T, bulkReadMap map[ModbusBulkReadKey][]*ModbusBulkRead, keyOrder []ModbusBulkReadKey) {
 
-	t.Logf("--- Dumping bulk read map ---")
+	t.Logf("--- Dumping bulk read map, len: %d ---", len(bulkReadMap))
 	for a := 0; a < len(keyOrder); a++ {
 		k := keyOrder[a]
 		v := bulkReadMap[k]
@@ -4110,4 +4111,47 @@ func TestReadOnlyHoldingRegisters(t *testing.T) {
 	assert.Nil(t, ReadOnlyHoldingRegisterHandler.Read)
 	assert.NotNil(t, ReadOnlyHoldingRegisterHandler.BulkRead)
 	assert.Nil(t, ReadOnlyHoldingRegisterHandler.Write)
+}
+
+// Test1255 tests a holding register bulk read with 1255 devices, one IP and one port.
+func Test1255(t *testing.T) {
+	t.Logf("** Test1255 start")
+
+	// Create devices for testing.
+	var devices []*sdk.Device
+	for i := 1; i <= 1255; i++ {
+		device := &sdk.Device{
+			Info: fmt.Sprintf("Coil %d", i),
+			Data: map[string]interface{}{
+				"host":        "localhost",
+				"port":        1502,
+				"type":        "s16",
+				"width":       2,
+				"failOnError": false,
+				"address":     i,
+			},
+			Output:  "number",
+			Handler: "holding_register",
+		}
+
+		devices = append(devices, device)
+	} // end for
+
+	//dumpDevices(t, devices)
+
+	t.Logf("--- Mapping bulk read ---")
+	bulkReadMap, keyOrder, err := MapBulkRead(devices, false)
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+	//t.Logf("bulkReadMap %#v", bulkReadMap)
+	t.Logf("--- Mapping bulk read end ---")
+
+	dumpBulkReadMap(t, bulkReadMap, keyOrder)
+
+	// There should be 11 entries.
+	// TODO: Need to debug the endpoint test. The map looks correct.
+	assert.Equal(t, 1, len(bulkReadMap))
+	assert.Equal(t, 11, len(bulkReadMap[keyOrder[0]]))
+	t.Logf("Test1255 end")
 }
