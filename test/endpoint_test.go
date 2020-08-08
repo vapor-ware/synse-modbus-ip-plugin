@@ -34,12 +34,10 @@ func TestEmulatorSanity(t *testing.T) {
 	assert.Equal(t, "0000000100020003000400050006000700080009000a000b000c000d000e000f00100011001200130014001500160017", fmt.Sprintf("%x", result))
 }
 
-// TODO: Test a bulk read with the coils we currently (7/28/2020) read on the VEM PLC.
-// TODO: Same for holding registers.
-// TODO: Mix of coil, read only coil, input, holding, read only holding registers.
+// FUTURE: Test a bulk read with the coils we currently (7/28/2020) read on the VEM PLC.
+// FUTURE: Same for holding registers.
+// FUTURE: Mix of coil, read only coil, input, holding, read only holding registers.
 
-// TODO: The bug here is that this should be one network round trip for all coils.
-// TODO: There is something odd going on with the limits here.
 // Should be one network call.
 func TestBulkReadCoils_CoilHandlerOnly(t *testing.T) {
 
@@ -84,8 +82,6 @@ func TestBulkReadCoils_CoilHandlerOnly(t *testing.T) {
 	for i := 0; i < len(contexts); i++ {
 
 		// contexts[i].Device
-		// Context device is the same as in the ordered device list.
-		// TODO: We can do this in the unit tests, can't we?
 		assert.Equal(t, devices[i].Info, contexts[i].Device.Info)
 		// Handler is the same.
 		assert.Equal(t, devices[i].Handler, contexts[i].Device.Handler)
@@ -105,10 +101,8 @@ func TestBulkReadCoils_CoilHandlerOnly(t *testing.T) {
 // Should be one network call.
 func TestBulkReadHoldingRegisters_HoldingRegisterHandlerOnly(t *testing.T) {
 	// Create the device slice.
-	//fmt.Printf("Creating devices\n")
 	var devices []*sdk.Device
 
-	//for i := 1; i <= 103; i++ {
 	// TODO: Sort out the -2 here.
 	for i := 1; i <= int(modbusDevices.MaximumRegisterCount)-2; i++ {
 		device := &sdk.Device{
@@ -128,11 +122,6 @@ func TestBulkReadHoldingRegisters_HoldingRegisterHandlerOnly(t *testing.T) {
 		devices = append(devices, device)
 	} // end for
 
-	//fmt.Printf("dumping devices:\n")
-	//for i := 0; i < len(devices); i++ {
-	//	fmt.Printf("device[%d]: %+v\n", i, *(devices[i]))
-	//}
-
 	// Permute device order to test sort.
 	permutedDevices := make([]*sdk.Device, len(devices))
 	perm := rand.Perm(len(devices))
@@ -140,12 +129,7 @@ func TestBulkReadHoldingRegisters_HoldingRegisterHandlerOnly(t *testing.T) {
 		permutedDevices[v] = devices[i]
 	}
 
-	//fmt.Printf("dumping permuted devices:\n")
-	//for i := 0; i < len(permutedDevices); i++ {
-	//	fmt.Printf("device[%d]: %+v\n", i, *(permutedDevices[i]))
-	//}
-
-	//fmt.Printf("Calling bulk read\n")
+	// Call bulk read.
 	modbusDevices.ResetModbusCallCounter() // Zero out the modbus call counter.
 	contexts, err := modbusDevices.HoldingRegisterHandler.BulkRead(permutedDevices)
 
@@ -153,20 +137,8 @@ func TestBulkReadHoldingRegisters_HoldingRegisterHandlerOnly(t *testing.T) {
 	assert.Equal(t, uint64(1), modbusDevices.GetModbusCallCounter()) // One modbus call on the wire for this bulk read.
 	assert.Equal(t, len(devices), len(contexts))                     // One context per device.
 
-	//fmt.Printf("contexts (len %d): %+v\n", len(contexts), contexts)
-	//fmt.Printf("err: %v\n", err)
-	//fmt.Printf("Called bulk read\n")
-
-	//fmt.Printf("Dumping contexts\n")
-	//assert.NoError(t, err)
+	// Validate
 	for i := 0; i < len(contexts); i++ {
-		//	fmt.Printf("contexts[%d]: %+v\n", i, contexts[i])
-		//	fmt.Printf("\tReading: %T, len(%d),  %+v\n", contexts[i].Reading, len(contexts[i].Reading), contexts[i].Reading)
-
-		// Dump readings.
-		//		for j := 0; j < len(contexts[i].Reading); j++ {
-		//			fmt.Printf("\tReading[%d], %T, %+v\n", j, contexts[i].Reading[j], contexts[i].Reading[j])
-		//		}
 
 		// Programmatically verify contexts.
 		// contexts[i].Device
@@ -190,10 +162,8 @@ func TestBulkReadHoldingRegisters_HoldingRegisterHandlerOnly(t *testing.T) {
 // Should be one network call.
 func TestBulkReadInputRegisters_InputRegisterHandlerOnly(t *testing.T) {
 	// Create the device slice.
-	///fmt.Printf("Creating devices\n")
 	var devices []*sdk.Device
 
-	//for i := 1; i <= 103; i++ {
 	for i := 1; i <= int(modbusDevices.MaximumRegisterCount); i++ {
 		device := &sdk.Device{
 			Info: fmt.Sprintf("Coil %d", i),
@@ -212,11 +182,6 @@ func TestBulkReadInputRegisters_InputRegisterHandlerOnly(t *testing.T) {
 		devices = append(devices, device)
 	} // end for
 
-	//fmt.Printf("dumping devices:\n")
-	//for i := 0; i < len(devices); i++ {
-	//	fmt.Printf("device[%d]: %+v\n", i, *(devices[i]))
-	//}
-
 	// Permute device order to test sort.
 	permutedDevices := make([]*sdk.Device, len(devices))
 	perm := rand.Perm(len(devices))
@@ -224,28 +189,13 @@ func TestBulkReadInputRegisters_InputRegisterHandlerOnly(t *testing.T) {
 		permutedDevices[v] = devices[i]
 	}
 
-	//fmt.Printf("dumping permuted devices:\n")
-	//for i := 0; i < len(permutedDevices); i++ {
-	//	fmt.Printf("device[%d]: %+v\n", i, *(permutedDevices[i]))
-	//}
-
-	//fmt.Printf("Calling bulk read\n")
+	// Call bulk read.
 	modbusDevices.ResetModbusCallCounter() // Zero out the modbus call counter.
 	contexts, err := modbusDevices.InputRegisterHandler.BulkRead(permutedDevices)
-	//fmt.Printf("contexts (len %d): %+v\n", len(contexts), contexts)
-	//fmt.Printf("err: %v\n", err)
-	//fmt.Printf("Called bulk read\n")
-
-	//fmt.Printf("Dumping contexts\n")
 	assert.NoError(t, err)
-	for i := 0; i < len(contexts); i++ {
-		//	fmt.Printf("contexts[%d]: %+v\n", i, contexts[i])
-		//	fmt.Printf("\tReading: %T, len(%d),  %+v\n", contexts[i].Reading, len(contexts[i].Reading), contexts[i].Reading)
 
-		//	// Dump readings.
-		//	for j := 0; j < len(contexts[i].Reading); j++ {
-		//		fmt.Printf("\tReading[%d], %T, %+v\n", j, contexts[i].Reading[j], contexts[i].Reading[j])
-		//	/
+	// Validate
+	for i := 0; i < len(contexts); i++ {
 
 		// Programmatically verify contexts.
 		// contexts[i].Device
