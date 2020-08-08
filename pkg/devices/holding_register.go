@@ -41,6 +41,10 @@ func bulkReadHoldingRegisters(devices []*sdk.Device) (readContexts []*sdk.ReadCo
 	//fmt.Printf("bulkReadMap: %#v", bulkReadMap)
 
 	// Perform the bulk reads.
+	//fmt.Printf("*** len(bulkReadMap): %d\n", len(bulkReadMap))
+	//fmt.Printf("*** len(keyOrder): %d\n", len(keyOrder))
+	//fmt.Printf("*** keyOrder: %#v\n", keyOrder)
+
 	for a := 0; a < len(keyOrder); a++ {
 		k := keyOrder[a]
 		v := bulkReadMap[k]
@@ -52,17 +56,19 @@ func bulkReadHoldingRegisters(devices []*sdk.Device) (readContexts []*sdk.ReadCo
 		var modbusDeviceData *config.ModbusDeviceData
 		client, modbusDeviceData, err = GetBulkReadClient(k)
 		if err != nil {
-			fmt.Printf("error gettting bulk read client: %v\n", err.Error())
+			//fmt.Printf("error gettting bulk read client: %v\n", err.Error())
 			return nil, err
 		}
 
 		// For read in v, perform each read.
+		//fmt.Printf("*** len(bulkReadMap) k[%d] (reads): %d\n", a, len(v))
 		for i := 0; i < len(v); i++ { // For each required read.
 			read := v[i]
 			log.Debugf("Reading bulkReadMap[%#v][%#v]", k, read)
 			//fmt.Printf("Reading bulkReadMap[%#v][%#v]", k, read)
 
 			var readResults []byte
+			//fmt.Printf("*** reading: startRegister: %d, registerCount: %d\n", read.StartRegister, read.RegisterCount)
 			readResults, err = client.ReadHoldingRegisters(read.StartRegister, read.RegisterCount)
 			incrementModbusCallCounter()
 			if err != nil {

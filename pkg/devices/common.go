@@ -236,6 +236,8 @@ func SortDevices(devices []*sdk.Device) (
 // register data configured for the device.
 func MapBulkRead(devices []*sdk.Device, isCoil bool) (
 	bulkReadMap map[ModbusBulkReadKey][]*ModbusBulkRead, keyOrder []ModbusBulkReadKey, err error) {
+
+	//fmt.Printf("*** MapBulkRead start. %d devices.\n", len(devices))
 	log.Debugf("MapBulkRead start. devices: %+v", devices)
 	for z := 0; z < len(devices); z++ {
 		log.Debugf("MapBulkRead devices[%v]: %#v", z, devices[z])
@@ -254,6 +256,7 @@ func MapBulkRead(devices []*sdk.Device, isCoil bool) (
 		log.Debugf("MapBulkRead sorted[%v]: %#v", z, sorted[z])
 	}
 
+	//fmt.Printf("*** MapBulkRead: len(sorted): %d.\n", len(sorted))
 	for i := 0; i < len(sorted); i++ {
 		// Create the key for this device from the device data.
 		device := sortedDevices[sorted[i]]
@@ -276,13 +279,16 @@ func MapBulkRead(devices []*sdk.Device, isCoil bool) (
 			MaximumRegisterCount: MaximumRegisterCount,
 		}
 		log.Debugf("Created key: %#v", key)
+		//fmt.Printf("Created key: %#v\n", key)
 
 		// Find out if the key is in the map.
 		keyValues, keyPresent := bulkReadMap[key]
 		if keyPresent {
 			log.Debugf("key is already in the map")
+			//fmt.Printf("key is already in the map\n")
 		} else {
 			log.Debugf("key is not in the map")
+			//fmt.Printf("key is not in the map\n")
 		}
 
 		log.Debugf("len(keyValues): %v", len(keyValues))
@@ -328,7 +334,7 @@ func MapBulkRead(devices []*sdk.Device, isCoil bool) (
 				}
 				log.Debugf("modbusBulkRead: %#v", modbusBulkRead)
 				bulkReadMap[key] = append(bulkReadMap[key], modbusBulkRead)
-				keyOrder = append(keyOrder, key)
+				//keyOrder = append(keyOrder, key)
 			}
 		}
 	} // For each device.

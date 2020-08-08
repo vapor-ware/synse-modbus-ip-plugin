@@ -268,11 +268,9 @@ func TestBulkReadInputRegisters_InputRegisterHandlerOnly(t *testing.T) {
 // Test a bulk read on holding registers with handler holding_register. No read_only_holding_register.
 // Read registers 1-1255. The VEM currently goes up to 1011 (2020-08-07)
 func TestBulkReadHoldingRegisters_1255(t *testing.T) {
-	// Create the device slice.
-	//fmt.Printf("Creating devices\n")
-	var devices []*sdk.Device
 
-	//for i := 1; i <= int(modbusDevices.MaximumRegisterCount)-2; i++ {
+	// Create the device slice.
+	var devices []*sdk.Device
 	for i := 1; i <= 1255; i++ {
 		device := &sdk.Device{
 			Info: fmt.Sprintf("Coil %d", i),
@@ -291,11 +289,6 @@ func TestBulkReadHoldingRegisters_1255(t *testing.T) {
 		devices = append(devices, device)
 	} // end for
 
-	//fmt.Printf("dumping devices:\n")
-	//for i := 0; i < len(devices); i++ {
-	//	fmt.Printf("device[%d]: %+v\n", i, *(devices[i]))
-	//}
-
 	// Permute device order to test sort.
 	permutedDevices := make([]*sdk.Device, len(devices))
 	perm := rand.Perm(len(devices))
@@ -303,39 +296,22 @@ func TestBulkReadHoldingRegisters_1255(t *testing.T) {
 		permutedDevices[v] = devices[i]
 	}
 
-	//fmt.Printf("dumping permuted devices:\n")
-	//for i := 0; i < len(permutedDevices); i++ {
-	//	fmt.Printf("device[%d]: %+v\n", i, *(permutedDevices[i]))
-	//}
-
-	//fmt.Printf("Calling bulk read\n")
-	modbusDevices.ResetModbusCallCounter() // Zero out the modbus call counter.
-	fmt.Printf("*** ModbusCallCounter: %d\n", modbusDevices.GetModbusCallCounter())
+	// Do the bulk read.
+	modbusDevices.ResetModbusCallCounter()                           // Zero out the modbus call counter.
+	assert.Equal(t, uint64(0), modbusDevices.GetModbusCallCounter()) // Complete paranoia.
 	contexts, err := modbusDevices.HoldingRegisterHandler.BulkRead(permutedDevices)
 
+	// Verify
 	assert.NoError(t, err)
-	// TODO: Assertion: assert.Equal(t, uint64(1), modbusDevices.GetModbusCallCounter()) // One modbus call on the wire for this bulk read.
-	fmt.Printf("*** ModbusCallCounter: %d\n", modbusDevices.GetModbusCallCounter())
-	// TODO: Got 121. There is a bug here.
-	//assert.Equal(t, uint64(1), modbusDevices.GetModbusCallCounter()) // One modbus call on the wire for this bulk read.
-	assert.Equal(t, len(devices), len(contexts)) // One context per device.
+	// 11 modbus calls on the wire for this bulk read.
+	assert.Equal(t, uint64(11), modbusDevices.GetModbusCallCounter())
 
-	//fmt.Printf("contexts (len %d): %+v\n", len(contexts), contexts)
-	//fmt.Printf("err: %v\n", err)
-	//fmt.Printf("Called bulk read\n")
+	// One context per device.
+	assert.Equal(t, len(devices), len(contexts))
 
-	//fmt.Printf("Dumping contexts\n")
-	//assert.NoError(t, err)
+	// Programmatically verify contexts.
 	for i := 0; i < len(contexts); i++ {
-		//	fmt.Printf("contexts[%d]: %+v\n", i, contexts[i])
-		//	fmt.Printf("\tReading: %T, len(%d),  %+v\n", contexts[i].Reading, len(contexts[i].Reading), contexts[i].Reading)
 
-		// Dump readings.
-		//		for j := 0; j < len(contexts[i].Reading); j++ {
-		//			fmt.Printf("\tReading[%d], %T, %+v\n", j, contexts[i].Reading[j], contexts[i].Reading[j])
-		//		}
-
-		// Programmatically verify contexts.
 		// contexts[i].Device
 		// Context device is the same as in the ordered device list.
 		assert.Equal(t, devices[i].Info, contexts[i].Device.Info)
@@ -347,7 +323,7 @@ func TestBulkReadHoldingRegisters_1255(t *testing.T) {
 		// contexts[i].Reading
 		// One reading per context.
 		assert.Equal(t, 1, len(contexts[i].Reading))
-		// Reading[0] value is address.
+		// Reading[0] value is address because of how the data is setup in the emulator.
 		expectedValue := (devices[i].Data["address"]).(int)
 		assert.Equal(t, expectedValue, int((contexts[i].Reading[0].Value).(int16)))
 	}
