@@ -1,6 +1,8 @@
 package devices
 
 import (
+	"fmt"
+
 	"github.com/goburrow/modbus"
 	log "github.com/sirupsen/logrus"
 	"github.com/vapor-ware/synse-modbus-ip-plugin/pkg/config"
@@ -34,11 +36,11 @@ func bulkReadInputRegisters(devices []*sdk.Device) (readContexts []*sdk.ReadCont
 		log.Debugf("bulkReadMap[%#v]: %#v", k, v)
 
 		// New connection for each key.
-		// TODO: use GetModbusClientAndDeviceData
 		var client modbus.Client
-		var modbusDeviceData *config.ModbusDeviceData
-		client, modbusDeviceData, err = GetBulkReadClient(k)
+		var deviceData *config.ModbusDeviceData
+		client, deviceData, err = GetBulkReadClient(k)
 		if err != nil {
+			fmt.Printf("error gettting bulk read client: %v\n", err.Error())
 			return nil, err
 		}
 
@@ -52,7 +54,7 @@ func bulkReadInputRegisters(devices []*sdk.Device) (readContexts []*sdk.ReadCont
 			incrementModbusCallCounter()
 			if err != nil {
 				log.Errorf("modbus bulk read input registers failure: %v", err.Error())
-				if modbusDeviceData.FailOnError {
+				if deviceData.FailOnError {
 					return nil, err
 				}
 				// No data from device. If fail on error is false, we should keep trying the remaining reads.
