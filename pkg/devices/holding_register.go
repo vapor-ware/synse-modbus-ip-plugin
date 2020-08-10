@@ -29,7 +29,6 @@ var ReadOnlyHoldingRegisterHandler = sdk.DeviceHandler{
 // reducing round trips to the physical device.
 func bulkReadHoldingRegisters(devices []*sdk.Device) (readContexts []*sdk.ReadContext, err error) {
 	log.Debugf("----------- bulkReadHoldingRegisters start ---------------")
-	//fmt.Printf("----------- bulkReadHoldingRegisters start ---------------\n")
 
 	// Ideally this would be done in setup, but for now this should work.
 	// Map out the bulk read.
@@ -38,42 +37,32 @@ func bulkReadHoldingRegisters(devices []*sdk.Device) (readContexts []*sdk.ReadCo
 		return nil, err
 	}
 	log.Debugf("bulkReadMap: %#v", bulkReadMap)
-	//fmt.Printf("bulkReadMap: %#v", bulkReadMap)
 
 	// Perform the bulk reads.
-	//fmt.Printf("*** len(bulkReadMap): %d\n", len(bulkReadMap))
-	//fmt.Printf("*** len(keyOrder): %d\n", len(keyOrder))
-	//fmt.Printf("*** keyOrder: %#v\n", keyOrder)
-
 	for a := 0; a < len(keyOrder); a++ {
 		k := keyOrder[a]
 		v := bulkReadMap[k]
 		log.Debugf("bulkReadMap[%#v]: %#v", k, v)
-		//fmt.Printf("bulkReadMap[%#v]: %#v", k, v)
 
 		// New connection for each key.
 		var client modbus.Client
 		var modbusDeviceData *config.ModbusDeviceData
 		client, modbusDeviceData, err = GetBulkReadClient(k)
 		if err != nil {
-			//fmt.Printf("error gettting bulk read client: %v\n", err.Error())
 			return nil, err
 		}
 
 		// For read in v, perform each read.
-		//fmt.Printf("*** len(bulkReadMap) k[%d] (reads): %d\n", a, len(v))
 		for i := 0; i < len(v); i++ { // For each required read.
 			read := v[i]
 			log.Debugf("Reading bulkReadMap[%#v][%#v]", k, read)
-			//fmt.Printf("Reading bulkReadMap[%#v][%#v]", k, read)
 
 			var readResults []byte
-			//fmt.Printf("*** reading: startRegister: %d, registerCount: %d\n", read.StartRegister, read.RegisterCount)
+      fmt.Printf("*** ReadHoldingRegisters(%v, %v) (start / count)\n", read.StartRegister, read.RegisterCount)
 			readResults, err = client.ReadHoldingRegisters(read.StartRegister, read.RegisterCount)
 			incrementModbusCallCounter()
 			if err != nil {
 				log.Errorf("modbus bulk read holding registers failure: %v", err.Error())
-				//fmt.Printf("modbus bulk read holding registers failure: %v", err.Error())
 				if modbusDeviceData.FailOnError {
 					return nil, err
 				}
@@ -81,14 +70,12 @@ func bulkReadHoldingRegisters(devices []*sdk.Device) (readContexts []*sdk.ReadCo
 				read.ReadResults = []byte{}
 				continue
 			}
-			log.Debugf("ReadHoldingRegisters: results: 0x%0x, len(results) 0x%0x", readResults, len(readResults))
-			//fmt.Printf("ReadHoldingRegisters: results: 0x%0x, len(results) 0x%0x", readResults, len(readResults))
+			log.Debugf("*** ReadHoldingRegisters: results: 0x%0x, len(results) 0x%0x", readResults, len(readResults))
 			read.ReadResults = readResults[0 : 2*(read.RegisterCount)] // Store raw results. Two bytes per register.
 		} // end for each read
 	} // end for each modbus connection
 
 	readContexts, err = MapBulkReadData(bulkReadMap, keyOrder)
-	//fmt.Printf("readContexts, err: %#v, %v\n", readContexts, err)
 	return
 }
 

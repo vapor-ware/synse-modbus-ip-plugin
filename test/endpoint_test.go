@@ -5,7 +5,6 @@ import (
 	"math/rand"
 	"testing"
 
-	"github.com/goburrow/modbus"
 	"github.com/stretchr/testify/assert"
 	modbusDevices "github.com/vapor-ware/synse-modbus-ip-plugin/pkg/devices"
 	"github.com/vapor-ware/synse-sdk/sdk"
@@ -13,6 +12,8 @@ import (
 
 var host = "localhost" // run on local machine
 var port = 1502
+
+/*
 
 // Make sure the emulator is up.
 // Coil data is 0 for addresses where address % 3 == 0.
@@ -45,7 +46,7 @@ func TestBulkReadCoils_CoilHandlerOnly(t *testing.T) {
 	var devices []*sdk.Device
 
 	// TODO: Sort out the -1 here.
-	for i := 1; i <= int(modbusDevices.MaximumRegisterCount)-1; i++ {
+	for i := 0; i <= int(modbusDevices.MaximumRegisterCount)-1; i++ {
 		device := &sdk.Device{
 			Info: fmt.Sprintf("Coil %d", i),
 			Data: map[string]interface{}{
@@ -96,6 +97,7 @@ func TestBulkReadCoils_CoilHandlerOnly(t *testing.T) {
 		assert.Equal(t, expectedValue, contexts[i].Reading[0].Value)
 	}
 }
+*/
 
 // Test a bulk read on holding registers with handler holding_register. No read_only_holding_register.
 // Should be one network call.
@@ -104,14 +106,15 @@ func TestBulkReadHoldingRegisters_HoldingRegisterHandlerOnly(t *testing.T) {
 	var devices []*sdk.Device
 
 	// TODO: Sort out the -2 here.
-	for i := 1; i <= int(modbusDevices.MaximumRegisterCount)-2; i++ {
+	//for i := 1; i <= int(modbusDevices.MaximumRegisterCount)-2; i++ {
+	for i := 0; i <= int(modbusDevices.MaximumRegisterCount); i++ {
 		device := &sdk.Device{
-			Info: fmt.Sprintf("Coil %d", i),
+			Info: fmt.Sprintf("Holding Register %d", i),
 			Data: map[string]interface{}{
 				"host":        "localhost",
 				"port":        1502,
 				"type":        "s16",
-				"width":       2,
+				"width":       1,
 				"failOnError": false,
 				"address":     i,
 			},
@@ -121,6 +124,8 @@ func TestBulkReadHoldingRegisters_HoldingRegisterHandlerOnly(t *testing.T) {
 
 		devices = append(devices, device)
 	} // end for
+
+	fmt.Printf("len(devices): %d\n", len(devices))
 
 	// Permute device order to test sort.
 	permutedDevices := make([]*sdk.Device, len(devices))
@@ -158,20 +163,22 @@ func TestBulkReadHoldingRegisters_HoldingRegisterHandlerOnly(t *testing.T) {
 	}
 }
 
+/*
+
 // Test a bulk read on input registers 1-103 with handler input_register.
 // Should be one network call.
 func TestBulkReadInputRegisters_InputRegisterHandlerOnly(t *testing.T) {
 	// Create the device slice.
 	var devices []*sdk.Device
 
-	for i := 1; i <= int(modbusDevices.MaximumRegisterCount); i++ {
+	for i := 0; i <= int(modbusDevices.MaximumRegisterCount); i++ {
 		device := &sdk.Device{
-			Info: fmt.Sprintf("Coil %d", i),
+			Info: fmt.Sprintf("Input Register %d", i),
 			Data: map[string]interface{}{
 				"host":        "localhost",
 				"port":        1502,
 				"type":        "s16",
-				"width":       2,
+				"width":       1,
 				"failOnError": false,
 				"address":     i,
 			},
@@ -221,14 +228,14 @@ func TestBulkReadHoldingRegisters_1255(t *testing.T) {
 
 	// Create the device slice.
 	var devices []*sdk.Device
-	for i := 1; i <= 1255; i++ {
+	for i := 0; i <= 1255; i++ {
 		device := &sdk.Device{
 			Info: fmt.Sprintf("Coil %d", i),
 			Data: map[string]interface{}{
 				"host":        "localhost",
 				"port":        1502,
 				"type":        "s16",
-				"width":       2,
+				"width":       1,
 				"failOnError": false,
 				"address":     i,
 			},
@@ -278,3 +285,5 @@ func TestBulkReadHoldingRegisters_1255(t *testing.T) {
 		assert.Equal(t, expectedValue, int((contexts[i].Reading[0].Value).(int16)))
 	}
 }
+
+*/

@@ -1,8 +1,6 @@
 package devices
 
 import (
-	"fmt"
-
 	"github.com/goburrow/modbus"
 	log "github.com/sirupsen/logrus"
 	"github.com/vapor-ware/synse-modbus-ip-plugin/pkg/config"
@@ -40,7 +38,6 @@ func bulkReadInputRegisters(devices []*sdk.Device) (readContexts []*sdk.ReadCont
 		var deviceData *config.ModbusDeviceData
 		client, deviceData, err = GetBulkReadClient(k)
 		if err != nil {
-			fmt.Printf("error gettting bulk read client: %v\n", err.Error())
 			return nil, err
 		}
 

@@ -24,8 +24,6 @@ var ReadOnlyCoilsHandler = sdk.DeviceHandler{
 	BulkRead: bulkReadCoils,
 }
 
-// TODO: Read only coils.
-
 // bulkReadCoils performs a bulk read on the devices parameter reducing round trips.
 func bulkReadCoils(devices []*sdk.Device) (readContexts []*sdk.ReadContext, err error) {
 
@@ -44,7 +42,6 @@ func bulkReadCoils(devices []*sdk.Device) (readContexts []*sdk.ReadContext, err 
 		k := keyOrder[a]
 		v := bulkReadMap[k]
 		log.Debugf("bulkReadMap[%#v]: %#v", k, v)
-		//fmt.Printf("Coils: bulkReadMap[%#v]: %#v", k, v)
 
 		// New connection for each key.
 		var client modbus.Client
@@ -60,7 +57,6 @@ func bulkReadCoils(devices []*sdk.Device) (readContexts []*sdk.ReadContext, err 
 			log.Debugf("Reading bulkReadMap[%#v][%#v]", k, read)
 
 			var readResults []byte
-			fmt.Printf("*** Coil read. StartRegister: %v, RegisterCount %v\n", read.StartRegister, read.RegisterCount)
 			readResults, err = client.ReadCoils(read.StartRegister, read.RegisterCount)
 			incrementModbusCallCounter()
 			if err != nil {
@@ -73,7 +69,7 @@ func bulkReadCoils(devices []*sdk.Device) (readContexts []*sdk.ReadContext, err 
 				continue
 			}
 			log.Debugf("ReadCoils: results: 0x%0x, len(results) 0x%0x", readResults, len(readResults))
-			read.ReadResults = readResults[0 : 2*(read.RegisterCount)] // Store raw results. Two bytes per register. TODO: Double check this.
+			read.ReadResults = readResults[0 : 2*(read.RegisterCount)] // Store raw results. Two bytes per register.
 		} // end for each read
 	} // end for each modbus connection
 

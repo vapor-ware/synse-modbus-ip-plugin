@@ -237,11 +237,10 @@ func SortDevices(devices []*sdk.Device) (
 func MapBulkRead(devices []*sdk.Device, isCoil bool) (
 	bulkReadMap map[ModbusBulkReadKey][]*ModbusBulkRead, keyOrder []ModbusBulkReadKey, err error) {
 
-	//fmt.Printf("*** MapBulkRead start. %d devices.\n", len(devices))
 	log.Debugf("MapBulkRead start. devices: %+v", devices)
+	fmt.Printf("MapBulkRead start. devices: %+v", devices)
 	for z := 0; z < len(devices); z++ {
 		log.Debugf("MapBulkRead devices[%v]: %#v", z, devices[z])
-		//fmt.Printf("MapBulkRead devices[%v]: %#v\n", z, devices[z])
 	}
 
 	// Sort the devices.
@@ -254,9 +253,9 @@ func MapBulkRead(devices []*sdk.Device, isCoil bool) (
 
 	for z := 0; z < len(sorted); z++ {
 		log.Debugf("MapBulkRead sorted[%v]: %#v", z, sorted[z])
+		fmt.Printf("MapBulkRead sorted[%v]: %#v\n", z, sorted[z])
 	}
 
-	//fmt.Printf("*** MapBulkRead: len(sorted): %d.\n", len(sorted))
 	for i := 0; i < len(sorted); i++ {
 		// Create the key for this device from the device data.
 		device := sortedDevices[sorted[i]]
@@ -279,16 +278,15 @@ func MapBulkRead(devices []*sdk.Device, isCoil bool) (
 			MaximumRegisterCount: MaximumRegisterCount,
 		}
 		log.Debugf("Created key: %#v", key)
-		//fmt.Printf("Created key: %#v\n", key)
 
 		// Find out if the key is in the map.
 		keyValues, keyPresent := bulkReadMap[key]
 		if keyPresent {
 			log.Debugf("key is already in the map")
-			//fmt.Printf("key is already in the map\n")
+			fmt.Printf("key is already in the map\n")
 		} else {
 			log.Debugf("key is not in the map")
-			//fmt.Printf("key is not in the map\n")
+			fmt.Printf("key is not in the map\n")
 		}
 
 		log.Debugf("len(keyValues): %v", len(keyValues))
@@ -307,7 +305,8 @@ func MapBulkRead(devices []*sdk.Device, isCoil bool) (
 			if err != nil {
 				return nil, keyOrder, err
 			}
-			log.Debugf("modbusBulkRead: %#v", modbusBulkRead)
+			log.Debugf("appending modbusBulkRead: %#v", modbusBulkRead)
+			fmt.Printf("appending modbusBulkRead: %#v\n", modbusBulkRead)
 			bulkReadMap[key] = append(bulkReadMap[key], modbusBulkRead)
 			keyOrder = append(keyOrder, key)
 		} else {
@@ -317,24 +316,39 @@ func MapBulkRead(devices []*sdk.Device, isCoil bool) (
 			//  If not, create a new ModbusBulkRead.
 			reads := bulkReadMap[key]
 			lastRead := reads[len(reads)-1]
+			fmt.Printf("lastRead: %#v\n", lastRead)
 			startRegister := lastRead.StartRegister
 			log.Debugf("startRegister: 0x%0x", startRegister)
-			newRegisterCount := deviceDataAddress + deviceDataWidth - startRegister
+			fmt.Printf("startRegister: 0x%0x\n", startRegister)
+			//var newRegisterCount int
+			var newRegisterCount uint16
+			if isCoil {
+				newRegisterCount = deviceDataAddress + deviceDataWidth - startRegister
+			} else {
+				newRegisterCount = deviceDataAddress + (deviceDataWidth / 2) - startRegister
+			}
+			//newRegisterCount := deviceDataAddress + deviceDataWidth - startRegister
+			fmt.Printf("deviceDataAddress: %d\n", deviceDataAddress)
+			fmt.Printf("deviceDataWidth: %d\n", deviceDataWidth)
+			fmt.Printf("startRegister: %d\n", startRegister)
+			fmt.Printf("newRegisterCount: %d\n", newRegisterCount)
 
-			if newRegisterCount < key.MaximumRegisterCount {
+			//if newRegisterCount < key.MaximumRegisterCount {
+			if newRegisterCount <= key.MaximumRegisterCount {
 				log.Debugf("read fits in existing. newRegisterCount: %v", newRegisterCount)
 				lastRead.RegisterCount = newRegisterCount
 				lastRead.Devices = append(lastRead.Devices, device)
 			} else {
 				// Add a new read.
 				log.Debugf("read does not fit in existing. newRegisterCount: %v", newRegisterCount)
+				fmt.Printf("read does not fit in existing. newRegisterCount: %v\n", newRegisterCount)
 				modbusBulkRead, err := NewModbusBulkRead(device, deviceDataAddress, deviceDataWidth, isCoil)
 				if err != nil {
 					return nil, keyOrder, err
 				}
-				log.Debugf("modbusBulkRead: %#v", modbusBulkRead)
+				log.Debugf("appending modbusBulkRead: %#v", modbusBulkRead)
+				fmt.Printf("appending modbusBulkRead: %#v\n", modbusBulkRead)
 				bulkReadMap[key] = append(bulkReadMap[key], modbusBulkRead)
-				//keyOrder = append(keyOrder, key)
 			}
 		}
 	} // For each device.
@@ -412,12 +426,20 @@ func MapBulkReadData(bulkReadMap map[ModbusBulkReadKey][]*ModbusBulkRead, keyOrd
 				} else {
 					// Get start and end data offsets. Bounds check.
 					startDataOffset := (2 * deviceDataAddress) - (2 * read.StartRegister) // Results are in bytes. Need 16 bit words.
-					endDataOffset := startDataOffset + (2 * deviceDataWidth)              // Two bytes per register.
+					//endDataOffset := startDataOffset + (2 * deviceDataWidth)              // Two bytes per register.
+					endDataOffset := startDataOffset + (deviceDataWidth)              // Two bytes per register.
 					readResultsLength := len(readResults)
 
 					log.Debugf("startDataOffset: %d", startDataOffset)
 					log.Debugf("endDataOffset: %d", endDataOffset)
 					log.Debugf("readResultsLength: %d", readResultsLength)
+
+
+					fmt.Printf("--- startDataOffset: %d\n", startDataOffset)
+					fmt.Printf("endDataOffset: %d\n", endDataOffset)
+					fmt.Printf("readResultsLength: %d\n", readResultsLength)
+
+
 
 					if int(endDataOffset) > len(readResults) {
 						if k.FailOnError {
@@ -428,7 +450,6 @@ func MapBulkReadData(bulkReadMap map[ModbusBulkReadKey][]*ModbusBulkRead, keyOrd
 						log.Errorf("No data. Attempt to read beyond bounds. startDataOffset: %v, endDataOffset: %v, readResultsLength: %v",
 							startDataOffset, endDataOffset, readResultsLength)
 						readings = append(readings, nil)
-						//fmt.Printf("*** readings after appending nil: %#v\n", readings)
 						// Append a read context here for the nil reading.
 						readContext := sdk.NewReadContext(device, readings)
 						readContexts = append(readContexts, readContext)
@@ -460,7 +481,6 @@ func MapBulkReadData(bulkReadMap map[ModbusBulkReadKey][]*ModbusBulkRead, keyOrd
 			} // End for each device.
 		} // End for each read.
 	} // End for each key, value.
-	//fmt.Printf("*** MapBulkReadData returning readContexts: %#v, err %v\n", readContexts, err)
 	return
 }
 
