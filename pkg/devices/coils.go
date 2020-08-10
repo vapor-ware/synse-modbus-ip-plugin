@@ -117,6 +117,7 @@ func bulkReadCoils(managers []*ModbusDeviceManager) ([]*sdk.ReadContext, error) 
 				"registerCount": block.RegisterCount,
 			}).Debug("[modbus] reading coils for block")
 
+			fmt.Printf("Calling modbus ReadCoils\n")
 			results, err := client.ReadCoils(block.StartRegister, block.RegisterCount)
 			if err != nil {
 				if manager.FailOnError {
