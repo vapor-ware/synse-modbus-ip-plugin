@@ -35,13 +35,5 @@ func MakePlugin() *sdk.Plugin {
 		log.Fatal(err)
 	}
 
-	// Register setup actions
-	err = plugin.RegisterDeviceSetupActions(
-		&devices.LoadModbusDevices,
-	)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	return plugin
 }

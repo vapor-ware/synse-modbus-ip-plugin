@@ -1,0 +1,11 @@
+ # Stand up the mobus server / emulator for testing against.
+version: "3"
+services:
+  modbus:
+    container_name: modbus
+    build:
+      context: .
+      dockerfile: Dockerfile
+    tty: true
+    ports:
+      - "1502:1502"

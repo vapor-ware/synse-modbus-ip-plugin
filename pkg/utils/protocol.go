@@ -1,4 +1,4 @@
-package devices
+package utils
 
 import (
 	"fmt"
@@ -8,11 +8,12 @@ import (
 )
 
 // NewClient gets a new Modbus client configured for TCP communication
-// using the device's modbus configuration specified in its Data field.
-func NewClient(data *config.ModbusConfig) (modbus.Client, error) {
+// using the device's configuration.
+func NewClient(data *config.ModbusDeviceData) (modbus.Client, error) {
 
 	// Validate that the device config has all required fields.
-	if err := data.Validate(); err != nil {
+	err := data.Validate()
+	if err != nil {
 		return nil, err
 	}
 
