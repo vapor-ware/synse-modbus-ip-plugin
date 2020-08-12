@@ -71,10 +71,12 @@ func UnpackCoilReading(output *output.Output, rawReading []byte, startAddress ui
 	bitIndex = bitIndex % 8
 
 	if int(byteIndex) >= len(rawReading) {
+		// Make a reading with a nil Reading.Value.
+		reading = output.MakeReading(nil)
 		if failOnErr {
-			return nil, fmt.Errorf("failed to get coil data")
+			return reading, fmt.Errorf("failed to get coil data")
 		}
-		return nil, nil // No Reading
+		return reading, nil // Reading with nil reading.Value
 	}
 
 	coilByte := rawReading[byteIndex]
@@ -93,11 +95,13 @@ func UnpackReading(output *output.Output, typeName string, rawReading []byte, fa
 	// Cast the raw reading value to the specified output type
 	data, err := utils.CastToType(typeName, rawReading)
 	if err != nil {
+		// Make a reading with a nil Reading.Value.
+		reading = output.MakeReading(nil)
 		log.Errorf("Failed to cast typeName: %v, rawReading: %x", typeName, rawReading)
 		if failOnErr {
-			return nil, err
+			return reading, err
 		}
-		return nil, nil // No reading.
+		return reading, nil // No reading.
 	}
 
 	return output.MakeReading(data), nil
@@ -400,7 +404,9 @@ func MapBulkReadData(bulkReadMap map[ModbusBulkReadKey][]*ModbusBulkRead, keyOrd
 						// nil reading.
 						log.Errorf("No data. Attempt to read beyond bounds. startDataOffset: %v, endDataOffset: %v, readResultsLength: %v",
 							startDataOffset, endDataOffset, readResultsLength)
-						readings = append(readings, nil)
+						// Make a reading with a nil Reading.Value.
+						reading = theOutput.MakeReading(nil)
+						readings = append(readings, reading)
 						// Append a read context here for the nil reading.
 						readContext := sdk.NewReadContext(device, readings)
 						readContexts = append(readContexts, readContext)

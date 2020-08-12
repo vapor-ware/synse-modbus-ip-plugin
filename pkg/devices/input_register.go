@@ -49,6 +49,8 @@ func bulkReadInputRegisters(devices []*sdk.Device) (readContexts []*sdk.ReadCont
 			var readResults []byte
 			readResults, err = client.ReadInputRegisters(read.StartRegister, read.RegisterCount)
 			incrementModbusCallCounter()
+			log.Debugf("[modbus call]: ReadInputRegisters(0x%x, 0x%x), result: %v, len(d%d), err: %v\n",
+				read.StartRegister, read.RegisterCount, readResults, len(readResults), err)
 			if err != nil {
 				log.Errorf("modbus bulk read input registers failure: %v", err.Error())
 				if deviceData.FailOnError {

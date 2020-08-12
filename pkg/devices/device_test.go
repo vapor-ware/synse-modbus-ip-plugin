@@ -224,9 +224,9 @@ func verifyReadContexts(t *testing.T, expected []*sdk.ReadContext, actual []*sdk
 	t.Logf("*** verifyReadContexts end ------------------------\n")
 }
 
-// verifySingleNilReading verifies that there is one read context with one
+// verifySingleNilReadingValue verifies that there is one read context with one
 // reading that is nil.
-func verifySingleNilReading(t *testing.T, readContexts []*sdk.ReadContext) {
+func verifySingleNilReadingValue(t *testing.T, readContexts []*sdk.ReadContext) {
 	if len(readContexts) != 1 {
 		t.Fatalf("Expected 1 read context, got %v", len(readContexts))
 	}
@@ -236,8 +236,14 @@ func verifySingleNilReading(t *testing.T, readContexts []*sdk.ReadContext) {
 		t.Fatalf("Expected 1 reading, got %v", len(readContexts[0].Reading))
 	}
 
-	if readContexts[0].Reading[0] != nil {
-		t.Fatalf("Expected nil reading, got %#v", readContexts[0].Reading[0])
+	// The scheduler was dereferencing ReadContext.Reading.Value here,
+	// so don't give it a  nil reading but a nil reading value.
+	if readContexts[0].Reading[0] == nil {
+		t.Fatalf("Expected non-nil reading, got %v\n", readContexts[0].Reading[0])
+	}
+
+	if readContexts[0].Reading[0].Value != nil {
+		t.Fatalf("Expected nil reading value, got %#v", readContexts[0].Reading[0].Value)
 	}
 }
 
@@ -3511,7 +3517,7 @@ func TestReadHoldingRegisters_NoConnection(t *testing.T) {
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
-	verifySingleNilReading(t, readContexts)
+	verifySingleNilReadingValue(t, readContexts)
 }
 
 // Unable to connect to the device. Fail on error is true, which fails all
@@ -3583,7 +3589,7 @@ func TestReadInputRegisters_NoConnection(t *testing.T) {
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
-	verifySingleNilReading(t, readContexts)
+	verifySingleNilReadingValue(t, readContexts)
 }
 
 // Unable to connect to the device. Fail on error is false, which allows
@@ -3615,7 +3621,7 @@ func TestReadCoils_NoConnection(t *testing.T) {
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
-	verifySingleNilReading(t, readContexts)
+	verifySingleNilReadingValue(t, readContexts)
 }
 
 // We will need a read (modbus over IP call) for each device below due to different IPs.

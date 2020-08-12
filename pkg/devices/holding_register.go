@@ -60,6 +60,8 @@ func bulkReadHoldingRegisters(devices []*sdk.Device) (readContexts []*sdk.ReadCo
 			var readResults []byte
 			readResults, err = client.ReadHoldingRegisters(read.StartRegister, read.RegisterCount)
 			incrementModbusCallCounter()
+			log.Debugf("[modbus call]: ReadHoldingRegisters(0x%x, 0x%x), result: %v, len(d%d), err: %v\n",
+				read.StartRegister, read.RegisterCount, readResults, len(readResults), err)
 			if err != nil {
 				log.Errorf("modbus bulk read holding registers failure: %v", err.Error())
 				if modbusDeviceData.FailOnError {
