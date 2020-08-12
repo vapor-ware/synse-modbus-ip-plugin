@@ -21,7 +21,7 @@ var HoldingRegisterHandler = sdk.DeviceHandler{
 // ReadOnlyHoldingRegisterHandler is a handler which should be used for all devices/outputs
 // that read from  holding registers.
 var ReadOnlyHoldingRegisterHandler = sdk.DeviceHandler{
-	Name:     "holding_register",
+	Name:     "read_only_holding_register",
 	BulkRead: bulkReadHoldingRegisters,
 }
 
