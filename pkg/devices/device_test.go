@@ -3494,7 +3494,6 @@ func TestReadHoldingRegisters_NoConnection(t *testing.T) {
 
 	devices := []*sdk.Device{
 		&sdk.Device{
-			//Kind:   "temperature",
 			Info: "Test Temperature",
 			Data: map[string]interface{}{
 				"host":        "10.193.4.250",
@@ -3510,8 +3509,14 @@ func TestReadHoldingRegisters_NoConnection(t *testing.T) {
 		},
 	}
 
+	// Load the devices in the thinggy.
+	PurgeBulkReadManager()
+	for i := 0; i < len(devices); i++ {
+		AddModbusDevice(nil, devices[i])
+	}
+
 	// Make the bulk read call.
-	readContexts, err := bulkReadHoldingRegisters(devices)
+	readContexts, err := bulkReadHoldingRegisters(nil)
 	t.Logf("readContexts, len(readContexts), err: %#v, %v, %v", readContexts, len(readContexts), err)
 	// With fail on error false, we should get a nil reading.
 	if err != nil {
@@ -3540,6 +3545,12 @@ func TestReadHoldingRegisters_NoConnection_FailOnError(t *testing.T) {
 			Output:  "temperature",
 			Handler: "holding_register",
 		},
+	}
+
+	// Load the devices in the thinggy.
+	PurgeBulkReadManager()
+	for i := 0; i < len(devices); i++ {
+		AddModbusDevice(nil, devices[i])
 	}
 
 	// Make the bulk read call.
@@ -3578,8 +3589,14 @@ func TestReadInputRegisters_NoConnection(t *testing.T) {
 				"type":        "s16",
 			},
 			Output:  "temperature",
-			Handler: "holding_register",
+			Handler: "input_register",
 		},
+	}
+
+	// Load the devices in the thinggy.
+	PurgeBulkReadManager()
+	for i := 0; i < len(devices); i++ {
+		AddModbusDevice(nil, devices[i])
 	}
 
 	// Make the bulk read call.
@@ -3610,8 +3627,14 @@ func TestReadCoils_NoConnection(t *testing.T) {
 				"type":        "b",
 			},
 			Output:  "temperature",
-			Handler: "holding_register",
+			Handler: "coil",
 		},
+	}
+
+	// Load the devices in the thinggy.
+	PurgeBulkReadManager()
+	for i := 0; i < len(devices); i++ {
+		AddModbusDevice(nil, devices[i])
 	}
 
 	// Make the bulk read call.

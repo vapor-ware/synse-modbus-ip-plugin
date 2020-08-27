@@ -21,7 +21,7 @@ var CoilsHandler = sdk.DeviceHandler{
 // that only read from coils.
 var ReadOnlyCoilsHandler = sdk.DeviceHandler{
 	Name:     "read_only_coil",
-	BulkRead: bulkReadCoils,
+	BulkRead: bulkReadReadOnlyCoils,
 }
 
 // bulkReadCoils performs a bulk read on the devices parameter reducing round trips.
@@ -29,13 +29,12 @@ func bulkReadCoils(devices []*sdk.Device) (readContexts []*sdk.ReadContext, err 
 
 	log.Debugf("----------- bulkReadCoils start ---------------")
 
-	// Ideally this would be done in setup, but for now this should work.
-	// Map out the bulk read.
-	bulkReadMap, keyOrder, err := MapBulkRead(devices, true)
+	// Call SetupBulkRead in case it's not setup, then get the bulk read map for coils.
+	SetupBulkRead()
+	bulkReadMap, keyOrder, err := GetBulkReadMap("coil")
 	if err != nil {
-		return nil, err
+		return
 	}
-	log.Debugf("bulkReadMap: %#v", bulkReadMap)
 
 	// Perform the bulk reads.
 	for a := 0; a < len(keyOrder); a++ {
@@ -76,6 +75,22 @@ func bulkReadCoils(devices []*sdk.Device) (readContexts []*sdk.ReadContext, err 
 	} // end for each modbus connection
 
 	readContexts, err = MapBulkReadData(bulkReadMap, keyOrder)
+	return
+}
+
+// bulkReadReadOnlyCoils is a noop unless only read only coils are defined and
+// no read/write coils are defined.
+func bulkReadReadOnlyCoils(devices []*sdk.Device) (readContexts []*sdk.ReadContext, err error) {
+	SetupBulkRead()
+	var shortedOut bool
+	shortedOut, err = GetCoilsShortedOut()
+	if err != nil {
+		return
+	}
+	if !shortedOut {
+		// We need to call bulk read here because no read/write coils are defined.
+		return bulkReadCoils(devices)
+	}
 	return
 }
 
