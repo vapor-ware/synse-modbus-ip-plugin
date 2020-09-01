@@ -19,13 +19,9 @@ var InputRegisterHandler = sdk.DeviceHandler{
 func bulkReadInputRegisters(devices []*sdk.Device) (readContexts []*sdk.ReadContext, err error) {
 	log.Debugf("----------- bulkReadInputRegisters start ---------------")
 
-	// Ideally this would be done in setup, but for now this should work.
-	// Map out the bulk read.
-	bulkReadMap, keyOrder, err := MapBulkRead(devices, false)
-	if err != nil {
-		return nil, err
-	}
-	log.Debugf("bulkReadMap: %#v", bulkReadMap)
+	// Call SetupBulkRead in case it's not setup, then get the bulk read map for holding registers.
+	SetupBulkRead()
+	bulkReadMap, keyOrder, err := GetBulkReadMap("input")
 
 	// Perform the bulk reads.
 	for a := 0; a < len(keyOrder); a++ {

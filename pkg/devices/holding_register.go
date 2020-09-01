@@ -22,7 +22,7 @@ var HoldingRegisterHandler = sdk.DeviceHandler{
 // that read from  holding registers.
 var ReadOnlyHoldingRegisterHandler = sdk.DeviceHandler{
 	Name:     "read_only_holding_register",
-	BulkRead: bulkReadHoldingRegisters,
+	BulkRead: bulkReadReadOnlyHoldingRegisters,
 }
 
 // bulkReadHoldingRegisters performs a bulk read on the devices parameter
@@ -30,13 +30,12 @@ var ReadOnlyHoldingRegisterHandler = sdk.DeviceHandler{
 func bulkReadHoldingRegisters(devices []*sdk.Device) (readContexts []*sdk.ReadContext, err error) {
 	log.Debugf("----------- bulkReadHoldingRegisters start ---------------")
 
-	// Ideally this would be done in setup, but for now this should work.
-	// Map out the bulk read.
-	bulkReadMap, keyOrder, err := MapBulkRead(devices, false)
+	// Call SetupBulkRead in case it's not setup, then get the bulk read map for holding registers.
+	SetupBulkRead()
+	bulkReadMap, keyOrder, err := GetBulkReadMap("holding")
 	if err != nil {
-		return nil, err
+		return
 	}
-	log.Debugf("bulkReadMap: %#v", bulkReadMap)
 
 	// Perform the bulk reads.
 	for a := 0; a < len(keyOrder); a++ {
@@ -77,6 +76,22 @@ func bulkReadHoldingRegisters(devices []*sdk.Device) (readContexts []*sdk.ReadCo
 	} // end for each modbus connection
 
 	readContexts, err = MapBulkReadData(bulkReadMap, keyOrder)
+	return
+}
+
+// bulkReadReadOnlyHoldingRegisters is a noop unless only read only holding registers are defined and
+// no read/write holding registers are defined.
+func bulkReadReadOnlyHoldingRegisters(devices []*sdk.Device) (readContexts []*sdk.ReadContext, err error) {
+	SetupBulkRead()
+	var shortedOut bool
+	shortedOut, err = GetHoldingShortedOut()
+	if err != nil {
+		return
+	}
+	if !shortedOut {
+		// We need to call bulk read here because no read/write coils are defined.
+		return bulkReadHoldingRegisters(devices)
+	}
 	return
 }
 
