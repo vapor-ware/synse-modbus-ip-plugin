@@ -9,9 +9,10 @@ import (
 
 func TestCastToType_Ok(t *testing.T) {
 	var tests = []struct {
-		typeName       string
-		value          []byte
-		expected       interface{}
+		typeName string
+		value    []byte
+		expected interface{}
+		// expectedLength is only used for strings.
 		expectedLength int
 	}{
 		// unsigned 8-bit integer
@@ -287,6 +288,42 @@ func TestCastToType_Ok(t *testing.T) {
 			expected:       "4.0.6",
 			expectedLength: len("4.0.6"),
 		},
+
+		// bytes
+		{
+			typeName:       "bytes",
+			value:          []byte{},
+			expected:       []byte{},
+			expectedLength: 0,
+		},
+
+		{
+			typeName: "bytes",
+			value:    []byte{0xff},
+			expected: []byte{0xff},
+		},
+
+		{
+			typeName: "bytes",
+			value:    []byte{0x00, 0x01, 0x02, 0x03},
+			expected: []byte{0x00, 0x01, 0x02, 0x03},
+		},
+
+		// mac address
+		{
+			typeName:       "macAddress",
+			value:          []byte{0xa0, 0x05, 0x92, 0xf3, 0xff, 0x00},
+			expected:       "a0:05:92:f3:ff:00",
+			expectedLength: len("a0:05:92:f3:ff:00"),
+		},
+
+		// mac address wide
+		{
+			typeName:       "macAddressWide",
+			value:          []byte{0x00, 0x58, 0x00, 0x2f, 0x00, 0x42, 0x00, 0x90, 0x00, 0x22, 0x00, 0xac},
+			expected:       "58:2f:42:90:22:ac",
+			expectedLength: len("58:2f:42:90:22:ac"),
+		},
 	}
 
 	for i, tt := range tests {
@@ -328,6 +365,24 @@ func TestCastToType_Error(t *testing.T) {
 		{
 			typeName: "int64",
 			value:    []byte{},
+		},
+		// Invalid bytes for mac address
+		{
+			typeName: "macAddress",
+			value:    []byte{0x00, 0x01, 0x02, 0x03, 0x04},
+		},
+		{
+			typeName: "macAddress",
+			value:    []byte{0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06},
+		},
+		// Invalid bytes for mac address wide
+		{
+			typeName: "macAddressWide",
+			value:    []byte{0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a},
+		},
+		{
+			typeName: "macAddressWide",
+			value:    []byte{0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c},
 		},
 	}
 
