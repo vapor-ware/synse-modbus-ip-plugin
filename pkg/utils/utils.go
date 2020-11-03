@@ -85,6 +85,32 @@ func (b Bytes) Utf8() string {
 	return string(b[:clen(b)])
 }
 
+// MacAddress converts 6 bytes to a printable colon separated string typical of mac addresses.
+func (b Bytes) MacAddress() (out string, err error) {
+	if len(b) != 6 {
+		err = fmt.Errorf("macAddress must be six bytes, is %d", len(b))
+		return
+	}
+	out = fmt.Sprintf(
+		"%02x:%02x:%02x:%02x:%02x:%02x",
+		b[0], b[1], b[2], b[3], b[4], b[5])
+	return
+}
+
+// MacAddressWide converts a byte array made from six uints to a MacAddress.
+func (b Bytes) MacAddressWide() (out string, err error) {
+	if len(b) != 12 {
+		err = fmt.Errorf("macAddress must be 12 bytes, is %d", len(b))
+		return
+	}
+	// Remove every other byte, then it's just a mac address.
+	bts := []byte{}
+	for i := 1; i < len(b); i += 2 {
+		bts = append(bts, b[i])
+	}
+	return Bytes(bts).MacAddress()
+}
+
 // CastToType takes a typeName, which represents a well-known type, and
 // a byte slice and will attempt to cast the byte slice to the named type.
 func CastToType(typeName string, value []byte) (interface{}, error) {
@@ -138,6 +164,18 @@ func CastToType(typeName string, value []byte) (interface{}, error) {
 	case "t", "t16", "string", "utf8":
 		// utf-8 string
 		return Bytes(value).Utf8(), nil
+
+	case "bytes":
+		// raw bytes
+		return value, nil
+
+	case "macaddress":
+		// 6 bytes containing a mac address.
+		return Bytes(value).MacAddress()
+
+	case "macaddresswide":
+		// 12 bytes from 6 uints containing a mac address.
+		return Bytes(value).MacAddressWide()
 
 	default:
 		return nil, fmt.Errorf("unsupported output data type: %s", typeName)
