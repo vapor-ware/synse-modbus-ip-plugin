@@ -21,27 +21,30 @@ const MaximumRegisterCount uint16 = 123
 
 // GetModbusDeviceDataAndClient is common code to get the modbus configuration
 // and client from the device configuration.
+// handler is returned so that the caller can Close it.
 func GetModbusDeviceDataAndClient(device *sdk.Device) (
-	modbusDeviceData *config.ModbusDeviceData, client *modbus.Client, err error) {
+	modbusDeviceData *config.ModbusDeviceData, client *modbus.Client, handler *modbus.TCPClientHandler, err error) {
 
 	// Pull the modbus configuration out of the device Data fields.
 	var deviceData config.ModbusDeviceData
 	err = mapstructure.Decode(device.Data, &deviceData)
 	if err != nil {
-		return nil, nil, err
+		return
 	}
 
 	// Create the modbus client from the configuration data.
-	cli, err := utils.NewClient(&deviceData)
+	cli, handler, err := utils.NewClient(&deviceData)
 	if err != nil {
-		return nil, nil, err
+		return
 	}
-	return &deviceData, &cli, nil
+	return &deviceData, &cli, handler, nil
 }
 
 // GetBulkReadClient gets the modbus client and device data for the
 // connection information in k.
-func GetBulkReadClient(k ModbusBulkReadKey) (client modbus.Client, modbusDeviceData *config.ModbusDeviceData, err error) {
+// handler is returned so that the caller can Close it.
+func GetBulkReadClient(k ModbusBulkReadKey) (
+	client modbus.Client, handler *modbus.TCPClientHandler, modbusDeviceData *config.ModbusDeviceData, err error) {
 	log.Debugf("Creating modbus connection")
 	modbusDeviceData = &config.ModbusDeviceData{
 		Host:        k.Host,
@@ -51,11 +54,11 @@ func GetBulkReadClient(k ModbusBulkReadKey) (client modbus.Client, modbusDeviceD
 		SlaveID:     k.SlaveID,
 	}
 	log.Debugf("modbusDeviceData: %#v", modbusDeviceData)
-	client, err = utils.NewClient(modbusDeviceData)
+	client, handler, err = utils.NewClient(modbusDeviceData)
 	if err != nil {
 		log.Errorf("modbus NewClient failure: %v", err.Error())
 		if modbusDeviceData.FailOnError {
-			return nil, nil, err
+			return
 		}
 	}
 	return
@@ -279,6 +282,7 @@ func MapBulkRead(devices []*sdk.Device, isCoil bool) (
 			Port:                 deviceData.Port,
 			Timeout:              deviceData.Timeout,
 			FailOnError:          deviceData.FailOnError,
+			SlaveID:              deviceData.SlaveID,
 			MaximumRegisterCount: MaximumRegisterCount,
 		}
 		log.Debugf("Created key: %#v", key)
