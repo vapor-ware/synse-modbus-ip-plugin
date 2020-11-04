@@ -176,6 +176,79 @@ func TestBulkReadHoldingRegisters_HoldingRegisterHandlerOnly(t *testing.T) {
 	}
 }
 
+// Test a bulk read on holding registers with handler holding_register. No read_only_holding_register.
+// Slave address is non-zero.
+// Should be one network call.
+func TestBulkReadHoldingRegisters_HoldingRegisterHandlerOnly_NonZeroSlaveAddress(t *testing.T) {
+	// Create the device slice.
+	var devices []*sdk.Device
+
+	// Non-zero start register is deliberate here. It matters when unpacking the data.
+	for i := 1; i <= int(modbusDevices.MaximumRegisterCount); i++ {
+		device := &sdk.Device{
+			Info: fmt.Sprintf("Holding Register %d", i),
+			Data: map[string]interface{}{
+				"host":        "localhost",
+				"port":        1502,
+				"type":        "s16",
+				"width":       1,
+				"failOnError": false,
+				"address":     i,
+				// This is the non-zero slave address.
+				// The busway does not respond to slave address zero.
+				"slaveId": 1,
+			},
+			Output:  "number",
+			Handler: "holding_register",
+		}
+
+		devices = append(devices, device)
+	} // end for
+
+	assert.Equal(t, int(modbusDevices.MaximumRegisterCount), len(devices))
+
+	// Permute device order to test sort.
+	permutedDevices := make([]*sdk.Device, len(devices))
+	perm := rand.Perm(len(devices))
+	for i, v := range perm {
+		permutedDevices[v] = devices[i]
+	}
+
+	// Load the devices in the thinggy.
+	modbusDevices.PurgeBulkReadManager()
+	for i := 0; i < len(permutedDevices); i++ {
+		modbusDevices.AddModbusDevice(nil, permutedDevices[i])
+	}
+
+	// Call bulk read.
+	modbusDevices.ResetModbusCallCounter()                              // Zero out the modbus call counter.
+	contexts, err := modbusDevices.HoldingRegisterHandler.BulkRead(nil) // Devices parameter is ignored internally, so passed in nil.
+
+	assert.NoError(t, err)
+	assert.Equal(t, uint64(1), modbusDevices.GetModbusCallCounter()) // One modbus call on the wire for this bulk read.
+	assert.Equal(t, len(devices), len(contexts))                     // One context per device.
+
+	// Validate
+	for i := 0; i < len(contexts); i++ {
+
+		// Programmatically verify contexts.
+		// contexts[i].Device
+		// Context device is the same as in the ordered device list.
+		assert.Equal(t, devices[i].Info, contexts[i].Device.Info)
+		// Handler is the same.
+		assert.Equal(t, devices[i].Handler, contexts[i].Device.Handler)
+		// Address is the same.
+		assert.Equal(t, devices[i].Data["address"], contexts[i].Device.Data["address"])
+
+		// contexts[i].Reading
+		// One reading per context.
+		assert.Equal(t, 1, len(contexts[i].Reading))
+		// Reading[0] value is address.
+		expectedValue := (devices[i].Data["address"]).(int)
+		assert.Equal(t, expectedValue, int((contexts[i].Reading[0].Value).(int16)))
+	}
+}
+
 // Test a bulk read on input registers 1-103 with handler input_register.
 // Should be one network call.
 func TestBulkReadInputRegisters_InputRegisterHandlerOnly(t *testing.T) {

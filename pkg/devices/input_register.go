@@ -31,8 +31,9 @@ func bulkReadInputRegisters(devices []*sdk.Device) (readContexts []*sdk.ReadCont
 
 		// New connection for each key.
 		var client modbus.Client
+		var handler *modbus.TCPClientHandler
 		var deviceData *config.ModbusDeviceData
-		client, deviceData, err = GetBulkReadClient(k)
+		client, handler, deviceData, err = GetBulkReadClient(k)
 		if err != nil {
 			return nil, err
 		}
@@ -59,6 +60,7 @@ func bulkReadInputRegisters(devices []*sdk.Device) (readContexts []*sdk.ReadCont
 			log.Debugf("ReadInputRegisters: results: 0x%0x, len(results) 0x%0x", readResults, len(readResults))
 			read.ReadResults = readResults[0 : 2*(read.RegisterCount)] // Store raw results. Two bytes per register.
 		} // end for each read
+		handler.Close()
 	} // end for each modbus connection
 
 	readContexts, err = MapBulkReadData(bulkReadMap, keyOrder)

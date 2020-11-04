@@ -45,8 +45,9 @@ func bulkReadHoldingRegisters(devices []*sdk.Device) (readContexts []*sdk.ReadCo
 
 		// New connection for each key.
 		var client modbus.Client
+		var handler *modbus.TCPClientHandler
 		var modbusDeviceData *config.ModbusDeviceData
-		client, modbusDeviceData, err = GetBulkReadClient(k)
+		client, handler, modbusDeviceData, err = GetBulkReadClient(k)
 		if err != nil {
 			return nil, err
 		}
@@ -73,6 +74,7 @@ func bulkReadHoldingRegisters(devices []*sdk.Device) (readContexts []*sdk.ReadCo
 			log.Debugf("ReadHoldingRegisters: results: 0x%0x, len(results) 0x%0x", readResults, len(readResults))
 			read.ReadResults = readResults[0 : 2*(read.RegisterCount)] // Store raw results. Two bytes per register.
 		} // end for each read
+		handler.Close()
 	} // end for each modbus connection
 
 	readContexts, err = MapBulkReadData(bulkReadMap, keyOrder)
@@ -105,7 +107,7 @@ func writeHoldingRegister(device *sdk.Device, data *sdk.WriteData) (err error) {
 		return fmt.Errorf("data is nil")
 	}
 
-	deviceData, client, err := GetModbusDeviceDataAndClient(device)
+	deviceData, client, handler, err := GetModbusDeviceDataAndClient(device)
 	if err != nil {
 		return err
 	}
@@ -124,6 +126,7 @@ func writeHoldingRegister(device *sdk.Device, data *sdk.WriteData) (err error) {
 	register := deviceData.Address
 	log.Debugf("Writing holding register 0x%x, data 0x%x", register, registerData)
 	_, err = (*client).WriteSingleRegister(register, registerData)
+	handler.Close()
 	incrementModbusCallCounter()
 	return err
 }
