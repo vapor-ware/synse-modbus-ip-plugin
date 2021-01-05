@@ -18,6 +18,12 @@ func MakePlugin() *sdk.Plugin {
 	err = plugin.RegisterOutputs(
 		&outputs.GallonsPerMin,
 		&outputs.InchesWaterColumn,
+		&outputs.MacAddressWide,
+		&outputs.PowerFactor,
+		&outputs.VoltAmp,
+		&outputs.VAR,
+		&outputs.WattHour,
+		&outputs.Bytes,
 	)
 	if err != nil {
 		log.Fatal(err)
