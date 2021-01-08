@@ -331,6 +331,14 @@ github.com/vapor-ware/synse-sdk v0.1.0-alpha.0.20200724155421-64f57718083f h1:FH
 github.com/vapor-ware/synse-sdk v0.1.0-alpha.0.20200724155421-64f57718083f/go.mod h1:AnYZ6uMZAvATNuPEAgzQh0e9SLDaVJkXB7wc5wQXUzA=
 github.com/vapor-ware/synse-sdk v0.1.0-alpha.0.20210107025215-1d2b710e4240 h1:NZenvBhPvc+jh6KnwjnkrKNa1BqLFrwbuMhePzmRvWM=
 github.com/vapor-ware/synse-sdk v0.1.0-alpha.0.20210107025215-1d2b710e4240/go.mod h1:/FDqR2WS1Dmt7Mu95s9S+D+6T9Vdwkp9MA40X61hgJo=
+github.com/vapor-ware/synse-sdk v0.1.0-alpha.0.20210107034856-4b5dbf6c9b2e h1:VoqSvw3AAOERU2X7LgQVaDAk5g8DYhBafuvwmRyojoU=
+github.com/vapor-ware/synse-sdk v0.1.0-alpha.0.20210107034856-4b5dbf6c9b2e/go.mod h1:/FDqR2WS1Dmt7Mu95s9S+D+6T9Vdwkp9MA40X61hgJo=
+github.com/vapor-ware/synse-sdk v0.1.0-alpha.0.20210107145743-ec8e451dd20e h1:Lc/W085pteUaPxGzOKVrje3XIZAcrCthOOFaZuZu3pc=
+github.com/vapor-ware/synse-sdk v0.1.0-alpha.0.20210107145743-ec8e451dd20e/go.mod h1:/FDqR2WS1Dmt7Mu95s9S+D+6T9Vdwkp9MA40X61hgJo=
+github.com/vapor-ware/synse-sdk v0.1.0-alpha.0.20210107151327-3b4c47ad4ead h1:zSdyDm/hhQSSqR/LQgiXyCZcJbj+iUvB/YACKs4ApqM=
+github.com/vapor-ware/synse-sdk v0.1.0-alpha.0.20210107151327-3b4c47ad4ead/go.mod h1:/FDqR2WS1Dmt7Mu95s9S+D+6T9Vdwkp9MA40X61hgJo=
+github.com/vapor-ware/synse-sdk v0.1.0-alpha.0.20210107153230-5762d24dd005 h1:FAL1t+LkZL3GPTkcfVb5RL/O7pqwG6tC34uuOR7jad8=
+github.com/vapor-ware/synse-sdk v0.1.0-alpha.0.20210107153230-5762d24dd005/go.mod h1:/FDqR2WS1Dmt7Mu95s9S+D+6T9Vdwkp9MA40X61hgJo=
 github.com/vapor-ware/synse-server-grpc v0.0.2-0.20200327135045-e8fab4d340ea h1:3IenfSpSRcMEmdMMixiKZ2S16X0YvPFNEUvESvHwyAc=
 github.com/vapor-ware/synse-server-grpc v0.0.2-0.20200327135045-e8fab4d340ea/go.mod h1:66oRQ1KV/ZevAiiXbSUjRbx/h91xG/ArE/V39Jh872I=
 github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2/go.mod h1:UETIi67q53MR2AWcXfiuqkDkRtnGDLqkBTpCHuJHxtU=

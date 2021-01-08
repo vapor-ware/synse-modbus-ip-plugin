@@ -75,7 +75,7 @@ lint:  ## Lint project source files
 .PHONY: test
 test:  ## Run project tests
 	@ # Note: this requires go1.10+ in order to do multi-package coverage reports
-	go test -race -coverprofile=coverage.out -covermode=atomic ./pkg/... || exit
+	go test -v -race -timeout=20m -coverprofile=coverage.out -covermode=atomic ./pkg/... || exit
 
 test-endpoints:  ## Run endpoint tests against the emulator from your dev box.
 	# Start emulator

@@ -59,4 +59,17 @@ func TestLargeDeviceConfig(t *testing.T) {
 	loader.AddSearchPaths("./testdata")
 	err := loader.Load(policy.Required)
 	assert.NoError(t, err)
+
+	// Serialize to Devices.
+	//devices := &sdk.Devices{}
+	devices := &sdkConfig.Devices{}
+	err = loader.Scan(devices)
+	assert.NoError(t, err)
+	assert.Equal(t, 3, devices.Version)
+	t.Logf("--- DEVICES ---")
+	t.Logf("len(devices.Devices): %v", len(devices.Devices))
+	for i := 0; i < len(devices.Devices); i++ {
+		t.Logf("devices.Devices[%v]: %#v", i, devices.Devices[i])
+	}
+	//t.Logf("%#v", devices)
 }
