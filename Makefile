@@ -97,7 +97,9 @@ help:  ## Print usage information
 
 # Jenkins CI Targets
 
-.PHONY: ci-integration-test
+.PHONY: unit-test
+unit-test: test
 
-ci-integration-test:
+.PHONY: integration-test
+integration-test:
 	go test -v ./test/...
