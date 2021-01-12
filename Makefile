@@ -100,4 +100,5 @@ help:  ## Print usage information
 .PHONY: ci-integration-test
 
 ci-integration-test:
-	go test -v ./test/...
+	# Temporarily disabled. go test -v ./test/...
+	@echo ci-integration-test disabled
