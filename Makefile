@@ -3,7 +3,7 @@
 #
 
 PLUGIN_NAME    := modbus-ip
-PLUGIN_VERSION := 2.0.8
+PLUGIN_VERSION := 2.0.9
 IMAGE_NAME     := vaporio/modbus-ip-plugin
 BIN_NAME       := synse-modbus-ip-plugin
 
@@ -97,7 +97,9 @@ help:  ## Print usage information
 
 # Jenkins CI Targets
 
-.PHONY: ci-integration-test
+.PHONY: unit-test
+unit-test: test
 
-ci-integration-test:
+.PHONY: integration-test
+integration-test:
 	go test -v ./test/...
