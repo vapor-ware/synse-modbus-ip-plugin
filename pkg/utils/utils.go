@@ -161,8 +161,11 @@ func CastToType(typeName string, value []byte) (interface{}, error) {
 		// bool
 		return Bytes(value).Bool(), nil
 
-	case "t", "t4", "t8", "t12", "t16", "t20", "string", "utf8":
+	case "t", "t4", "t8", "t10", "t12", "t16", "t20", "string", "utf8":
 		// utf-8 string
+		// s is take (signed), t is like the old _T C macro.
+		// The numbers here are two byte words. A t10 string is 20 bytes.
+		// Here we are ignoring the length because data length is handled up the line.
 		return Bytes(value).Utf8(), nil
 
 	case "b16", "bytes":
