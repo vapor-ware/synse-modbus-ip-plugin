@@ -17,7 +17,7 @@ require (
 	github.com/vapor-ware/synse-sdk v0.1.0-alpha.0.20210413152122-9d6dea743ebb
 	golang.org/x/sys v0.0.0-20210608053332-aa57babbf139 // indirect
 	golang.org/x/time v0.0.0-20210608053304-ed9ce3a009e4 // indirect
-	google.golang.org/genproto v0.0.0-20210607140030-00d4fb20b1ae // indirect
+	google.golang.org/genproto v0.0.0-20210608175058-d8f7434f6428 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )
