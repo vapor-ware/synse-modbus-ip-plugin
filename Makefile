@@ -3,7 +3,7 @@
 #
 
 PLUGIN_NAME    := modbus-ip
-PLUGIN_VERSION := 2.1.0
+PLUGIN_VERSION := 2.1.1
 IMAGE_NAME     := vaporio/modbus-ip-plugin
 BIN_NAME       := synse-modbus-ip-plugin
 
