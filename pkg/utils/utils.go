@@ -111,6 +111,13 @@ func (b Bytes) MacAddressWide() (out string, err error) {
 	return Bytes(bts).MacAddress()
 }
 
+// SwapCdabFloat32 swaps bytes from ABCD to CDAB, then converts to float32.
+func (b Bytes) SwapCdabFloat32() (out float32) {
+	x := binary.BigEndian.Uint32(b)
+	x = ((x << 16) & 0xffff0000) | ((x >> 16) & 0x0000ffff)
+	return math.Float32frombits(x)
+}
+
 // CastToType takes a typeName, which represents a well-known type, and
 // a byte slice and will attempt to cast the byte slice to the named type.
 func CastToType(typeName string, value []byte) (interface{}, error) {
@@ -163,7 +170,7 @@ func CastToType(typeName string, value []byte) (interface{}, error) {
 
 	case "t", "t4", "t8", "t10", "t12", "t16", "t20", "string", "utf8":
 		// utf-8 string
-		// s is take (signed), t is like the old _T C macro.
+		// s is taken (signed), t is like the old _T C macro.
 		// The numbers here are two byte words. A t10 string is 20 bytes.
 		// Here we are ignoring the length because data length is handled up the line.
 		return Bytes(value).Utf8(), nil
@@ -179,6 +186,10 @@ func CastToType(typeName string, value []byte) (interface{}, error) {
 	case "macaddresswide":
 		// 12 bytes from 6 uints containing a mac address.
 		return Bytes(value).MacAddressWide()
+
+	case "cdabswapf32":
+		// Swap raw bytes from ABCD to DCBA, then convert to f32.
+		return Bytes(value).SwapCdabFloat32(), nil
 
 	default:
 		return nil, fmt.Errorf("unsupported output data type: %s", typeName)

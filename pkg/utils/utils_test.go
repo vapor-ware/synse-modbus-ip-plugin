@@ -362,6 +362,12 @@ func TestCastToType_Ok(t *testing.T) {
 			expected:       "58:2f:42:90:22:ac",
 			expectedLength: len("58:2f:42:90:22:ac"),
 		},
+		// ABCD byte order swapped to CDAB, then convert to float 32.
+		{
+			typeName: "CDABswapf32",
+			value:    []byte{0x25, 0x35, 0x42, 0x95},
+			expected: float32(74.572670),
+		},
 	}
 
 	for i, tt := range tests {
