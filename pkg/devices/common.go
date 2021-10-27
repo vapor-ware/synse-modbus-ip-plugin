@@ -74,7 +74,7 @@ func UnpackCoilReading(output *output.Output, rawReading []byte, startAddress ui
 
 	if int(byteIndex) >= len(rawReading) {
 		// Make a reading with a nil Reading.Value.
-		reading = output.MakeReading(nil)
+		reading, _ = output.MakeReading(nil)
 		if failOnErr {
 			return reading, fmt.Errorf("failed to get coil data")
 		}
@@ -85,7 +85,7 @@ func UnpackCoilReading(output *output.Output, rawReading []byte, startAddress ui
 	mask := byte(0x01 << bitIndex)
 	coilState := (coilByte & mask) != 0
 
-	return output.MakeReading(coilState), nil
+	return output.MakeReading(coilState)
 	// In this case we will not check the 'failOnError' flag because
 	// this isn't an issue with reading the device, its a configuration
 	// issue and the error should be noted.
@@ -98,7 +98,7 @@ func UnpackReading(output *output.Output, typeName string, rawReading []byte, fa
 	data, err := utils.CastToType(typeName, rawReading)
 	if err != nil {
 		// Make a reading with a nil Reading.Value.
-		reading = output.MakeReading(nil)
+		reading, _ = output.MakeReading(nil)
 		log.Errorf("Failed to cast typeName: %v, rawReading: %x", typeName, rawReading)
 		if failOnErr {
 			return reading, err
@@ -106,7 +106,7 @@ func UnpackReading(output *output.Output, typeName string, rawReading []byte, fa
 		return reading, nil // No reading.
 	}
 
-	return output.MakeReading(data), nil
+	return output.MakeReading(data)
 }
 
 // ModbusBulkReadKey corresponds to a Modbus Device / Connection.
@@ -427,7 +427,10 @@ func MapBulkReadData(bulkReadMap map[ModbusBulkReadKey][]*ModbusBulkRead, keyOrd
 						log.Errorf("No data. Attempt to read beyond bounds. startDataOffset: %v, endDataOffset: %v, readResultsLength: %v",
 							startDataOffset, endDataOffset, readResultsLength)
 						// Make a reading with a nil Reading.Value.
-						reading = theOutput.MakeReading(nil)
+						reading, err = theOutput.MakeReading(nil)
+						if err != nil {
+							return nil, err
+						}
 						readings = append(readings, reading)
 						// Append a read context here for the nil reading.
 						readContext := sdk.NewReadContext(device, readings)

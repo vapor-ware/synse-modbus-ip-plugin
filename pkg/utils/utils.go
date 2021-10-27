@@ -118,6 +118,36 @@ func (b Bytes) SwapCdabFloat32() (out float32) {
 	return math.Float32frombits(x)
 }
 
+// CpmModelNumber is specific to busway CPM data at register 0x12C.
+// The documentation for this is "Model Number" and tech support is not there.
+// We see hex data coming in like 0x00000000000000004634303039303335.
+// In this case, trim the leading 0x00s and convert to string.
+// Data above converts to F4009036
+func (b Bytes) CpmModelNumber() (out string) {
+	i := 0
+	for ; i < len(b); i++ {
+		if b[i] != 0x00 {
+			break
+		}
+	}
+	return string(b[i:])
+}
+
+// CpmSerialNumber is specific to busway CPM data at register 0x134.
+// The documentation for this is "Serial Number" and tech support is not there.
+// We see hex data coming in like 0x2d53312d383838003030323937303800.
+// In this case, convert 0x00 to ASCII space and convert to string.
+// Trim leading and trailing whitekspace.
+// Data above converts to -S1-21- 0030177
+func (b Bytes) CpmSerialNumber() (out string) {
+	for i := 0; i < len(b); i++ {
+		if b[i] == 0x00 {
+			b[i] = 0x20
+		}
+	}
+	return strings.TrimSpace(string(b))
+}
+
 // CastToType takes a typeName, which represents a well-known type, and
 // a byte slice and will attempt to cast the byte slice to the named type.
 func CastToType(typeName string, value []byte) (interface{}, error) {
@@ -176,8 +206,9 @@ func CastToType(typeName string, value []byte) (interface{}, error) {
 		return Bytes(value).Utf8(), nil
 
 	case "b16", "bytes":
-		// raw bytes
-		return value, nil
+		// Raw bytes are deprecated. GRPC may not handle them in the way we might think.
+		// They're not especially useful to the synse client either.
+		return nil, fmt.Errorf("unsupported output data type: %s", typeName)
 
 	case "macaddress":
 		// 6 bytes containing a mac address.
@@ -190,6 +221,14 @@ func CastToType(typeName string, value []byte) (interface{}, error) {
 	case "cdabswapf32":
 		// Swap raw bytes from ABCD to DCBA, then convert to f32.
 		return Bytes(value).SwapCdabFloat32(), nil
+
+	case "cpmmodelnumber":
+		// Busway CPM Model Number.
+		return Bytes(value).CpmModelNumber(), nil
+
+	case "cpmserialnumber":
+		// Busway CPM Serial Number.
+		return Bytes(value).CpmSerialNumber(), nil
 
 	default:
 		return nil, fmt.Errorf("unsupported output data type: %s", typeName)
