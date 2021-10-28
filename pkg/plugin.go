@@ -23,7 +23,7 @@ func MakePlugin() *sdk.Plugin {
 		&outputs.VoltAmp,
 		&outputs.VAR,
 		&outputs.WattHour,
-		&outputs.Bytes,
+		&outputs.Identity,
 	)
 	if err != nil {
 		log.Fatal(err)
