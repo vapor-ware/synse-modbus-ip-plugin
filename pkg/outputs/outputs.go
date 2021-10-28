@@ -74,9 +74,10 @@ var (
 		},
 	}
 
-	// Bytes are arbitrary bytes.
-	Bytes = output.Output{
-		Name: "bytes",
-		Type: "bytes",
+	// Identity describes readings with identity outputs.
+	// Examples are model number and serial number.
+	Identity = output.Output{
+		Name: "identity",
+		Type: "identity",
 	}
 )
