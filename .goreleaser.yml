@@ -34,13 +34,11 @@ dockers:
   -
     goos: linux
     goarch: amd64
-    binaries:
-      - synse-modbus-ip-plugin
     image_templates:
-      - vaporio/modbus-ip-plugin:{{ .Tag }}
-      - vaporio/modbus-ip-plugin:{{ .Major }}
-      - vaporio/modbus-ip-plugin:{{ .Major }}.{{ .Minor }}
-      - vaporio/modbus-ip-plugin:latest
+      - docker.io/vaporio/modbus-ip-plugin:{{ .Tag }}
+      - docker.io/vaporio/modbus-ip-plugin:{{ .Major }}
+      - docker.io/vaporio/modbus-ip-plugin:{{ .Major }}.{{ .Minor }}
+      - docker.io/vaporio/modbus-ip-plugin:latest
     build_flag_templates:
       - "--label=org.label-schema.version={{ .Version }}"
       - "--label=org.label-schema.build-date={{ .Date }}"
