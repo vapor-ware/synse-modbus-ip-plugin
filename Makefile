@@ -1,9 +1,12 @@
 #
 # Synse Modbus TCP/IP Plugin
 #
+# Typical Makefile usage on a dev box:
+# make clean build fmt lint test test-endpoints ; echo $?
+#
 
 PLUGIN_NAME    := modbus-ip
-PLUGIN_VERSION := 2.1.6
+PLUGIN_VERSION := 2.1.7
 IMAGE_NAME     := vaporio/modbus-ip-plugin
 BIN_NAME       := synse-modbus-ip-plugin
 
