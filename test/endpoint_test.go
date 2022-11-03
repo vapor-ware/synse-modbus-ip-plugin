@@ -8,7 +8,7 @@ import (
 	"github.com/goburrow/modbus"
 	"github.com/stretchr/testify/assert"
 	modbusDevices "github.com/vapor-ware/synse-modbus-ip-plugin/pkg/devices"
-	"github.com/vapor-ware/synse-sdk/sdk"
+	"github.com/vapor-ware/synse-sdk/v2/sdk"
 )
 
 var host = "localhost" // run on local machine

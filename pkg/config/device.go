@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/mitchellh/mapstructure"
-	"github.com/vapor-ware/synse-sdk/sdk"
+	"github.com/vapor-ware/synse-sdk/v2/sdk"
 )
 
 // ModbusDeviceData is the decoded yaml of the sdk.Device,

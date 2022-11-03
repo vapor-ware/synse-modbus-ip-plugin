@@ -6,7 +6,7 @@ import (
 	"github.com/goburrow/modbus"
 	log "github.com/sirupsen/logrus"
 	"github.com/vapor-ware/synse-modbus-ip-plugin/pkg/config"
-	"github.com/vapor-ware/synse-sdk/sdk"
+	"github.com/vapor-ware/synse-sdk/v2/sdk"
 )
 
 // CoilsHandler is a handler that should be used for all devices/outputs

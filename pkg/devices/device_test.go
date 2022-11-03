@@ -7,9 +7,9 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	modbusOutput "github.com/vapor-ware/synse-modbus-ip-plugin/pkg/outputs"
-	"github.com/vapor-ware/synse-sdk/sdk"
-	"github.com/vapor-ware/synse-sdk/sdk/funcs"
-	"github.com/vapor-ware/synse-sdk/sdk/output"
+	"github.com/vapor-ware/synse-sdk/v2/sdk"
+	"github.com/vapor-ware/synse-sdk/v2/sdk/funcs"
+	"github.com/vapor-ware/synse-sdk/v2/sdk/output"
 )
 
 // testData for raw data from modbus.
@@ -119,7 +119,7 @@ func dumpReadContexts(t *testing.T, readContexts []*sdk.ReadContext) {
 }
 
 // dumpReadings dumps out the given readings to the test log.
-//func dumpReadings(t *testing.T, readings []*output.Reading) {
+// func dumpReadings(t *testing.T, readings []*output.Reading) {
 func dumpReadings(t *testing.T, readings []*output.Reading) {
 	for i := 0; i < len(readings); i++ {
 		t.Logf("reading[%v]: %#v", i, readings[i])
@@ -253,12 +253,13 @@ const defaultTimeout = "10s"
 
 // getEGaugeDevices gets one wedge worth of EGauge devices for testing.
 // There may be more than what we need here, but:
-// - We needed to check if bulk reads work.
-// - We can pare this down later as needed.
-// - The number of reads will not likely change due to modbus call register
-//   limits and the register map itself.
-// - It is simpler to remove devices rather than add them when under the gun in
-//   the field.
+//   - We needed to check if bulk reads work.
+//   - We can pare this down later as needed.
+//   - The number of reads will not likely change due to modbus call register
+//     limits and the register map itself.
+//   - It is simpler to remove devices rather than add them when under the gun in
+//     the field.
+//
 // The current number of bulk reads required per EGauge is 10.
 // FUTURE: Six egauges, one per wedge. Rack will be different for each one.
 func getEGaugeDevices() (devices []*sdk.Device) {
