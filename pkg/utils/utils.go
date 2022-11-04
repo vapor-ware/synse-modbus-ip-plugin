@@ -137,7 +137,7 @@ func (b Bytes) CpmModelNumber() (out string) {
 // The documentation for this is "Serial Number" and tech support is not there.
 // We see hex data coming in like 0x2d53312d383838003030323937303800.
 // In this case, convert 0x00 to ASCII space and convert to string.
-// Trim leading and trailing whitekspace.
+// Trim leading and trailing whitespace.
 // Data above converts to -S1-21- 0030177
 func (b Bytes) CpmSerialNumber() (out string) {
 	for i := 0; i < len(b); i++ {

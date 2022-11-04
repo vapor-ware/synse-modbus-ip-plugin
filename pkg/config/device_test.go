@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/vapor-ware/synse-sdk/sdk"
+	"github.com/vapor-ware/synse-sdk/v2/sdk"
 )
 
 func TestModbusDeviceDataFromDevice(t *testing.T) {
