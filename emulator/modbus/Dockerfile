@@ -1,12 +1,12 @@
 #
 # Builder Image.
 #
-FROM docker.io/vaporio/python:3.7 as builder
+FROM docker.io/vaporio/python:3.11 as builder
 COPY requirements.txt .
 
 ARG ARCH=amd64
 
-RUN pip install --no-deps --target=/build/lib/python3.7 --platform ${ARCH} -r requirements.txt --no-warn-script-location \
+RUN pip install --no-deps --target=/build/lib/python3.11 --platform ${ARCH} -r requirements.txt --no-warn-script-location \
  && rm -rf /root/.cache
 
 # Copy source to builder. Install modbus through setup.py.
@@ -19,7 +19,7 @@ RUN pip install --no-deps --prefix=/build --no-warn-script-location /modbus \
 #
 
 # Use the slim image. Copy in installed modbus from the builder.
-FROM docker.io/vaporio/python:3.7-slim
+FROM docker.io/vaporio/python:3.11-slim
 COPY --from=builder /build /usr/local
 
 # Start modbus server / emulator app to test against.
